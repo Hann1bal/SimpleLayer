@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "dgSpecHash": "3OzFdJY94yM5rWBLP6TW4Zys6P479WLhYEN9pquMYV7L9nZJT2/PzSuG5TyKXaOrcWXABfr6YHJbSKL281WD/A==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\wertu\\SimpleLayer\\SimpleLayer\\SimpleLayer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\wertu\\.nuget\\packages\\libjpeg\\9.0.1.4\\libjpeg.9.0.1.4.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\libjpeg.redist\\9.0.1.4\\libjpeg.redist.9.0.1.4.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\libpng\\1.6.19.1\\libpng.1.6.19.1.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\libpng.redist\\1.6.19.1\\libpng.redist.1.6.19.1.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\libtiff\\4.0.6.2\\libtiff.4.0.6.2.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\libtiff.redist\\4.0.6.2\\libtiff.redist.4.0.6.2.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\sayers.sdl2.core\\1.0.11\\sayers.sdl2.core.1.0.11.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\sdl\\1.2.15.16\\sdl.1.2.15.16.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\sdl.redist\\1.2.15.16\\sdl.redist.1.2.15.16.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\sdl2.nuget\\2.0.20\\sdl2.nuget.2.0.20.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\sdl2.nuget.redist\\2.0.20\\sdl2.nuget.redist.2.0.20.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\sdl2_ttf.nuget\\2.0.18\\sdl2_ttf.nuget.2.0.18.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\sdl2_ttf.nuget.redist\\2.0.18\\sdl2_ttf.nuget.redist.2.0.18.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\sdl_image\\1.2.12.3\\sdl_image.1.2.12.3.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\sdl_image.redist\\1.2.12.3\\sdl_image.redist.1.2.12.3.nupkg.sha512",
+    "C:\\Users\\wertu\\.nuget\\packages\\zlib\\1.2.8.8\\zlib.1.2.8.8.nupkg.sha512"
+  ],
+  "logs": []
+}
