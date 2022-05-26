@@ -166,12 +166,14 @@ public class Game : IDisposable
         SDL_RenderPresent(_renderer);
     }
 
+    /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
     public void Dispose()
     {
         _textureManager.ClearAllTexture();
         SDL_DestroyRenderer(_renderer);
         SDL_DestroyWindow(_window);
         SDL_Quit();
+        GC.SuppressFinalize(this);
         GC.Collect();
     }
 

@@ -37,15 +37,12 @@ public class Building : GameBaseObject
         foreach (var unit in _units.ToList())
         {
             unit.Move();
-            if (unit._dRect.x + unit._dRect.w > 3200)
-            {
-                unit._Speed = 0;
-                Console.WriteLine(_units.Count);
-                unit.Dispose();
-
-                _units.Remove(unit);
-                Console.WriteLine(_units.Count);
-            }
+            if (unit._dRect.x + unit._dRect.w <= 3200) continue;
+            unit._Speed = 0;
+            Console.WriteLine(_units.Count);
+            unit.Dispose();
+            _units.Remove(unit);
+            Console.WriteLine(_units.Count);
         }
     }
 

@@ -27,9 +27,10 @@ public class Unit : GameBaseObject, IDisposable
         base.Render(ref camera);
     }
 
-    public void Dispose()
+    public new void Dispose()
     {
         _renderer = IntPtr.Zero;
         base.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
