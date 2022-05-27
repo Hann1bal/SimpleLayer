@@ -13,7 +13,7 @@ public class GameBaseObject : IGameBaseObject
     public string _textureName;
     private bool _disposedValue;
 
-    public GameBaseObject(ref IntPtr renderer, string textureName, int xPos, int yPos,
+    public GameBaseObject(ref IntPtr renderer,  string textureName, int xPos, int yPos,
         int healtPpoint)
     {
         unsafe
@@ -72,6 +72,8 @@ public class GameBaseObject : IGameBaseObject
     public void Dispose()
     {
         GC.SuppressFinalize(this);
+        GC.SuppressFinalize(_textureName);
+
         GC.SuppressFinalize(_dRect);
         GC.SuppressFinalize(_sRect);
         GC.Collect(GC.MaxGeneration);

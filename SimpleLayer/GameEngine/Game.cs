@@ -29,7 +29,7 @@ public class Game : IDisposable
 
     private void Init()
     {
-        if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
+        if (SDL_Init(SDL_INIT_VIDEO) < 0)
         {
             Console.WriteLine($"There was an issue initializing SDL. {SDL_GetError()}");
         }
@@ -66,6 +66,7 @@ public class Game : IDisposable
         {
             Console.WriteLine($"There was an issue creating the renderer. {SDL_ttf.TTF_GetError()}");
         }
+
         monserat =
             SDL_ttf.TTF_OpenFont($"./Data/Fonts/OpenSans.ttf", 10);
     }
@@ -82,7 +83,7 @@ public class Game : IDisposable
                 case SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     yPos = e.button.y + _camera._cameraRect.y;
                     xPos = e.button.x + _camera._cameraRect.x;
-                    playersBuildings.Add(new Building(ref _renderer,  "necropolis", (int) xPos,
+                    playersBuildings.Add(new Building(ref _renderer, "necropolis", (int) xPos,
                         (int) yPos, 15));
                     break;
                 case SDL_EventType.SDL_KEYDOWN:
@@ -128,25 +129,34 @@ public class Game : IDisposable
 
     private void DrawText()
     {
+        string text = new("");
+
+
         var cnt = 0;
         foreach (var build in playersBuildings)
         {
             message = SDL_ttf.TTF_RenderText_Solid(monserat,
-                $"{build._textureName}{cnt}  - List with {build._units.Count}", _color
-            );
-
+                $"{text}", _color);
             var textureWreed = SDL_CreateTextureFromSurface(_renderer, message);
+            text = $"{build._textureName}{cnt} contains {build._units.Count}";
+            SDL_Rect newRectangle = new()
+            {
+                h = mes.h,
+                w = mes.w,
+                x = mes.x,
+                y = mes.y
+            };
+
             mes.x = 0; //controls the rect's x coorinate 
             mes.y = 0 + cnt * 100; // controls the rect's y coordinte
             mes.w = 1000; // controls the width of the rect
             mes.h = 100; // controls the height of the rect
-            SDL_Rect newRectangle = new()
-            {
-                h = mes.h, w = mes.w, x = mes.x, y = mes.y
-            };
+
             SDL_RenderCopy(_renderer, textureWreed, IntPtr.Zero, ref newRectangle);
-            cnt++;
+            SDL_FreeSurface(message);
+            message = IntPtr.Zero;
             SDL_DestroyTexture(textureWreed);
+            cnt++;
         }
     }
 
@@ -161,8 +171,7 @@ public class Game : IDisposable
             building.RenderAllUnits(ref _camera, ref _textureManager);
         }
 
-        DrawText();
-
+        //DrawText();
         SDL_RenderPresent(_renderer);
     }
 
