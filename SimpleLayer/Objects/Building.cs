@@ -13,12 +13,11 @@ public class Building : GameBaseObject
     private int _healtPoint;
     private uint _lastTick = 0;
 
-    public Building(ref IntPtr renderer,  ref Texture textureManager, string textureName, int xPos, int yPos,
+    public Building(ref IntPtr renderer,   string textureName, int xPos, int yPos,
         int healtPpoint) :
-        base(ref renderer,  ref textureManager, textureName, xPos, yPos, healtPpoint)
+        base(ref renderer,  textureName, xPos, yPos, healtPpoint)
     {
         _renderer = renderer;
-        _textureManager = textureManager;
         _xPos = xPos;
         _yPos = yPos;
         _healtPoint = healtPpoint;
@@ -28,7 +27,7 @@ public class Building : GameBaseObject
     public void Spawn()
     {
         if (SDL.SDL_GetTicks() - _lastTick <= 5000) return;
-        _units.Add(new Unit(ref _renderer, ref _textureManager, "dude", _xPos, _yPos, 5));
+        _units.Add(new Unit(ref _renderer, "dude", _xPos, _yPos, 5));
         _lastTick = SDL.SDL_GetTicks();
     }
 
@@ -46,11 +45,11 @@ public class Building : GameBaseObject
         }
     }
 
-    public void RenderAllUnits(ref Camera camera)
+    public void RenderAllUnits(ref Camera camera,  ref Texture textureManager)
     {
         foreach (var unit in _units)
         {
-            unit.Render(ref camera);
+            unit.Render(ref camera, ref textureManager);
         }
     }
 

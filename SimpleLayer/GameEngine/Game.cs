@@ -40,7 +40,7 @@ public class Game : IDisposable
             SDL_WINDOWPOS_CENTERED,
             1920,
             1080,
-            SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS | SDL_WindowFlags.SDL_WINDOW_OPENGL);
+            SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS | SDL_WindowFlags.SDL_WINDOW_SHOWN);
 
         if (_window == IntPtr.Zero)
         {
@@ -67,7 +67,7 @@ public class Game : IDisposable
             Console.WriteLine($"There was an issue creating the renderer. {SDL_ttf.TTF_GetError()}");
         }
         monserat =
-            SDL_ttf.TTF_OpenFont("C:\\Users\\wertu\\SimpleLayer\\SimpleLayer\\Data\\Fonts\\OpenSans.ttf", 10);
+            SDL_ttf.TTF_OpenFont($"./Data/Fonts/OpenSans.ttf", 10);
     }
 
     private void PollEvents()
@@ -82,7 +82,7 @@ public class Game : IDisposable
                 case SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     yPos = e.button.y + _camera._cameraRect.y;
                     xPos = e.button.x + _camera._cameraRect.x;
-                    playersBuildings.Add(new Building(ref _renderer, ref _textureManager, "necropolis", (int) xPos,
+                    playersBuildings.Add(new Building(ref _renderer,  "necropolis", (int) xPos,
                         (int) yPos, 15));
                     break;
                 case SDL_EventType.SDL_KEYDOWN:
@@ -157,8 +157,8 @@ public class Game : IDisposable
         _level.DrawMap(_camera);
         foreach (var building in playersBuildings)
         {
-            building.Render(ref _camera);
-            building.RenderAllUnits(ref _camera);
+            building.Render(ref _camera, ref _textureManager);
+            building.RenderAllUnits(ref _camera, ref _textureManager);
         }
 
         DrawText();

@@ -6,31 +6,28 @@ namespace SimpleLayer.Objects;
 public class GameBaseObject : IGameBaseObject
 {
     public int xPosition, yPosition;
-    private IntPtr _intTexture;
     public SDL.SDL_Rect _sRect;
     public SDL.SDL_Rect _dRect;
-    private IntPtr _rendererObject;
-    private Texture _textureManager;
+    private readonly IntPtr _rendererObject;
     public int _healtPpoint;
     public string _textureName;
     private bool _disposedValue;
 
-    public GameBaseObject(ref IntPtr renderer, ref Texture textureManager, string textureName, int xPos, int yPos,
+    public GameBaseObject(ref IntPtr renderer, string textureName, int xPos, int yPos,
         int healtPpoint)
     {
         unsafe
         {
             _healtPpoint = healtPpoint;
             _rendererObject = renderer;
-            _textureManager = textureManager;
-            _intTexture = (IntPtr) _textureManager.Dictionary[textureName].ToPointer();
+
             xPosition = xPos;
             yPosition = yPos;
             _textureName = textureName;
         }
     }
 
-    public void Render(ref Camera camera)
+    public void Render(ref Camera camera, ref Texture textureManager)
     {
         SDL.SDL_Rect newRectangle = new()
         {
@@ -43,7 +40,7 @@ public class GameBaseObject : IGameBaseObject
             return;
         }
 
-        SDL.SDL_RenderCopy(_rendererObject, _intTexture, ref _sRect, ref newRectangle);
+        SDL.SDL_RenderCopy(_rendererObject, textureManager.Dictionary[_textureName], ref _sRect, ref newRectangle);
     }
 
     public void Update()
@@ -74,12 +71,10 @@ public class GameBaseObject : IGameBaseObject
 
     public void Dispose()
     {
-        _rendererObject = IntPtr.Zero;
-        _intTexture = IntPtr.Zero; 
         GC.SuppressFinalize(this);
         GC.SuppressFinalize(_dRect);
         GC.SuppressFinalize(_sRect);
-        GC.ReRegisterForFinalize(this);
+        GC.Collect(GC.MaxGeneration);
         Console.WriteLine($"{_textureName} has been destroyed");
     }
 }

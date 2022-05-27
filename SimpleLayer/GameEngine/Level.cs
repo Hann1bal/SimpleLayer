@@ -22,7 +22,7 @@ public class Level
     public readonly int LevelStartY = 0;
     public readonly int LevelEndX = 3200;
     public readonly int LevelEndY = 3200;
-    private Texture _textureManager;
+    private readonly Texture _textureManager;
     private IntPtr _renderer;
     public SDL.SDL_Rect _sRect, _dRect;
     private int[,] _levelMatrix;

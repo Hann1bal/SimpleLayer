@@ -1,7 +1,6 @@
 ﻿using SDL2;
-using System;
 
-namespace SimpleLayer;
+namespace SimpleLayer.GameEngine;
 
 public class Texture
 {
@@ -10,7 +9,7 @@ public class Texture
 
     private void GetAllTexturePath()
     {
-        foreach (var path in Directory.GetFiles("C:\\Users\\wertu\\SimpleLayer\\SimpleLayer\\Data\\Texture",
+        foreach (var path in Directory.GetFiles("./Data/Texture",
                      "*.png", SearchOption.AllDirectories))
         {
             _pathList.Add(Path.GetFileName(path).Split(".").First(), path);
