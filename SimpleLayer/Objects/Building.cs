@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Numerics;
 using SDL2;
 using SimpleLayer.GameEngine;
 
@@ -6,58 +7,42 @@ namespace SimpleLayer.Objects;
 
 public class Building : GameBaseObject
 {
-    public  Collection<Unit> _units = new Collection<Unit>();
+    public List<Unit> Units = new();
     private IntPtr _renderer;
-    private Texture _textureManager;
-    private int _xPos, _yPos;
+    private readonly int _xPos;
+    private readonly int _yPos;
     private int _healtPoint;
-    private uint _lastTick = 0;
+    public readonly uint SpawnRate = 5000;
+    public uint LastTick { get; set; }
+    private new readonly int _team;
+    public readonly bool IsFactory;
 
-    public Building(ref IntPtr renderer,   string textureName, int xPos, int yPos,
-        int healtPpoint) :
-        base(ref renderer,  textureName, xPos, yPos, healtPpoint)
+    public Building(ref IntPtr renderer, string textureName, int xPos, int yPos,
+        int healtPpoint, int team, bool isFactory = true) :
+        base(ref renderer, textureName, xPos, yPos, healtPpoint, team)
     {
+        _team = team;
         _renderer = renderer;
         _xPos = xPos;
         _yPos = yPos;
         _healtPoint = healtPpoint;
-        _lastTick = SDL.SDL_GetTicks();
+        LastTick = SDL.SDL_GetTicks();
+        IsFactory = isFactory;
     }
 
-    public void Spawn()
+    public Unit Spawn()
     {
-        if (SDL.SDL_GetTicks() - _lastTick <= 5000) return;
-        _units.Add(new Unit(ref _renderer, "dude", _xPos, _yPos, 5));
-        _lastTick = SDL.SDL_GetTicks();
+        var unit = new Unit(ref _renderer, "dude", _xPos, _yPos, 5, _team);
+        Units.Add(unit);
+        return unit;
     }
-
-    public void MoveAllUnits()
+    
+    public void RenderAllUnits(ref Camera camera, ref Texture textureManager)
     {
-        foreach (var unit in _units.ToList())
-        {
-            unit.Move();
-            if (unit._dRect.x + unit._dRect.w <= 3200) continue;
-            unit._Speed = 0;
-            Console.WriteLine(_units.Count);
-            unit.Dispose();
-            _units.Remove(unit);
-            Console.WriteLine(_units.Count);
-        }
-    }
-
-    public void RenderAllUnits(ref Camera camera,  ref Texture textureManager)
-    {
-        foreach (var unit in _units)
+        foreach (var unit in Units.ToArray())
         {
             unit.Render(ref camera, ref textureManager);
         }
     }
-
-    public void UpdateAllUnits()
-    {
-        foreach (var unit in _units)
-        {
-            unit.Update();
-        }
-    }
+    
 }

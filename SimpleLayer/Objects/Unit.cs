@@ -1,27 +1,25 @@
-﻿using SimpleLayer.GameEngine;
+﻿using System.Diagnostics;
+using System.Numerics;
+using SimpleLayer.GameEngine;
 
 namespace SimpleLayer.Objects;
 
 public class Unit : GameBaseObject, IDisposable
 {
     private IntPtr _renderer;
-    public int _Speed = 1;
+    private const int Speed = 1;
 
     public Unit(ref IntPtr renderer, string textureName, int xPos, int yPos,
-        int healtPpoint) :
-        base(ref renderer, textureName, xPos, yPos, healtPpoint)
+        int healtPpoint, int team) :
+        base(ref renderer, textureName, xPos, yPos, healtPpoint, team)
     {
         _renderer = renderer;
     }
 
-    public void Move()
-    {
-        base.xPosition += 1 * _Speed;
-    }
 
-    public void Render(ref Camera camera,  ref Texture textureManager)
+    public new void Render(ref Camera camera, ref Texture textureManager)
     {
-        base.Render(ref camera, ref textureManager );
+        base.Render(ref camera, ref textureManager);
     }
 
     public new void Dispose()

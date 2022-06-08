@@ -1,4 +1,5 @@
-﻿using SDL2;
+﻿using System.Numerics;
+using SDL2;
 using SimpleLayer.GameEngine;
 
 namespace SimpleLayer.Objects;
@@ -12,26 +13,36 @@ public class GameBaseObject : IGameBaseObject
     public int _healtPpoint;
     public string _textureName;
     private bool _disposedValue;
+    public Vector2 _lastQuadrant;
+    public GameBaseObject _target;
+    public int _targetDistance;
+    public int _team;
+    public bool isDead;
 
-    public GameBaseObject(ref IntPtr renderer,  string textureName, int xPos, int yPos,
-        int healtPpoint)
+    public GameBaseObject(ref IntPtr renderer, string textureName, int xPos, int yPos,
+        int healtPpoint, int team)
     {
-        unsafe
-        {
-            _healtPpoint = healtPpoint;
-            _rendererObject = renderer;
+        _team = team;
+        _healtPpoint = healtPpoint;
+        _rendererObject = renderer;
 
-            xPosition = xPos;
-            yPosition = yPos;
-            _textureName = textureName;
-        }
+        xPosition = xPos;
+        yPosition = yPos;
+        _textureName = textureName;
+        _sRect.h = 300;
+        _sRect.w = 300;
+        _dRect.x = xPosition;
+        _dRect.y = yPosition;
+        _dRect.w = _sRect.w / 10;
+        _dRect.h = _sRect.h / 10;
     }
 
     public void Render(ref Camera camera, ref Texture textureManager)
     {
         SDL.SDL_Rect newRectangle = new()
         {
-            h = _dRect.h, w = _dRect.w, x = _dRect.x - camera._cameraRect.x, y = _dRect.y - camera._cameraRect.y
+            h = _sRect.w / 10, w = _sRect.w / 10, x = xPosition - camera._cameraRect.x,
+            y = yPosition - camera._cameraRect.y
         };
 
         if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + camera._cameraRect.w ||
@@ -42,32 +53,19 @@ public class GameBaseObject : IGameBaseObject
 
         SDL.SDL_RenderCopy(_rendererObject, textureManager.Dictionary[_textureName], ref _sRect, ref newRectangle);
     }
-
     public void Update()
     {
-        _sRect.h = 300;
-        _sRect.w = 300;
-        // _sRect.x = 0;
-        // _sRect.y = 0;
-        _dRect.x = xPosition;
-        _dRect.y = yPosition;
-        _dRect.w = _sRect.w / 10;
-        _dRect.h = _sRect.h / 10;
     }
 
     public void Move()
     {
     }
 
-    public void CheckCollision()
-    {
-    }
 
     ~GameBaseObject()
     {
         Dispose();
     }
-
 
     public void Dispose()
     {
@@ -77,6 +75,5 @@ public class GameBaseObject : IGameBaseObject
         GC.SuppressFinalize(_dRect);
         GC.SuppressFinalize(_sRect);
         GC.Collect(GC.MaxGeneration);
-        Console.WriteLine($"{_textureName} has been destroyed");
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using SDL2;
+using static SDL2.SDL;
 
 namespace SimpleLayer.GameEngine;
 //Grass
@@ -16,30 +16,30 @@ namespace SimpleLayer.GameEngine;
 
 public class Level
 {
-    public const int _levelWidth = 3200;
-    public const int _levelHeight = 3200;
-    public readonly int LevelStartX = 0;
-    public readonly int LevelStartY = 0;
-    public readonly int LevelEndX = 3200;
-    public readonly int LevelEndY = 3200;
+    public const int LevelWidth = 3200;
+    public const int LevelHeight = 3200;
+    public const int LevelStartX = 0;
+    public const int LevelStartY = 0;
+    public const int LevelEndX = LevelStartX + LevelWidth;
+    public const int LevelEndY = LevelStartY + LevelHeight;
     private readonly Texture _textureManager;
     private IntPtr _renderer;
-    public SDL.SDL_Rect _sRect, _dRect;
+    public SDL_Rect _sRect, _dRect;
     private int[,] _levelMatrix;
-    private Vector2 tiles = new Vector2();
+
     public Level(IntPtr renderer, Texture textureManager)
     {
         _textureManager = textureManager;
-        _levelMatrix = new int[_levelWidth / 32, _levelHeight / 32];
+        _levelMatrix = new int[LevelWidth / 32, LevelHeight / 32];
         _renderer = renderer;
         GenerateMatrixValue();
     }
 
     private void GenerateMatrixValue()
     {
-        for (var x = 0; x <= (_levelWidth / 32) - 1; x++)
+        for (var x = 0; x <= (LevelWidth / 32) - 1; x++)
         {
-            for (var y = 0; y <= (_levelHeight / 32) - 1; y++)
+            for (var y = 0; y <= (LevelHeight / 32) - 1; y++)
             {
                 if (x is >= 25 and <= 68)
                 {
@@ -66,9 +66,9 @@ public class Level
         _sRect.w = 32;
         _dRect.w = 32;
         _dRect.h = 32;
-        for (int x = 0; x < (_levelWidth / 32); x++)
+        for (var x = 0; x < (LevelWidth / 32); x++)
         {
-            for (int y = 0; y < (_levelHeight / 32); y++)
+            for (var y = 0; y < (LevelHeight / 32); y++)
             {
                 switch (_levelMatrix[x, y])
                 {
@@ -77,14 +77,14 @@ public class Level
                         _sRect.y = 297;
                         _dRect.x = x * 32 - camera._cameraRect.x;
                         _dRect.y = y * 32 - camera._cameraRect.y;
-                        SDL.SDL_RenderCopy(_renderer, _textureManager.Dictionary["tilemap"], ref _sRect, ref _dRect);
+                        SDL_RenderCopy(_renderer, _textureManager.Dictionary["tilemap"], ref _sRect, ref _dRect);
                         break;
                     case 1:
                         _sRect.x = 404;
                         _sRect.y = 231;
                         _dRect.x = x * 32 - camera._cameraRect.x;
                         _dRect.y = y * 32 - camera._cameraRect.y;
-                        SDL.SDL_RenderCopy(_renderer, _textureManager.Dictionary["tilemap"], ref _sRect, ref _dRect);
+                        SDL_RenderCopy(_renderer, _textureManager.Dictionary["tilemap"], ref _sRect, ref _dRect);
                         break;
                     case 0:
 
@@ -92,7 +92,7 @@ public class Level
                         _sRect.y = 33;
                         _dRect.x = x * 32 - camera._cameraRect.x;
                         _dRect.y = y * 32 - camera._cameraRect.y;
-                        SDL.SDL_RenderCopy(_renderer, _textureManager.Dictionary["tilemap"], ref _sRect, ref _dRect);
+                        SDL_RenderCopy(_renderer, _textureManager.Dictionary["tilemap"], ref _sRect, ref _dRect);
                         break;
                 }
             }

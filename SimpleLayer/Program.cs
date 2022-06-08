@@ -6,12 +6,11 @@ namespace SimpleLayer;
 
     class Program
     {
-        private readonly Game _game;
+        private static readonly Game Game = new Game();
 
         static void Main(string[] args)
         {
-            var game = new Game(); 
-            game.Run();
+            Game.Run();
         }
     }
 

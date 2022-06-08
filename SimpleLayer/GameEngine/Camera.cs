@@ -15,7 +15,6 @@ public class Camera
     private int _xCameraPos, _yCameraPos = 0;
     public SDL.SDL_Rect _cameraRect;
     private IntPtr _renderer;
-    private IntPtr _window;
     private int _screenWidhth = 1920;
     private int _screenHeight = 1080;
 
@@ -30,20 +29,20 @@ public class Camera
         switch (flag)
         {
             case CameraDerection.RIGHT:
-                if (_cameraRect.x+_screenWidhth < level.LevelEndX)
+                if (_cameraRect.x+_screenWidhth < Level.LevelEndX)
                 {
                     _cameraRect.x += (_cameraRect.w / 2) / 20;
                 }
                 else
                 {
-                    _cameraRect.x = level.LevelEndX-_screenWidhth;
+                    _cameraRect.x = Level.LevelEndX-_screenWidhth;
                 }
 
                 break;
             case CameraDerection.LEFT:
-                if (_cameraRect.x <= level.LevelStartX)
+                if (_cameraRect.x <= Level.LevelStartX)
                 {
-                    _cameraRect.x = level.LevelStartX;
+                    _cameraRect.x = Level.LevelStartX;
                 }
                 else
                 {
@@ -52,9 +51,9 @@ public class Camera
 
                 break;
             case CameraDerection.DONW:
-                if (_cameraRect.y +_screenHeight >= level.LevelEndY)
+                if (_cameraRect.y +_screenHeight >= Level.LevelEndY)
                 {
-                    _cameraRect.y = level.LevelEndY-_screenHeight;
+                    _cameraRect.y = Level.LevelEndY-_screenHeight;
                 }
                 else
                 {
@@ -63,9 +62,9 @@ public class Camera
 
                 break;
             case CameraDerection.UP:
-                if (_cameraRect.y <= level.LevelStartY)
+                if (_cameraRect.y <= Level.LevelStartY)
                 {
-                    _cameraRect.y = level.LevelStartY;
+                    _cameraRect.y = Level.LevelStartY;
                 }
                 else
                 {
