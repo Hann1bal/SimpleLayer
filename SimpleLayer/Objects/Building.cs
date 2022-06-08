@@ -11,7 +11,6 @@ public class Building : GameBaseObject
     private IntPtr _renderer;
     private readonly int _xPos;
     private readonly int _yPos;
-    private int _healtPoint;
     public readonly uint SpawnRate = 5000;
     public uint LastTick { get; set; }
     private new readonly int _team;
@@ -25,14 +24,13 @@ public class Building : GameBaseObject
         _renderer = renderer;
         _xPos = xPos;
         _yPos = yPos;
-        _healtPoint = healtPpoint;
         LastTick = SDL.SDL_GetTicks();
         IsFactory = isFactory;
     }
 
     public Unit Spawn()
     {
-        var unit = new Unit(ref _renderer, "dude", _xPos, _yPos, 5, _team);
+        var unit = new Unit(ref _renderer, "dude", _xPos, _yPos, 5, _team, 5);
         Units.Add(unit);
         return unit;
     }

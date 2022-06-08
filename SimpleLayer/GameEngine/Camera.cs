@@ -12,8 +12,7 @@ enum CameraDerection
 
 public class Camera
 {
-    private int _xCameraPos, _yCameraPos = 0;
-    public SDL.SDL_Rect _cameraRect;
+    public SDL.SDL_Rect CameraRect;
     private IntPtr _renderer;
     private int _screenWidhth = 1920;
     private int _screenHeight = 1080;
@@ -21,54 +20,54 @@ public class Camera
     public Camera(IntPtr renderer)
     {
         _renderer = renderer;
-        _cameraRect = new SDL.SDL_Rect {h = _screenHeight, w = _screenWidhth, x = 0, y = 0};
+        CameraRect = new SDL.SDL_Rect {h = _screenHeight, w = _screenWidhth, x = 0, y = 0};
     }
 
-    public void Move(Enum flag, Level level)
+    public void Move(Enum flag, ref Level level)
     {
         switch (flag)
         {
             case CameraDerection.RIGHT:
-                if (_cameraRect.x+_screenWidhth < Level.LevelEndX)
+                if (CameraRect.x+_screenWidhth < level.LevelEndX)
                 {
-                    _cameraRect.x += (_cameraRect.w / 2) / 20;
+                    CameraRect.x += (CameraRect.w / 2) / 20;
                 }
                 else
                 {
-                    _cameraRect.x = Level.LevelEndX-_screenWidhth;
+                    CameraRect.x = level.LevelEndX-_screenWidhth;
                 }
 
                 break;
             case CameraDerection.LEFT:
-                if (_cameraRect.x <= Level.LevelStartX)
+                if (CameraRect.x <= level.LevelStartX)
                 {
-                    _cameraRect.x = Level.LevelStartX;
+                    CameraRect.x = level.LevelStartX;
                 }
                 else
                 {
-                    _cameraRect.x -= (_cameraRect.w / 2) / 20;
+                    CameraRect.x -= (CameraRect.w / 2) / 20;
                 }
 
                 break;
             case CameraDerection.DONW:
-                if (_cameraRect.y +_screenHeight >= Level.LevelEndY)
+                if (CameraRect.y +_screenHeight >= level.LevelEndY)
                 {
-                    _cameraRect.y = Level.LevelEndY-_screenHeight;
+                    CameraRect.y = level.LevelEndY-_screenHeight;
                 }
                 else
                 {
-                    _cameraRect.y += (_cameraRect.h / 2) / 20;
+                    CameraRect.y += (CameraRect.h / 2) / 20;
                 }
 
                 break;
             case CameraDerection.UP:
-                if (_cameraRect.y <= Level.LevelStartY)
+                if (CameraRect.y <= level.LevelStartY)
                 {
-                    _cameraRect.y = Level.LevelStartY;
+                    CameraRect.y = level.LevelStartY;
                 }
                 else
                 {
-                    _cameraRect.y -= (_cameraRect.h / 2) / 20;
+                    CameraRect.y -= (CameraRect.h / 2) / 20;
                 }
 
                 break;

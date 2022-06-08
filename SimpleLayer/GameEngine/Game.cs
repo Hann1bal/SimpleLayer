@@ -19,9 +19,8 @@ public class Game : IDisposable
     private Level _level;
     private Camera _camera;
     private List<Building> _playersBuildings = new();
-    private readonly SDL_Color _color = new SDL_Color() {a = 0, r = 255, b = 0, g = 0};
-    private IntPtr _monserat;
     private GameLogicManager _gameLogicManager;
+    private RenderManager _rendererMeneger;
 
     private void Init()
     {
@@ -64,9 +63,10 @@ public class Game : IDisposable
             Console.WriteLine($"There was an issue creating the renderer. {SDL_ttf.TTF_GetError()}");
         }
 
-        _monserat =
-            SDL_ttf.TTF_OpenFont($"./Data/Fonts/OpenSans.ttf", 10);
+        SDL_ttf.TTF_OpenFont($"./Data/Fonts/OpenSans.ttf", 10);
         _gameLogicManager = GameLogicManager.GetInstance(ref _playersBuildings, _renderer);
+        _rendererMeneger = RenderManager.GetInstance(ref _renderer, ref _window, ref _playersBuildings,
+            ref _textureManager, ref _camera, ref _level);
     }
 
 
@@ -81,17 +81,17 @@ public class Game : IDisposable
                     break;
                 case SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     Building building;
-                    switch (e.button.x + _camera._cameraRect.x)
+                    switch (e.button.x + _camera.CameraRect.x)
                     {
                         case < 800:
                             building = new Building(ref _renderer, "necropolis",
-                                e.button.x + _camera._cameraRect.x, e.button.y + _camera._cameraRect.y, 15, 1);
+                                e.button.x + _camera.CameraRect.x, e.button.y + _camera.CameraRect.y, 1500, 1);
                             _playersBuildings.Add(building);
                             _gameLogicManager.AddToQuadrant(building);
                             break;
                         case > 2400:
                             building = new Building(ref _renderer, "necropolis",
-                                e.button.x + _camera._cameraRect.x, e.button.y + _camera._cameraRect.y, 15, 2);
+                                e.button.x + _camera.CameraRect.x, e.button.y + _camera.CameraRect.y, 1500, 2);
                             _playersBuildings.Add(building);
                             _gameLogicManager.AddToQuadrant(building);
                             break;
@@ -102,16 +102,16 @@ public class Game : IDisposable
                     switch (e.key.keysym.sym)
                     {
                         case SDL_Keycode.SDLK_LEFT:
-                            _camera.Move(CameraDerection.LEFT, _level);
+                            _camera.Move(CameraDerection.LEFT, ref _level);
                             break;
                         case SDL_Keycode.SDLK_RIGHT:
-                            _camera.Move(CameraDerection.RIGHT, _level);
+                            _camera.Move(CameraDerection.RIGHT, ref _level);
                             break;
                         case SDL_Keycode.SDLK_UP:
-                            _camera.Move(CameraDerection.UP, _level);
+                            _camera.Move(CameraDerection.UP, ref _level);
                             break;
                         case SDL_Keycode.SDLK_DOWN:
-                            _camera.Move(CameraDerection.DONW, _level);
+                            _camera.Move(CameraDerection.DONW, ref _level);
                             break;
                         default:
                             break;
@@ -121,7 +121,7 @@ public class Game : IDisposable
                 case SDL_EventType.SDL_MOUSEWHEEL:
                     if (e.wheel.y > 0)
                     {
-                        _camera.Move(CameraDerection.LEFT, _level);
+                        _camera.Move(CameraDerection.LEFT, ref _level);
                     }
 
 
@@ -130,20 +130,20 @@ public class Game : IDisposable
                     switch (e.motion.x)
                     {
                         case <= 2:
-                            _camera.Move(CameraDerection.LEFT, _level);
+                            _camera.Move(CameraDerection.LEFT, ref _level);
                             break;
                         case >= 1915:
-                            _camera.Move(CameraDerection.RIGHT, _level);
+                            _camera.Move(CameraDerection.RIGHT, ref _level);
                             break;
                     }
 
                     switch (e.motion.y)
                     {
                         case <= 2:
-                            _camera.Move(CameraDerection.UP, _level);
+                            _camera.Move(CameraDerection.UP, ref _level);
                             break;
                         case >= 1072:
-                            _camera.Move(CameraDerection.DONW, _level);
+                            _camera.Move(CameraDerection.DONW, ref _level);
                             break;
                     }
 
@@ -160,55 +160,18 @@ public class Game : IDisposable
         {
             for (var j = 0; j < 10; j++)
             {
-                SDL_RenderDrawLine(_renderer, i * 320 - _camera._cameraRect.x, j * 320 - _camera._cameraRect.y,
-                    i * 320 - 320 - _camera._cameraRect.x, j * 320 - _camera._cameraRect.y);
-                SDL_RenderDrawLine(_renderer, i * 320 - _camera._cameraRect.x, j * 320 - _camera._cameraRect.y,
-                    i * 320 - _camera._cameraRect.x, j * 320 + 320 - _camera._cameraRect.y);
-                SDL_RenderDrawLine(_renderer, i * 320 + 320 - _camera._cameraRect.x, j * 320 + _camera._cameraRect.y,
-                    i * 320 + 320 - _camera._cameraRect.x, j * 320 + 320 - _camera._cameraRect.y);
-                SDL_RenderDrawLine(_renderer, i * 320, j * 320 + 320 - _camera._cameraRect.y,
-                    i * 320 + 320 - _camera._cameraRect.x, j * 320 + 320 - _camera._cameraRect.y);
+                SDL_RenderDrawLine(_renderer, i * 320 - _camera.CameraRect.x, j * 320 - _camera.CameraRect.y,
+                    i * 320 - 320 - _camera.CameraRect.x, j * 320 - _camera.CameraRect.y);
+                SDL_RenderDrawLine(_renderer, i * 320 - _camera.CameraRect.x, j * 320 - _camera.CameraRect.y,
+                    i * 320 - _camera.CameraRect.x, j * 320 + 320 - _camera.CameraRect.y);
+                SDL_RenderDrawLine(_renderer, i * 320 + 320 - _camera.CameraRect.x, j * 320 + _camera.CameraRect.y,
+                    i * 320 + 320 - _camera.CameraRect.x, j * 320 + 320 - _camera.CameraRect.y);
+                SDL_RenderDrawLine(_renderer, i * 320, j * 320 + 320 - _camera.CameraRect.y,
+                    i * 320 + 320 - _camera.CameraRect.x, j * 320 + 320 - _camera.CameraRect.y);
             }
         }
     }
 
-    private void DrawText()
-    {
-        var mes = new SDL_Rect();
-        var cnt = 0;
-        foreach (var build in _playersBuildings)
-        {
-            var message = SDL_ttf.TTF_RenderText_Solid(_monserat,
-                $"{build._textureName}{cnt} contains {build.Units.Count}", _color);
-            var texture = SDL_CreateTextureFromSurface(_renderer, message);
-            mes.x = 0; //controls the rect's x coorinate 
-            mes.y = 0 + cnt * 100; // controls the rect's y coordinte
-            mes.w = 1000; // controls the width of the rect
-            mes.h = 100; // controls the height of the rect
-
-            SDL_RenderCopy(_renderer, texture, IntPtr.Zero, ref mes);
-            SDL_FreeSurface(message);
-            SDL_DestroyTexture(texture);
-            cnt++;
-        }
-    }
-
-    private void Render()
-    {
-        SDL_RenderClear(_renderer);
-        _level.DrawMap(_camera);
-
-        foreach (var b in _playersBuildings.ToArray())
-        {
-            b.Render(ref _camera, ref _textureManager);
-            b.RenderAllUnits(ref _camera, ref _textureManager);
-        }
-        
-        //DrawText();
-        RenderMesh();
-
-        SDL_RenderPresent(_renderer);
-    }
 
     /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
     public void Dispose()
@@ -227,10 +190,17 @@ public class Game : IDisposable
         while (_running)
         {
             var updateThread = new Thread(_gameLogicManager.RunManager);
+            // var renderThread = new Thread(_rendererMeneger.RunManager);
             _frameStart = SDL_GetTicks();
             PollEvents();
-            Render();
             updateThread.Start();
+            // renderThread.Start();
+            _rendererMeneger.RunManager();
+            if (_gameLogicManager.GetState())
+            {
+                _running = false;
+            }
+
             _frameTime = SDL_GetTicks() - _frameStart;
             if (FrameDelay > _frameTime)
             {

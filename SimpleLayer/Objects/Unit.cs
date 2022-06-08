@@ -10,8 +10,8 @@ public class Unit : GameBaseObject, IDisposable
     private const int Speed = 1;
 
     public Unit(ref IntPtr renderer, string textureName, int xPos, int yPos,
-        int healtPpoint, int team) :
-        base(ref renderer, textureName, xPos, yPos, healtPpoint, team)
+        int healtPpoint, int team, int damage) :
+        base(ref renderer, textureName, xPos, yPos, healtPpoint, team, damage)
     {
         _renderer = renderer;
     }

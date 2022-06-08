@@ -18,11 +18,13 @@ public class GameBaseObject : IGameBaseObject
     public int _targetDistance;
     public int _team;
     public bool isDead;
+    public int Damage;
 
     public GameBaseObject(ref IntPtr renderer, string textureName, int xPos, int yPos,
-        int healtPpoint, int team)
+        int healtPpoint, int team, int damage = 0)
     {
         _team = team;
+        Damage = damage;
         _healtPpoint = healtPpoint;
         _rendererObject = renderer;
 
@@ -41,18 +43,19 @@ public class GameBaseObject : IGameBaseObject
     {
         SDL.SDL_Rect newRectangle = new()
         {
-            h = _sRect.w / 10, w = _sRect.w / 10, x = xPosition - camera._cameraRect.x,
-            y = yPosition - camera._cameraRect.y
+            h = _sRect.w / 10, w = _sRect.w / 10, x = xPosition - camera.CameraRect.x,
+            y = yPosition - camera.CameraRect.y
         };
 
-        if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + camera._cameraRect.w ||
-            newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + camera._cameraRect.h)
+        if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + camera.CameraRect.w ||
+            newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + camera.CameraRect.h)
         {
             return;
         }
 
         SDL.SDL_RenderCopy(_rendererObject, textureManager.Dictionary[_textureName], ref _sRect, ref newRectangle);
     }
+
     public void Update()
     {
     }

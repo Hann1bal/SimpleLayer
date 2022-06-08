@@ -10,9 +10,10 @@ public class GameLogicManager
     private List<Building> _buildings;
     private Dictionary<Vector2, List<GameBaseObject>> _quadrant = new();
     private static GameLogicManager _gameLogicManager;
-    private Building _buildingBase;
-    private Building _buildingBase2;
+    public Building _buildingBase;
+    public Building _buildingBase2;
     private IntPtr _renderer;
+    private bool _state = false;
 
     private GameLogicManager(ref List<Building> buildings, IntPtr renderer)
     {
@@ -42,9 +43,9 @@ public class GameLogicManager
     private void InitPlayerBase()
     {
         _buildingBase = new Building(ref _renderer, "tron",
-            400, 1600, 50, 1, false);
+            400, 1600, 50000, 1, false);
         _buildingBase2 = new Building(ref _renderer, "tron",
-            2800, 1600, 50, 2, false);
+            2800, 1600, 50000, 2, false);
         AddToQuadrant(_buildingBase);
         AddToQuadrant(_buildingBase2);
         _buildings.Add(_buildingBase);
@@ -53,6 +54,8 @@ public class GameLogicManager
 
     public void RunManager()
     {
+        DestroyDeadBuildings();
+        if (GetState()) return;
         SpawnUnits();
         Update();
     }
@@ -61,10 +64,21 @@ public class GameLogicManager
     {
         var tick = SDL.SDL_GetTicks();
         foreach (var building in _buildings.Where(building => building.IsFactory)
-                     .Where(building => tick - building.LastTick >= building.SpawnRate).ToArray())
+                     .Where(building => tick - building.LastTick >= building.SpawnRate)
+                     .Where(building => building.isDead != true).ToArray())
         {
             AddToQuadrant(building.Spawn());
             building.LastTick = tick;
+        }
+    }
+
+    private void DestroyDeadBuildings()
+    {
+        foreach (var building in _buildings.Where(building => building.isDead).ToArray())
+        {
+            _buildings.Remove(building);
+            _quadrant[building._lastQuadrant].Remove(building);
+            building.Dispose();
         }
     }
 
@@ -93,7 +107,7 @@ public class GameLogicManager
                 }
 
                 CheckCollision(unit);
-                
+
                 if (unit.isDead)
                 {
                     unit._target = null;
@@ -122,6 +136,8 @@ public class GameLogicManager
     }
 
 
+    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH",
+        MessageId = "type: SimpleLayer.Objects.GameBaseObject[]")]
     private void NearestCoords(Unit unit)
     {
         int minimumDistance = Int32.MaxValue;
@@ -130,7 +146,8 @@ public class GameLogicManager
         {
             for (var j = unit._lastQuadrant.Y - 1; j <= unit._lastQuadrant.Y + 1; j++)
             {
-                foreach (var enemy in _quadrant[new Vector2(i, j)].Where(b => b._team != unit._team).ToArray())
+                foreach (var enemy in _quadrant[new Vector2(i, j)].Where(b => b._team != unit._team)
+                             .Where(cb => cb.isDead == false).ToArray())
                 {
                     var distance = DistanceBetween(unit, enemy);
                     if (nearestTarget == null || minimumDistance > distance)
@@ -170,7 +187,7 @@ public class GameLogicManager
     {
         var qudX = gameBaseObject.xPosition / 320;
         var qudY = gameBaseObject.yPosition / 320;
-        Console.WriteLine($"Old quadrant{gameBaseObject._lastQuadrant}, new {new Vector2(qudX, qudY)}");
+        // Console.WriteLine($"Old quadrant{gameBaseObject._lastQuadrant}, new {new Vector2(qudX, qudY)}");
         if (!(Vector2.Distance(gameBaseObject._lastQuadrant, new Vector2(qudX, qudY)) > 0)) return;
         DeleteFromQuadrant(gameBaseObject);
         AddToQuadrant(gameBaseObject);
@@ -189,7 +206,8 @@ public class GameLogicManager
         _quadrant[gameBaseObject._lastQuadrant].Remove(gameBaseObject);
     }
 
-    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH", MessageId = "type: WhereListIterator`1[SimpleLayer.Objects.GameBaseObject]")]
+    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH",
+        MessageId = "type: WhereListIterator`1[SimpleLayer.Objects.GameBaseObject]")]
     private void CheckCollision(Unit unit)
     {
         for (var i = unit._lastQuadrant.X - 1; i <= unit._lastQuadrant.X + 1; i++)
@@ -197,12 +215,22 @@ public class GameLogicManager
             for (var j = unit._lastQuadrant.Y - 1; j <= unit._lastQuadrant.Y + 1; j++)
             {
                 foreach (var enemy in _quadrant[new Vector2(i, j)].Where(b => b._team != unit._team))
-                 {
+                {
                     switch (SDL.SDL_HasIntersection(ref unit._dRect, ref enemy._dRect))
                     {
                         case SDL.SDL_bool.SDL_TRUE:
-                            unit.isDead = true;
-                            enemy.isDead = true;
+                            unit._healtPpoint -= enemy.Damage;
+                            enemy._healtPpoint -= unit.Damage;
+                            if (unit._healtPpoint == 0)
+                            {
+                                unit.isDead = true;
+                            }
+
+                            if (enemy._healtPpoint == 0)
+                            {
+                                enemy.isDead = true;
+                            }
+
                             break;
                         case SDL.SDL_bool.SDL_FALSE:
                             break;
@@ -212,5 +240,29 @@ public class GameLogicManager
                 }
             }
         }
+    }
+
+    public bool GetState()
+    {
+        if (_buildingBase == null)
+        {
+            if (_buildingBase._healtPpoint > 0)
+            {
+                _state = false;
+                return _state;
+            }
+        }
+
+        if (_buildingBase2 != null)
+        {
+            if (_buildingBase2._healtPpoint > 0)
+            {
+                _state = false;
+                return _state;
+            }
+        }
+
+        _state = true;
+        return _state;
     }
 }
