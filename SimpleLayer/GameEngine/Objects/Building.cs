@@ -8,11 +8,11 @@ namespace SimpleLayer.Objects;
 public class Building : GameBaseObject
 {
     public List<Unit> Units = new();
-    private readonly int _xPos;
-    private readonly int _yPos;
+    public int _xPos;
+    public int _yPos;
     public readonly uint SpawnRate = 5000;
     public uint LastTick { get; set; }
-    private new readonly int _team;
+    public int _team;
     public readonly bool IsFactory;
 
     public Building(string textureName, int xPos, int yPos,
@@ -22,6 +22,8 @@ public class Building : GameBaseObject
         _team = team;
         _xPos = xPos;
         _yPos = yPos;
+        XPosition = _xPos;
+        YPosition = _yPos;
         LastTick = SDL.SDL_GetTicks();
         IsFactory = isFactory;
     }

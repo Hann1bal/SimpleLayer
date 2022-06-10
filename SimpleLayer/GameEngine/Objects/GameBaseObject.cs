@@ -14,7 +14,7 @@ public class GameBaseObject : IGameBaseObject
     public Vector2 LastQuadrant;
     public GameBaseObject Target;
     public int TargetDistance;
-    public readonly int Team;
+    public int Team;
     public bool IsDead;
     public readonly int Damage;
 

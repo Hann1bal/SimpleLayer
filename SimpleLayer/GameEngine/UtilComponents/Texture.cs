@@ -1,6 +1,6 @@
 ﻿using SDL2;
 
-namespace SimpleLayer.GameEngine;
+namespace SimpleLayer.GameEngine.UtilComponents;
 
 public class Texture
 {

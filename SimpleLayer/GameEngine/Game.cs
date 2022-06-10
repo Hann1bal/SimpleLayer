@@ -1,4 +1,6 @@
 ﻿using SDL2;
+using SimpleLayer.GameEngine.Managers;
+using SimpleLayer.GameEngine.UtilComponents;
 using SimpleLayer.Objects;
 using static SDL2.SDL;
 
@@ -23,6 +25,7 @@ public class Game : IDisposable
     private List<Buttons> _buttons = new();
     private bool IsPaused = false;
     private Hud _hud;
+    private Building? _currentBuilding = null;
 
     private void Init()
     {
@@ -85,13 +88,21 @@ public class Game : IDisposable
                     _running = false;
                     break;
                 case SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                    foreach (var button in _buttons.Where(b => b.IsFocused))
+                    if (_currentBuilding != null)
                     {
-                        _hudMeneger.PressButton(button, ref IsPaused);
+                        _gameLogicManager.PlaceBuilding(e.button.x + _camera.CameraRect.x,
+                            e.button.y + _camera.CameraRect.y, ref _currentBuilding);
+                        _currentBuilding.Dispose();
+                        _currentBuilding = null;
                     }
 
-                    _gameLogicManager.PlaceBuilding(e.button.x + _camera.CameraRect.x,
-                        e.button.y + _camera.CameraRect.y);
+                    foreach (var button in _buttons.Where(b => b.IsFocused))
+                    {
+                        _hudMeneger.PressButton(button, ref IsPaused, ref _currentBuilding);
+                    }
+
+                    // Console.WriteLine($"x = {e.button.x}, y = {e.button.y}");
+
 
                     break;
                 case SDL_EventType.SDL_MOUSEBUTTONUP:
@@ -173,7 +184,7 @@ public class Game : IDisposable
                 updateThread.Start();
             }
 
-            _rendererMeneger.RunManager();
+            _rendererMeneger.RunManager(ref _currentBuilding);
             if (_gameLogicManager.GetState())
             {
                 _running = false;

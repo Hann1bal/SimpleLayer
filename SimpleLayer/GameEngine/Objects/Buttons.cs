@@ -6,6 +6,7 @@ public class  Buttons: HudBaseObject
 {
     public bool IsPressed = false;
     public bool IsFocused = false;
+    public bool IsGameObject = false;
 
     public enum ButtonTextures
     {
@@ -13,9 +14,9 @@ public class  Buttons: HudBaseObject
         Pressed = 2,
         Unfocused = 0
     }
-    public Buttons(string textureName, SDL.SDL_Rect sRect, SDL.SDL_Rect dRect) : base(textureName, sRect, dRect)
+    public Buttons(string textureName, SDL.SDL_Rect sRect, SDL.SDL_Rect dRect, bool isGameObject) : base(textureName, sRect, dRect)
     {
-        
+        IsGameObject = isGameObject;
     }
 
     public void UpdateTextureName(ButtonTextures textures)

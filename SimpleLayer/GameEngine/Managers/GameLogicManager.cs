@@ -71,20 +71,23 @@ public class GameLogicManager
         }
     }
 
-    public void PlaceBuilding(int x, int y)
+    public void PlaceBuilding(int x, int y, ref Building currenBuilding)
     {
         Building building;
         switch (x)
         {
             case < 800:
-                building = new Building("necropolis", x, y, 5000, 1);
+                building = new Building(currenBuilding.TextureName, x, y, currenBuilding.HealthPoint, 1, true);
                 _buildings.Add(building);
                 AddToQuadrant(building);
+
                 break;
             case > 2400:
-                building = new Building("necropolis", x, y, 5000, 2);
+                building = new Building(currenBuilding.TextureName, x, y, currenBuilding.HealthPoint, 2, true);
+
                 _buildings.Add(building);
                 AddToQuadrant(building);
+
                 break;
         }
     }

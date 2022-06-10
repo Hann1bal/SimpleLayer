@@ -15,10 +15,13 @@ public class RenderManager
     private readonly Level _level;
     private readonly Level _level2;
     private List<Buttons> _buttonsList;
-    private Minimap _minimap = new Minimap();
+    public Building _currentBuilding { get; set; }
     private Hud _hud;
+    private int _x, _y;
+
     private RenderManager(ref IntPtr renderer, ref List<Building> buildings,
-        ref Texture textureManager, ref Camera camera, ref Level level, ref List<Buttons> buttonsList, ref Hud hud)
+        ref Texture textureManager, ref Camera camera, ref Level level, ref List<Buttons> buttonsList, ref Hud hud
+    )
     {
         _renderer = renderer;
         _buttonsList = buttonsList;
@@ -31,22 +34,30 @@ public class RenderManager
     }
 
     public static RenderManager GetInstance(ref IntPtr renderer, ref List<Building> buildings,
-        ref Texture textureManager, ref Camera camera, ref Level level, ref List<Buttons> buttonsList, ref Hud hud)
+        ref Texture textureManager, ref Camera camera, ref Level level, ref List<Buttons> buttonsList, ref Hud hud
+    )
     {
         if (_renderManager != null) return _renderManager;
         return _renderManager =
-            new RenderManager(ref renderer, ref buildings, ref textureManager, ref camera, ref level, ref buttonsList, ref hud);
+            new RenderManager(ref renderer, ref buildings, ref textureManager, ref camera, ref level, ref buttonsList,
+                ref hud);
     }
 
-    public void RunManager()
+    public void RunManager(ref Building currentBuilding)
     {
+        if (currentBuilding != null) _currentBuilding = currentBuilding;
+        else
+        {
+            _currentBuilding = null;
+        }
+
+        
         Render();
     }
 
 
     private void DrawMap(Camera camera)
     {
-        
         for (var x = 0; x < Level.LevelWidth / 32; x++)
         {
             for (var y = 0; y < Level.LevelHeight / 32; y++)
@@ -101,8 +112,8 @@ public class RenderManager
     {
         SDL_Rect newRectangle = new()
         {
-            h = gameBaseObject.SRect.w / 10,
-            w = gameBaseObject.SRect.w / 10,
+            h = gameBaseObject.SRect.w / 5,
+            w = gameBaseObject.SRect.w / 5,
             x = gameBaseObject.XPosition - _camera.CameraRect.x,
             y = gameBaseObject.YPosition - _camera.CameraRect.y
         };
@@ -115,6 +126,24 @@ public class RenderManager
 
         SDL_RenderCopy(_renderer, _textureManager.Dictionary[gameBaseObject.TextureName], ref gameBaseObject.SRect,
             ref newRectangle);
+    }
+
+    private void RenderSelectedObject()
+    {
+        if (_currentBuilding != null)
+        {
+            SDL_GetMouseState(out _x, out _y);
+            SDL_Rect newRectangle = new()
+            {
+                h = 90,
+                w = 90,
+                x = _x,
+                y = _y
+            };
+            SDL_RenderCopy(_renderer, _textureManager.Dictionary[_currentBuilding.TextureName],
+                ref _currentBuilding.SRect,
+                ref newRectangle);
+        }
     }
 
     private void RenderSingleIdleObjects(GameBaseObject gameBaseObject)
@@ -160,13 +189,13 @@ public class RenderManager
         SDL_RenderCopy(_renderer, _textureManager.Dictionary[_hud.TextureName], ref _hud.SRect,
             ref _hud.DRect);
     }
+
     private void RenderMinimap(List<Building> buildings)
     {
-        
         for (var x = 0; x < Level.LevelWidth / 32; x++)
         {
             for (var y = 0; y < Level.LevelHeight / 32; y++)
-            { 
+            {
                 _level2.DRect.x = 25 + x * 32 / 10;
                 _level2.DRect.y = 805 + y * 32 / 12;
                 _level2.DRect.h = _level2.SRect.h / 8;
@@ -215,10 +244,11 @@ public class RenderManager
         {
             RenderAllObject(b);
         }
-        
+
         RenderMinimap(_buildings);
-        RenderHud();
         RenderButtons();
+        RenderHud();
+        RenderSelectedObject();
         SDL_RenderPresent(_renderer);
     }
 }
