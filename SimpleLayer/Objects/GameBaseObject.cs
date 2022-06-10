@@ -6,62 +6,33 @@ namespace SimpleLayer.Objects;
 
 public class GameBaseObject : IGameBaseObject
 {
-    public int xPosition, yPosition;
-    public SDL.SDL_Rect _sRect;
-    public SDL.SDL_Rect _dRect;
-    private readonly IntPtr _rendererObject;
-    public int _healtPpoint;
-    public string _textureName;
-    private bool _disposedValue;
-    public Vector2 _lastQuadrant;
-    public GameBaseObject _target;
-    public int _targetDistance;
-    public int _team;
-    public bool isDead;
-    public int Damage;
+    public int XPosition, YPosition;
+    public SDL.SDL_Rect SRect;
+    public SDL.SDL_Rect DRect;
+    public int HealthPoint;
+    public string TextureName;
+    public Vector2 LastQuadrant;
+    public GameBaseObject Target;
+    public int TargetDistance;
+    public readonly int Team;
+    public bool IsDead;
+    public readonly int Damage;
 
-    public GameBaseObject(ref IntPtr renderer, string textureName, int xPos, int yPos,
-        int healtPpoint, int team, int damage = 0)
+    public GameBaseObject(string textureName, int xPos, int yPos,
+        int healthPoint, int team, int damage = 0)
     {
-        _team = team;
+        Team = team;
         Damage = damage;
-        _healtPpoint = healtPpoint;
-        _rendererObject = renderer;
-
-        xPosition = xPos;
-        yPosition = yPos;
-        _textureName = textureName;
-        _sRect.h = 300;
-        _sRect.w = 300;
-        _dRect.x = xPosition;
-        _dRect.y = yPosition;
-        _dRect.w = _sRect.w / 10;
-        _dRect.h = _sRect.h / 10;
-    }
-
-    public void Render(ref Camera camera, ref Texture textureManager)
-    {
-        SDL.SDL_Rect newRectangle = new()
-        {
-            h = _sRect.w / 10, w = _sRect.w / 10, x = xPosition - camera.CameraRect.x,
-            y = yPosition - camera.CameraRect.y
-        };
-
-        if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + camera.CameraRect.w ||
-            newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + camera.CameraRect.h)
-        {
-            return;
-        }
-
-        SDL.SDL_RenderCopy(_rendererObject, textureManager.Dictionary[_textureName], ref _sRect, ref newRectangle);
-    }
-
-    public void Update()
-    {
-    }
-
-    public void Move()
-    {
+        HealthPoint = healthPoint;
+        XPosition = xPos;
+        YPosition = yPos;
+        TextureName = textureName;
+        SRect.h = 300;
+        SRect.w = 300;
+        DRect.x = XPosition;
+        DRect.y = YPosition;
+        DRect.w = SRect.w / 10;
+        DRect.h = SRect.h / 10;
     }
 
 
@@ -73,10 +44,10 @@ public class GameBaseObject : IGameBaseObject
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        GC.SuppressFinalize(_textureName);
+        GC.SuppressFinalize(TextureName);
 
-        GC.SuppressFinalize(_dRect);
-        GC.SuppressFinalize(_sRect);
+        GC.SuppressFinalize(DRect);
+        GC.SuppressFinalize(SRect);
         GC.Collect(GC.MaxGeneration);
     }
 }

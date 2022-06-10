@@ -16,26 +16,22 @@ namespace SimpleLayer.GameEngine;
 
 public class Level
 {
-    public readonly int LevelWidth = 3200;
-    public readonly int LevelHeight = 3200;
-    public readonly int LevelStartX = 0;
-    public readonly int LevelStartY = 0;
-    public readonly int LevelEndX = 3200;
-    public readonly int LevelEndY = 3200;
-    private readonly Texture _textureManager;
-    private IntPtr _renderer;
-    public SDL_Rect _sRect, _dRect;
+    public const int LevelWidth = 3200;
+    public const int LevelHeight = 3200;
+    public const int LevelStartX = 0;
+    public const int LevelStartY = 0;
+    public const int LevelEndX = 3200;
+    public const int LevelEndY = 3200;
+    public SDL_Rect SRect, DRect;
     public int[,] _levelMatrix;
 
-    public Level(IntPtr renderer, Texture textureManager)
+    public Level()
     {
-        _textureManager = textureManager;
         _levelMatrix = new int[LevelWidth / 32, LevelHeight / 32];
-        _renderer = renderer;
-        _sRect.h = 32;
-        _sRect.w = 32;
-        _dRect.w = 32;
-        _dRect.h = 32;
+        SRect.h = 32;
+        SRect.w = 32;
+        DRect.w = 32;
+        DRect.h = 32;
         GenerateMatrixValue();
     }
 
@@ -61,5 +57,10 @@ public class Level
                 }
             }
         }
+    }
+
+    public Level GetCopy()
+    {
+        return (Level) this.MemberwiseClone();
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
-using SDL2;
+﻿using SDL2;
 using SimpleLayer.Objects;
 using static SDL2.SDL;
 
@@ -21,16 +19,20 @@ public class Game : IDisposable
     private List<Building> _playersBuildings = new();
     private GameLogicManager _gameLogicManager;
     private RenderManager _rendererMeneger;
+    private HudManager _hudMeneger;
+    private List<Buttons> _buttons = new();
+    private bool IsPaused = false;
+    private Hud _hud;
 
     private void Init()
     {
-        if (SDL_Init(SDL_INIT_VIDEO) < 0)
+        if (SDL_Init(flags: SDL_INIT_EVERYTHING) < 0)
         {
             Console.WriteLine($"There was an issue initializing SDL. {SDL_GetError()}");
         }
 
         _window = SDL_CreateWindow(
-            "SDL .NET 6 Tutorial",
+            "Simple Test Game",
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
             1920,
@@ -54,8 +56,8 @@ public class Game : IDisposable
         }
 
         _textureManager.LoadTexture(_renderer);
-        _level = new Level(_renderer, _textureManager);
-        _camera = new Camera(_renderer);
+        _level = new Level();
+        _camera = new Camera();
         SDL_SetWindowGrab(_window, SDL_bool.SDL_TRUE);
 
         if (SDL_ttf.TTF_Init() < 0)
@@ -64,9 +66,12 @@ public class Game : IDisposable
         }
 
         SDL_ttf.TTF_OpenFont($"./Data/Fonts/OpenSans.ttf", 10);
-        _gameLogicManager = GameLogicManager.GetInstance(ref _playersBuildings, _renderer);
-        _rendererMeneger = RenderManager.GetInstance(ref _renderer, ref _window, ref _playersBuildings,
-            ref _textureManager, ref _camera, ref _level);
+        _gameLogicManager = GameLogicManager.GetInstance(ref _playersBuildings);
+        _hud = Hud.GetInstance("Hud", new SDL_Rect {x = 0, y = 0, h = 900, w = 1440},
+            new SDL_Rect {x = 0, y = 0, w = _camera.CameraRect.w, h = _camera.CameraRect.h});
+        _rendererMeneger = RenderManager.GetInstance(ref _renderer, ref _playersBuildings,
+            ref _textureManager, ref _camera, ref _level, ref _buttons, ref _hud);
+        _hudMeneger = HudManager.GetInstance(ref _buttons, ref _hud);
     }
 
 
@@ -80,21 +85,19 @@ public class Game : IDisposable
                     _running = false;
                     break;
                 case SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                    Building building;
-                    switch (e.button.x + _camera.CameraRect.x)
+                    foreach (var button in _buttons.Where(b => b.IsFocused))
                     {
-                        case < 800:
-                            building = new Building(ref _renderer, "necropolis",
-                                e.button.x + _camera.CameraRect.x, e.button.y + _camera.CameraRect.y, 1500, 1);
-                            _playersBuildings.Add(building);
-                            _gameLogicManager.AddToQuadrant(building);
-                            break;
-                        case > 2400:
-                            building = new Building(ref _renderer, "necropolis",
-                                e.button.x + _camera.CameraRect.x, e.button.y + _camera.CameraRect.y, 1500, 2);
-                            _playersBuildings.Add(building);
-                            _gameLogicManager.AddToQuadrant(building);
-                            break;
+                        _hudMeneger.PressButton(button, ref IsPaused);
+                    }
+
+                    _gameLogicManager.PlaceBuilding(e.button.x + _camera.CameraRect.x,
+                        e.button.y + _camera.CameraRect.y);
+
+                    break;
+                case SDL_EventType.SDL_MOUSEBUTTONUP:
+                    foreach (var button in _buttons.Where(b => b.IsPressed))
+                    {
+                        _hudMeneger.ReleaseButton(button);
                     }
 
                     break;
@@ -153,48 +156,23 @@ public class Game : IDisposable
         }
     }
 
-
-    private void RenderMesh()
-    {
-        for (var i = 0; i < 10; i++)
-        {
-            for (var j = 0; j < 10; j++)
-            {
-                SDL_RenderDrawLine(_renderer, i * 320 - _camera.CameraRect.x, j * 320 - _camera.CameraRect.y,
-                    i * 320 - 320 - _camera.CameraRect.x, j * 320 - _camera.CameraRect.y);
-                SDL_RenderDrawLine(_renderer, i * 320 - _camera.CameraRect.x, j * 320 - _camera.CameraRect.y,
-                    i * 320 - _camera.CameraRect.x, j * 320 + 320 - _camera.CameraRect.y);
-                SDL_RenderDrawLine(_renderer, i * 320 + 320 - _camera.CameraRect.x, j * 320 + _camera.CameraRect.y,
-                    i * 320 + 320 - _camera.CameraRect.x, j * 320 + 320 - _camera.CameraRect.y);
-                SDL_RenderDrawLine(_renderer, i * 320, j * 320 + 320 - _camera.CameraRect.y,
-                    i * 320 + 320 - _camera.CameraRect.x, j * 320 + 320 - _camera.CameraRect.y);
-            }
-        }
-    }
-
-
     /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-    public void Dispose()
-    {
-        _textureManager.ClearAllTexture();
-        SDL_DestroyRenderer(_renderer);
-        SDL_DestroyWindow(_window);
-        SDL_Quit();
-        GC.SuppressFinalize(this);
-        GC.Collect();
-    }
-
     public void Run()
     {
         Init();
         while (_running)
         {
-            var updateThread = new Thread(_gameLogicManager.RunManager);
-            // var renderThread = new Thread(_rendererMeneger.RunManager);
             _frameStart = SDL_GetTicks();
+            _gameLogicManager.deltaTick = _frameStart;
             PollEvents();
-            updateThread.Start();
-            // renderThread.Start();
+            _hudMeneger.RunManager();
+            var updateThread = new Thread(_gameLogicManager.RunManager);
+
+            if (!IsPaused)
+            {
+                updateThread.Start();
+            }
+
             _rendererMeneger.RunManager();
             if (_gameLogicManager.GetState())
             {
@@ -204,10 +182,20 @@ public class Game : IDisposable
             _frameTime = SDL_GetTicks() - _frameStart;
             if (FrameDelay > _frameTime)
             {
-                SDL_Delay((uint) (FrameDelay - _frameTime));
+                SDL_Delay(FrameDelay - _frameTime);
             }
         }
 
         Dispose();
+    }
+
+    public void Dispose()
+    {
+        _textureManager.ClearAllTexture();
+        SDL_DestroyRenderer(_renderer);
+        SDL_DestroyWindow(_window);
+        SDL_Quit();
+        GC.SuppressFinalize(this);
+        GC.Collect();
     }
 }

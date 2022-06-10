@@ -13,13 +13,11 @@ enum CameraDerection
 public class Camera
 {
     public SDL.SDL_Rect CameraRect;
-    private IntPtr _renderer;
     private int _screenWidhth = 1920;
     private int _screenHeight = 1080;
 
-    public Camera(IntPtr renderer)
+    public Camera()
     {
-        _renderer = renderer;
         CameraRect = new SDL.SDL_Rect {h = _screenHeight, w = _screenWidhth, x = 0, y = 0};
     }
 
@@ -28,20 +26,20 @@ public class Camera
         switch (flag)
         {
             case CameraDerection.RIGHT:
-                if (CameraRect.x+_screenWidhth < level.LevelEndX)
+                if (CameraRect.x + _screenWidhth < Level.LevelEndX)
                 {
                     CameraRect.x += (CameraRect.w / 2) / 20;
                 }
                 else
                 {
-                    CameraRect.x = level.LevelEndX-_screenWidhth;
+                    CameraRect.x = Level.LevelEndX - _screenWidhth;
                 }
 
                 break;
             case CameraDerection.LEFT:
-                if (CameraRect.x <= level.LevelStartX)
+                if (CameraRect.x <= Level.LevelStartX)
                 {
-                    CameraRect.x = level.LevelStartX;
+                    CameraRect.x = Level.LevelStartX;
                 }
                 else
                 {
@@ -50,9 +48,9 @@ public class Camera
 
                 break;
             case CameraDerection.DONW:
-                if (CameraRect.y +_screenHeight >= level.LevelEndY)
+                if (CameraRect.y + _screenHeight >= Level.LevelEndY)
                 {
-                    CameraRect.y = level.LevelEndY-_screenHeight;
+                    CameraRect.y = Level.LevelEndY - _screenHeight;
                 }
                 else
                 {
@@ -61,9 +59,9 @@ public class Camera
 
                 break;
             case CameraDerection.UP:
-                if (CameraRect.y <= level.LevelStartY)
+                if (CameraRect.y <= Level.LevelStartY)
                 {
-                    CameraRect.y = level.LevelStartY;
+                    CameraRect.y = Level.LevelStartY;
                 }
                 else
                 {

@@ -10,23 +10,22 @@ public class GameLogicManager
     private List<Building> _buildings;
     private Dictionary<Vector2, List<GameBaseObject>> _quadrant = new();
     private static GameLogicManager _gameLogicManager;
-    public Building _buildingBase;
-    public Building _buildingBase2;
-    private IntPtr _renderer;
+    public Building BuildingBase;
+    public Building BuildingBase2;
     private bool _state = false;
+    public uint deltaTick = 0;
 
-    private GameLogicManager(ref List<Building> buildings, IntPtr renderer)
+    private GameLogicManager(ref List<Building> buildings)
     {
         _buildings = buildings;
-        _renderer = renderer;
         InitQuadrant();
         InitPlayerBase();
     }
 
-    public static GameLogicManager GetInstance(ref List<Building> buildings, IntPtr _renderer)
+    public static GameLogicManager GetInstance(ref List<Building> buildings)
     {
         if (_gameLogicManager != null) return _gameLogicManager;
-        return _gameLogicManager = new GameLogicManager(ref buildings, _renderer);
+        return _gameLogicManager = new GameLogicManager(ref buildings);
     }
 
     private void InitQuadrant()
@@ -42,14 +41,14 @@ public class GameLogicManager
 
     private void InitPlayerBase()
     {
-        _buildingBase = new Building(ref _renderer, "tron",
+        BuildingBase = new Building("tron",
             400, 1600, 50000, 1, false);
-        _buildingBase2 = new Building(ref _renderer, "tron",
+        BuildingBase2 = new Building("tron",
             2800, 1600, 50000, 2, false);
-        AddToQuadrant(_buildingBase);
-        AddToQuadrant(_buildingBase2);
-        _buildings.Add(_buildingBase);
-        _buildings.Add(_buildingBase2);
+        AddToQuadrant(BuildingBase);
+        AddToQuadrant(BuildingBase2);
+        _buildings.Add(BuildingBase);
+        _buildings.Add(BuildingBase2);
     }
 
     public void RunManager()
@@ -65,19 +64,38 @@ public class GameLogicManager
         var tick = SDL.SDL_GetTicks();
         foreach (var building in _buildings.Where(building => building.IsFactory)
                      .Where(building => tick - building.LastTick >= building.SpawnRate)
-                     .Where(building => building.isDead != true).ToArray())
+                     .Where(building => !building.IsDead).ToArray())
         {
             AddToQuadrant(building.Spawn());
             building.LastTick = tick;
         }
     }
 
+    public void PlaceBuilding(int x, int y)
+    {
+        Building building;
+        switch (x)
+        {
+            case < 800:
+                building = new Building("necropolis", x, y, 5000, 1);
+                _buildings.Add(building);
+                AddToQuadrant(building);
+                break;
+            case > 2400:
+                building = new Building("necropolis", x, y, 5000, 2);
+                _buildings.Add(building);
+                AddToQuadrant(building);
+                break;
+        }
+    }
+
+
     private void DestroyDeadBuildings()
     {
-        foreach (var building in _buildings.Where(building => building.isDead).ToArray())
+        foreach (var building in _buildings.Where(building => building.IsDead).ToArray())
         {
             _buildings.Remove(building);
-            _quadrant[building._lastQuadrant].Remove(building);
+            _quadrant[building.LastQuadrant].Remove(building);
             building.Dispose();
         }
     }
@@ -88,18 +106,18 @@ public class GameLogicManager
         {
             foreach (var unit in building.Units.ToArray())
             {
-                switch (unit._dRect.x + unit._dRect.w)
+                switch (unit.DRect.x + unit.DRect.w)
                 {
                     case > 3199:
-                        unit._target = null;
+                        unit.Target = null;
                         building.Units.Remove(unit);
-                        _quadrant[unit._lastQuadrant].Remove(unit);
+                        _quadrant[unit.LastQuadrant].Remove(unit);
                         unit.Dispose();
                         break;
                     case < 0:
-                        unit._target = null;
+                        unit.Target = null;
                         building.Units.Remove(unit);
-                        _quadrant[unit._lastQuadrant].Remove(unit);
+                        _quadrant[unit.LastQuadrant].Remove(unit);
                         unit.Dispose();
                         break;
                     default:
@@ -108,11 +126,11 @@ public class GameLogicManager
 
                 CheckCollision(unit);
 
-                if (unit.isDead)
+                if (unit.IsDead)
                 {
-                    unit._target = null;
+                    unit.Target = null;
                     building.Units.Remove(unit);
-                    _quadrant[unit._lastQuadrant].Remove(unit);
+                    _quadrant[unit.LastQuadrant].Remove(unit);
                     unit.Dispose();
                 }
 
@@ -126,13 +144,13 @@ public class GameLogicManager
     public void MoveUnit(Unit unit)
     {
         // Console.WriteLine($"self - {xPosition},{yPosition}, target - {_target}, _targetDistance- {_targetDistance}");
-        if (unit._targetDistance == 0) return;
-        var x = (int) Math.Round((float) (unit._target.xPosition - unit.xPosition) / unit._targetDistance);
-        var y = (int) Math.Round((float) (unit._target.yPosition - unit.yPosition) / unit._targetDistance);
-        unit.xPosition += x;
-        unit.yPosition += y;
-        unit._dRect.x = unit.xPosition;
-        unit._dRect.y = unit.yPosition;
+        if (unit.TargetDistance == 0) return;
+        var x = (int) Math.Round((float) (unit.Target.XPosition - unit.XPosition) / unit.TargetDistance);
+        var y = (int) Math.Round((float) (unit.Target.YPosition - unit.YPosition) / unit.TargetDistance);
+        unit.XPosition += x;
+        unit.YPosition += y;
+        unit.DRect.x = unit.XPosition;
+        unit.DRect.y = unit.YPosition;
     }
 
 
@@ -142,12 +160,12 @@ public class GameLogicManager
     {
         int minimumDistance = Int32.MaxValue;
         GameBaseObject nearestTarget = null;
-        for (var i = unit._lastQuadrant.X - 1; i <= unit._lastQuadrant.X + 1; i++)
+        for (var i = unit.LastQuadrant.X - 1; i <= unit.LastQuadrant.X + 1; i++)
         {
-            for (var j = unit._lastQuadrant.Y - 1; j <= unit._lastQuadrant.Y + 1; j++)
+            for (var j = unit.LastQuadrant.Y - 1; j <= unit.LastQuadrant.Y + 1; j++)
             {
-                foreach (var enemy in _quadrant[new Vector2(i, j)].Where(b => b._team != unit._team)
-                             .Where(cb => cb.isDead == false).ToArray())
+                foreach (var enemy in _quadrant[new Vector2(i, j)].Where(b => b.Team != unit.Team)
+                             .Where(cb => cb.IsDead == false).ToArray())
                 {
                     var distance = DistanceBetween(unit, enemy);
                     if (nearestTarget == null || minimumDistance > distance)
@@ -161,18 +179,18 @@ public class GameLogicManager
 
         if (nearestTarget == null)
         {
-            nearestTarget = unit._team == 1 ? _buildingBase2 : _buildingBase;
+            nearestTarget = unit.Team == 1 ? BuildingBase2 : BuildingBase;
             minimumDistance = DistanceBetween(unit, nearestTarget);
         }
 
-        unit._targetDistance = minimumDistance;
-        unit._target = nearestTarget;
+        unit.TargetDistance = minimumDistance;
+        unit.Target = nearestTarget;
     }
 
     private static int DistanceBetween(GameBaseObject unit, GameBaseObject target)
     {
-        return (int) Math.Round(Vector2.Distance(new Vector2(unit.xPosition, unit.yPosition),
-            new Vector2(target.xPosition, target.yPosition)));
+        return (int) Math.Round(Vector2.Distance(new Vector2(unit.XPosition, unit.YPosition),
+            new Vector2(target.XPosition, target.YPosition)));
     }
 
 
@@ -185,50 +203,50 @@ public class GameLogicManager
 
     public void CheckForSwapQuadrant(GameBaseObject gameBaseObject)
     {
-        var qudX = gameBaseObject.xPosition / 320;
-        var qudY = gameBaseObject.yPosition / 320;
+        var qudX = gameBaseObject.XPosition / 320;
+        var qudY = gameBaseObject.YPosition / 320;
         // Console.WriteLine($"Old quadrant{gameBaseObject._lastQuadrant}, new {new Vector2(qudX, qudY)}");
-        if (!(Vector2.Distance(gameBaseObject._lastQuadrant, new Vector2(qudX, qudY)) > 0)) return;
+        if (!(Vector2.Distance(gameBaseObject.LastQuadrant, new Vector2(qudX, qudY)) > 0)) return;
         DeleteFromQuadrant(gameBaseObject);
         AddToQuadrant(gameBaseObject);
     }
 
     public void AddToQuadrant(GameBaseObject gameBaseObject)
     {
-        var qudX = gameBaseObject.xPosition / 320;
-        var qudY = gameBaseObject.yPosition / 320;
+        var qudX = gameBaseObject.XPosition / 320;
+        var qudY = gameBaseObject.YPosition / 320;
         _quadrant[new Vector2(qudX, qudY)].Add(gameBaseObject);
-        gameBaseObject._lastQuadrant = new Vector2(qudX, qudY);
+        gameBaseObject.LastQuadrant = new Vector2(qudX, qudY);
     }
 
     private void DeleteFromQuadrant(GameBaseObject gameBaseObject)
     {
-        _quadrant[gameBaseObject._lastQuadrant].Remove(gameBaseObject);
+        _quadrant[gameBaseObject.LastQuadrant].Remove(gameBaseObject);
     }
 
     [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH",
         MessageId = "type: WhereListIterator`1[SimpleLayer.Objects.GameBaseObject]")]
     private void CheckCollision(Unit unit)
     {
-        for (var i = unit._lastQuadrant.X - 1; i <= unit._lastQuadrant.X + 1; i++)
+        for (var i = unit.LastQuadrant.X - 1; i <= unit.LastQuadrant.X + 1; i++)
         {
-            for (var j = unit._lastQuadrant.Y - 1; j <= unit._lastQuadrant.Y + 1; j++)
+            for (var j = unit.LastQuadrant.Y - 1; j <= unit.LastQuadrant.Y + 1; j++)
             {
-                foreach (var enemy in _quadrant[new Vector2(i, j)].Where(b => b._team != unit._team))
+                foreach (var enemy in _quadrant[new Vector2(i, j)].Where(b => b.Team != unit.Team))
                 {
-                    switch (SDL.SDL_HasIntersection(ref unit._dRect, ref enemy._dRect))
+                    switch (SDL.SDL_HasIntersection(ref unit.DRect, ref enemy.DRect))
                     {
                         case SDL.SDL_bool.SDL_TRUE:
-                            unit._healtPpoint -= enemy.Damage;
-                            enemy._healtPpoint -= unit.Damage;
-                            if (unit._healtPpoint == 0)
+                            unit.HealthPoint -= enemy.Damage;
+                            enemy.HealthPoint -= unit.Damage;
+                            if (unit.HealthPoint == 0)
                             {
-                                unit.isDead = true;
+                                unit.IsDead = true;
                             }
 
-                            if (enemy._healtPpoint == 0)
+                            if (enemy.HealthPoint == 0)
                             {
-                                enemy.isDead = true;
+                                enemy.IsDead = true;
                             }
 
                             break;
@@ -244,18 +262,17 @@ public class GameLogicManager
 
     public bool GetState()
     {
-        if (_buildingBase == null)
+        if (BuildingBase == null)
         {
-            if (_buildingBase._healtPpoint > 0)
+            if (BuildingBase.HealthPoint > 0)
             {
-                _state = false;
-                return _state;
+                return false;
             }
         }
 
-        if (_buildingBase2 != null)
+        if (BuildingBase2 != null)
         {
-            if (_buildingBase2._healtPpoint > 0)
+            if (BuildingBase2.HealthPoint > 0)
             {
                 _state = false;
                 return _state;

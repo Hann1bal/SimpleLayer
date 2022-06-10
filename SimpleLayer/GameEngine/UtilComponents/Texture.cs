@@ -9,18 +9,18 @@ public class Texture
 
     private void GetAllTexturePath()
     {
-        foreach (var path in Directory.GetFiles("./Data/Texture",
+        foreach (var path in Directory.GetFiles(".\\Data\\Texture",
                      "*.png", SearchOption.AllDirectories))
         {
             _pathList.Add(Path.GetFileName(path).Split(".").First(), path);
         }
     }
+
     public void LoadTexture(IntPtr renderer)
     {
         GetAllTexturePath();
         foreach (var (key, value) in _pathList)
-        {   
-            
+        {
             Dictionary.Add(key.Split(".").First(), SDL_image.IMG_LoadTexture(renderer, value));
         }
     }

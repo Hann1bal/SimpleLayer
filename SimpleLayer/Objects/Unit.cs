@@ -9,17 +9,10 @@ public class Unit : GameBaseObject, IDisposable
     private IntPtr _renderer;
     private const int Speed = 1;
 
-    public Unit(ref IntPtr renderer, string textureName, int xPos, int yPos,
+    public Unit(string textureName, int xPos, int yPos,
         int healtPpoint, int team, int damage) :
-        base(ref renderer, textureName, xPos, yPos, healtPpoint, team, damage)
+        base(textureName, xPos, yPos, healtPpoint, team, damage)
     {
-        _renderer = renderer;
-    }
-
-
-    public new void Render(ref Camera camera, ref Texture textureManager)
-    {
-        base.Render(ref camera, ref textureManager);
     }
 
     public new void Dispose()
