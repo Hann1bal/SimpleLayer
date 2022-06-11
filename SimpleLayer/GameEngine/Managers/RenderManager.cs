@@ -18,10 +18,11 @@ public class RenderManager
     public Building _currentBuilding { get; set; }
     private Hud _hud;
     private int _x, _y;
+    private readonly Dictionary<int, Tile> _tileList;
 
     private RenderManager(ref IntPtr renderer, ref List<Building> buildings,
-        ref Texture textureManager, ref Camera camera, ref Level level, ref List<Buttons> buttonsList, ref Hud hud
-    )
+        ref Texture textureManager, ref Camera camera, ref Level level, ref List<Buttons> buttonsList, ref Hud hud,
+        ref Dictionary<int, Tile> tileList)
     {
         _renderer = renderer;
         _buttonsList = buttonsList;
@@ -31,16 +32,17 @@ public class RenderManager
         _level = level;
         _level2 = level.GetCopy();
         _hud = hud;
+        _tileList = tileList;
     }
 
     public static RenderManager GetInstance(ref IntPtr renderer, ref List<Building> buildings,
-        ref Texture textureManager, ref Camera camera, ref Level level, ref List<Buttons> buttonsList, ref Hud hud
-    )
+        ref Texture textureManager, ref Camera camera, ref Level level, ref List<Buttons> buttonsList, ref Hud hud,
+        ref Dictionary<int, Tile> tileManager)
     {
         if (_renderManager != null) return _renderManager;
         return _renderManager =
             new RenderManager(ref renderer, ref buildings, ref textureManager, ref camera, ref level, ref buttonsList,
-                ref hud);
+                ref hud, ref tileManager);
     }
 
     public void RunManager(ref Building currentBuilding)
@@ -51,7 +53,7 @@ public class RenderManager
             _currentBuilding = null;
         }
 
-        
+
         Render();
     }
 
@@ -64,28 +66,42 @@ public class RenderManager
             {
                 _level.DRect.x = x * 32 - camera.CameraRect.x;
                 _level.DRect.y = y * 32 - camera.CameraRect.y;
-                switch (_level._levelMatrix[x, y])
-                {
-                    case 2:
-                        _level.SRect.x = 470;
-                        _level.SRect.y = 297;
-                        SDL_RenderCopy(_renderer, _textureManager.Dictionary["tilemap"], ref _level.SRect,
-                            ref _level.DRect);
-                        break;
-                    case 1:
-                        _level.SRect.x = 404;
-                        _level.SRect.y = 231;
-                        SDL_RenderCopy(_renderer, _textureManager.Dictionary["tilemap"], ref _level.SRect,
-                            ref _level.DRect);
-                        break;
-                    case 0:
+                SDL_RenderCopy(_renderer, _tileList[_level._levelMatrix[x, y]]._texture, ref _level.SRect,
+                    ref _level.DRect);
+            }
+        }
+    }
+    
+    private void RenderMinimap(List<Building> buildings, Camera camera)
+    {
+        SDL_Rect newCameraSRect = new SDL_Rect()
+        {
+            h = 90, w =192,
+            x = 22 + camera.CameraRect.x/10,
+            y = 805 + camera.CameraRect.y/12
+        };
+        for (var x = 0; x < Level.LevelWidth / 32; x++)
+        {
+            for (var y = 0; y < Level.LevelHeight / 32; y++)
+            {
+                _level2.DRect.x = 22 + x * 32 / 10;
+                _level2.DRect.y = 805 + y * 32 / 12;
+                _level2.DRect.h = _level2.SRect.h / 8;
+                _level2.DRect.w = _level2.SRect.w / 8;
+                SDL_RenderCopy(_renderer, _tileList[_level._levelMatrix[x, y]]._texture, ref _level2.SRect,
+                    ref _level2.DRect);
+            }
+        }
+        SDL_SetRenderDrawColor (_renderer, 0, 255, 0, 255);
 
-                        _level.SRect.x = 107;
-                        _level.SRect.y = 33;
-                        SDL_RenderCopy(_renderer, _textureManager.Dictionary["tilemap"], ref _level.SRect,
-                            ref _level.DRect);
-                        break;
-                }
+        SDL_RenderDrawRect(_renderer, ref newCameraSRect);
+
+        foreach (var build in buildings)
+        {
+            RenderSingleIdleObjects(build);
+            foreach (var unit in build.Units)
+            {
+                RenderSingleIdleObjects(unit);
             }
         }
     }
@@ -117,7 +133,6 @@ public class RenderManager
             x = gameBaseObject.XPosition - _camera.CameraRect.x,
             y = gameBaseObject.YPosition - _camera.CameraRect.y
         };
-
         if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + _camera.CameraRect.w ||
             newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + _camera.CameraRect.h)
         {
@@ -155,7 +170,6 @@ public class RenderManager
             x = gameBaseObject.XPosition / 10,
             y = 805 + gameBaseObject.YPosition / 10
         };
-
         if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + _camera.CameraRect.w ||
             newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + _camera.CameraRect.h)
         {
@@ -190,62 +204,17 @@ public class RenderManager
             ref _hud.DRect);
     }
 
-    private void RenderMinimap(List<Building> buildings)
-    {
-        for (var x = 0; x < Level.LevelWidth / 32; x++)
-        {
-            for (var y = 0; y < Level.LevelHeight / 32; y++)
-            {
-                _level2.DRect.x = 25 + x * 32 / 10;
-                _level2.DRect.y = 805 + y * 32 / 12;
-                _level2.DRect.h = _level2.SRect.h / 8;
-                _level2.DRect.w = _level2.SRect.w / 8;
-                switch (_level2._levelMatrix[x, y])
-                {
-                    case 2:
-                        _level2.SRect.x = 470;
-                        _level2.SRect.y = 297;
-                        SDL_RenderCopy(_renderer, _textureManager.Dictionary["tilemap"], ref _level2.SRect,
-                            ref _level2.DRect);
-                        break;
-                    case 1:
-                        _level2.SRect.x = 404;
-                        _level2.SRect.y = 231;
-                        SDL_RenderCopy(_renderer, _textureManager.Dictionary["tilemap"], ref _level2.SRect,
-                            ref _level2.DRect);
-                        break;
-                    case 0:
-                        _level2.SRect.x = 107;
-                        _level2.SRect.y = 33;
-                        SDL_RenderCopy(_renderer, _textureManager.Dictionary["tilemap"], ref _level2.SRect,
-                            ref _level2.DRect);
-                        break;
-                }
-            }
-        }
 
-        foreach (var build in buildings)
-        {
-            RenderSingleIdleObjects(build);
-            foreach (var unit in build.Units)
-            {
-                RenderSingleIdleObjects(unit);
-            }
-        }
-    }
 
     private void Render()
     {
         SDL_RenderClear(_renderer);
         DrawMap(_camera);
-
-
         foreach (var b in _buildings.ToArray())
         {
             RenderAllObject(b);
         }
-
-        RenderMinimap(_buildings);
+        RenderMinimap(_buildings, _camera);
         RenderButtons();
         RenderHud();
         RenderSelectedObject();

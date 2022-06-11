@@ -22,10 +22,13 @@ public class Game : IDisposable
     private GameLogicManager _gameLogicManager;
     private RenderManager _rendererMeneger;
     private HudManager _hudMeneger;
+    private TileManager _tileManager;
     private List<Buttons> _buttons = new();
-    private bool IsPaused = false;
+    private bool _isPaused = false;
     private Hud _hud;
     private Building? _currentBuilding = null;
+    private bool _isShiftPressed = false;
+    private Dictionary<int, Tile> _tileList = new Dictionary<int, Tile>();
 
     private void Init()
     {
@@ -70,17 +73,18 @@ public class Game : IDisposable
 
         SDL_ttf.TTF_OpenFont($"./Data/Fonts/OpenSans.ttf", 10);
         _gameLogicManager = GameLogicManager.GetInstance(ref _playersBuildings);
+        _tileManager = TileManager.GetInstance(ref _tileList, ref _textureManager, ref _level);
         _hud = Hud.GetInstance("Hud", new SDL_Rect {x = 0, y = 0, h = 900, w = 1440},
             new SDL_Rect {x = 0, y = 0, w = _camera.CameraRect.w, h = _camera.CameraRect.h});
         _rendererMeneger = RenderManager.GetInstance(ref _renderer, ref _playersBuildings,
-            ref _textureManager, ref _camera, ref _level, ref _buttons, ref _hud);
+            ref _textureManager, ref _camera, ref _level, ref _buttons, ref _hud, ref _tileList);
         _hudMeneger = HudManager.GetInstance(ref _buttons, ref _hud);
     }
 
 
     private void PollEvents()
     {
-        while (SDL_PollEvent(out SDL_Event e) == 1)
+        while (SDL_PollEvent(out var e) == 1)
         {
             switch (e.type)
             {
@@ -92,17 +96,17 @@ public class Game : IDisposable
                     {
                         _gameLogicManager.PlaceBuilding(e.button.x + _camera.CameraRect.x,
                             e.button.y + _camera.CameraRect.y, ref _currentBuilding);
-                        _currentBuilding.Dispose();
-                        _currentBuilding = null;
+                        if (!_isShiftPressed)
+                        {
+                            _currentBuilding.Dispose();
+                            _currentBuilding = null;
+                        }
                     }
 
                     foreach (var button in _buttons.Where(b => b.IsFocused))
                     {
-                        _hudMeneger.PressButton(button, ref IsPaused, ref _currentBuilding);
+                        _hudMeneger.PressButton(button, ref _isPaused, ref _currentBuilding);
                     }
-
-                    // Console.WriteLine($"x = {e.button.x}, y = {e.button.y}");
-
 
                     break;
                 case SDL_EventType.SDL_MOUSEBUTTONUP:
@@ -127,7 +131,19 @@ public class Game : IDisposable
                         case SDL_Keycode.SDLK_DOWN:
                             _camera.Move(CameraDerection.DONW, ref _level);
                             break;
+                        case SDL_Keycode.SDLK_LSHIFT:
+                            _isShiftPressed = true;
+                            break;
                         default:
+                            break;
+                    }
+
+                    break;
+                case SDL_EventType.SDL_KEYUP:
+                    switch (e.key.keysym.sym)
+                    {
+                        case SDL_Keycode.SDLK_LSHIFT:
+                            _isShiftPressed = false;
                             break;
                     }
 
@@ -137,7 +153,6 @@ public class Game : IDisposable
                     {
                         _camera.Move(CameraDerection.LEFT, ref _level);
                     }
-
 
                     break;
                 case SDL_EventType.SDL_MOUSEMOTION:
@@ -161,7 +176,8 @@ public class Game : IDisposable
                             break;
                     }
 
-
+                    break;
+                default:
                     break;
             }
         }
@@ -179,7 +195,7 @@ public class Game : IDisposable
             _hudMeneger.RunManager();
             var updateThread = new Thread(_gameLogicManager.RunManager);
 
-            if (!IsPaused)
+            if (!_isPaused)
             {
                 updateThread.Start();
             }

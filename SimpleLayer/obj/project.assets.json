@@ -89,6 +89,95 @@
       "zlib/1.2.8.8": {
         "type": "package"
       }
+    },
+    "net6.0/win-x64": {
+      "libjpeg/9.0.1.4": {
+        "type": "package",
+        "dependencies": {
+          "libjpeg.redist": "9.0.1.4"
+        }
+      },
+      "libjpeg.redist/9.0.1.4": {
+        "type": "package"
+      },
+      "libpng/1.6.19.1": {
+        "type": "package",
+        "dependencies": {
+          "libpng.redist": "1.6.19.1",
+          "zlib": "1.2.8.8"
+        }
+      },
+      "libpng.redist/1.6.19.1": {
+        "type": "package"
+      },
+      "libtiff/4.0.6.2": {
+        "type": "package",
+        "dependencies": {
+          "libjpeg": "9.0.1.4",
+          "libtiff.redist": "4.0.6.2",
+          "zlib": "1.2.8.8"
+        }
+      },
+      "libtiff.redist/4.0.6.2": {
+        "type": "package"
+      },
+      "Sayers.SDL2.Core/1.0.11": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/Sayers.SDL2.Core.dll": {}
+        },
+        "runtime": {
+          "lib/net6.0/Sayers.SDL2.Core.dll": {}
+        },
+        "build": {
+          "build/Sayers.SDL2.Core.targets": {}
+        }
+      },
+      "SDL/1.2.15.16": {
+        "type": "package",
+        "dependencies": {
+          "SDL.redist": "1.2.15.16"
+        }
+      },
+      "SDL.redist/1.2.15.16": {
+        "type": "package"
+      },
+      "sdl2.nuget/2.0.20": {
+        "type": "package",
+        "dependencies": {
+          "sdl2.nuget.redist": "2.0.20"
+        }
+      },
+      "sdl2.nuget.redist/2.0.20": {
+        "type": "package"
+      },
+      "sdl2_ttf.nuget/2.0.18": {
+        "type": "package",
+        "dependencies": {
+          "sdl2.nuget": "2.0.20",
+          "sdl2_ttf.nuget.redist": "2.0.18"
+        }
+      },
+      "sdl2_ttf.nuget.redist/2.0.18": {
+        "type": "package"
+      },
+      "SDL_image/1.2.12.3": {
+        "type": "package",
+        "dependencies": {
+          "SDL": "1.2.15.16",
+          "SDL_image.redist": "1.2.12.3",
+          "libjpeg": "9.0.1.4",
+          "libpng": "1.6.19.1",
+          "libtiff": "4.0.6.2",
+          "zlib": "1.2.8.8"
+        }
+      },
+      "SDL_image.redist/1.2.12.3": {
+        "type": "package"
+      },
+      "zlib/1.2.8.8": {
+        "type": "package"
+      }
     }
   },
   "libraries": {
@@ -1181,12 +1270,35 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+            "version": "[6.0.4, 6.0.4]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Crossgen2.win-x64",
+            "version": "[6.0.4, 6.0.4]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Runtime.win-x64",
+            "version": "[6.0.4, 6.0.4]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+            "version": "[6.0.4, 6.0.4]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
+      }
+    },
+    "runtimes": {
+      "win-x64": {
+        "#import": []
       }
     }
   }
