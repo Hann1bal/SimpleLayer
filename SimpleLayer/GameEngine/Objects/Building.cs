@@ -17,7 +17,7 @@ public class Building : GameBaseObject
 
     public Building(string textureName, int xPos, int yPos,
         int healtPpoint, int team, bool isFactory = true) :
-        base(textureName, xPos, yPos, healtPpoint, team)
+        base(textureName, xPos, yPos, healtPpoint, team, true, 0)
     {
         _team = team;
         _xPos = xPos;
@@ -30,9 +30,21 @@ public class Building : GameBaseObject
 
     public Unit Spawn()
     {
-        var unit = new Unit("dude", _xPos, _yPos, 5, _team, 5);
+        Unit unit;
+        switch (TextureName)
+        {
+            case "arab_1":
+                unit = new Unit("adventurer", _xPos, _yPos, 5, _team, 5, 8, 9);
+                break;
+            case "arab_2":
+                unit = new Unit("dwarf", _xPos, _yPos, 5, _team, 5, 8, 7);
+                break;
+            default:
+                unit = new Unit("dwarf", _xPos, _yPos, 5, _team, 5, 8, 7);
+                break;
+        }
+
         Units.Add(unit);
         return unit;
     }
-    
 }

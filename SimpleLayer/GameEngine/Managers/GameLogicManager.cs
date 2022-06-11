@@ -148,12 +148,15 @@ public class GameLogicManager
     {
         // Console.WriteLine($"self - {xPosition},{yPosition}, target - {_target}, _targetDistance- {_targetDistance}");
         if (unit.TargetDistance == 0) return;
-        var x = (int) Math.Round((float) (unit.Target.XPosition - unit.XPosition) / unit.TargetDistance);
-        var y = (int) Math.Round((float) (unit.Target.YPosition - unit.YPosition) / unit.TargetDistance);
+        unit.CurrentXSpeed = (float) (unit.Target.XPosition - unit.XPosition) / unit.TargetDistance;
+        var x = 4 * (int) Math.Round( unit.CurrentXSpeed);
+        var y = 4 *(int) Math.Round((float) (unit.Target.YPosition - unit.YPosition) / unit.TargetDistance);
         unit.XPosition += x;
         unit.YPosition += y;
         unit.DRect.x = unit.XPosition;
         unit.DRect.y = unit.YPosition;
+        if (unit.CurrentFrame < unit.MaxFrame) unit.CurrentFrame++;
+        else unit.CurrentFrame = 1;
     }
 
 

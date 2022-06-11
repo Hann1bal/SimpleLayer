@@ -12,7 +12,7 @@ public class Game : IDisposable
     private IntPtr _renderer;
     private bool _running = true;
     private uint _frameStart;
-    private const int Fps = 144;
+    private const int Fps = 30;
     private const int FrameDelay = 1000 / Fps;
     private Texture _textureManager = new Texture();
     private uint _frameTime;

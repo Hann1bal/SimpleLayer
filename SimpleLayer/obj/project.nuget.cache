@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "+VpvsxudvZZpMO6QcSLHHuHud1LsjEP2chvBgySTctdg5KmrRvSQWtmxP+B1HMtzkvzGs1z8eVUYErJnFb68+A==",
+  "dgSpecHash": "3OzFdJY94yM5rWBLP6TW4Zys6P479WLhYEN9pquMYV7L9nZJT2/PzSuG5TyKXaOrcWXABfr6YHJbSKL281WD/A==",
   "success": true,
   "projectFilePath": "C:\\Users\\wertu\\SimpleLayer\\SimpleLayer\\SimpleLayer.csproj",
   "expectedPackageFiles": [
@@ -19,11 +19,7 @@
     "C:\\Users\\wertu\\.nuget\\packages\\sdl2_ttf.nuget.redist\\2.0.18\\sdl2_ttf.nuget.redist.2.0.18.nupkg.sha512",
     "C:\\Users\\wertu\\.nuget\\packages\\sdl_image\\1.2.12.3\\sdl_image.1.2.12.3.nupkg.sha512",
     "C:\\Users\\wertu\\.nuget\\packages\\sdl_image.redist\\1.2.12.3\\sdl_image.redist.1.2.12.3.nupkg.sha512",
-    "C:\\Users\\wertu\\.nuget\\packages\\zlib\\1.2.8.8\\zlib.1.2.8.8.nupkg.sha512",
-    "C:\\Users\\wertu\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\6.0.4\\microsoft.netcore.app.runtime.win-x64.6.0.4.nupkg.sha512",
-    "C:\\Users\\wertu\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\6.0.4\\microsoft.windowsdesktop.app.runtime.win-x64.6.0.4.nupkg.sha512",
-    "C:\\Users\\wertu\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\6.0.4\\microsoft.aspnetcore.app.runtime.win-x64.6.0.4.nupkg.sha512",
-    "C:\\Users\\wertu\\.nuget\\packages\\microsoft.netcore.app.crossgen2.win-x64\\6.0.4\\microsoft.netcore.app.crossgen2.win-x64.6.0.4.nupkg.sha512"
+    "C:\\Users\\wertu\\.nuget\\packages\\zlib\\1.2.8.8\\zlib.1.2.8.8.nupkg.sha512"
   ],
   "logs": []
 }

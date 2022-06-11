@@ -11,17 +11,21 @@ public class GameBaseObject : IGameBaseObject
     public SDL.SDL_Rect DRect;
     public int HealthPoint;
     public string TextureName;
+    public float CurrentXSpeed = 0;
+    public int CurrentFrame = 1;
     public Vector2 LastQuadrant;
     public GameBaseObject Target;
     public int TargetDistance;
     public int Team;
     public bool IsDead;
     public readonly int Damage;
+    public bool IsBuildng = false;
 
     public GameBaseObject(string textureName, int xPos, int yPos,
-        int healthPoint, int team, int damage = 0)
+        int healthPoint, int team, bool isBuildng, int damage = 0)
     {
         Team = team;
+        IsBuildng = isBuildng;
         Damage = damage;
         HealthPoint = healthPoint;
         XPosition = xPos;

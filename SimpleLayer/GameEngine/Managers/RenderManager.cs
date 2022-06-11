@@ -71,14 +71,14 @@ public class RenderManager
             }
         }
     }
-    
+
     private void RenderMinimap(List<Building> buildings, Camera camera)
     {
         SDL_Rect newCameraSRect = new SDL_Rect()
         {
-            h = 90, w =192,
-            x = 22 + camera.CameraRect.x/10,
-            y = 805 + camera.CameraRect.y/12
+            h = 90, w = 192,
+            x = 22 + camera.CameraRect.x / 10,
+            y = 805 + camera.CameraRect.y / 12
         };
         for (var x = 0; x < Level.LevelWidth / 32; x++)
         {
@@ -92,7 +92,8 @@ public class RenderManager
                     ref _level2.DRect);
             }
         }
-        SDL_SetRenderDrawColor (_renderer, 0, 255, 0, 255);
+
+        SDL_SetRenderDrawColor(_renderer, 0, 255, 0, 255);
 
         SDL_RenderDrawRect(_renderer, ref newCameraSRect);
 
@@ -104,6 +105,10 @@ public class RenderManager
                 RenderSingleIdleObjects(unit);
             }
         }
+    }
+
+    public void Animate()
+    {
     }
 
     private void RenderMesh()
@@ -126,6 +131,7 @@ public class RenderManager
 
     private void RenderSingleObjects(GameBaseObject gameBaseObject)
     {
+        IntPtr texture;
         SDL_Rect newRectangle = new()
         {
             h = gameBaseObject.SRect.w / 5,
@@ -139,7 +145,30 @@ public class RenderManager
             return;
         }
 
-        SDL_RenderCopy(_renderer, _textureManager.Dictionary[gameBaseObject.TextureName], ref gameBaseObject.SRect,
+        
+        if (!gameBaseObject.IsBuildng)
+        {
+            switch (gameBaseObject.CurrentXSpeed)
+            {
+                case > 0:
+                    texture = _textureManager.Dictionary[
+                        $"{gameBaseObject.TextureName}_right_{gameBaseObject.CurrentFrame}"];
+                    break;
+                case <0:
+                    texture = _textureManager.Dictionary[
+                        $"{gameBaseObject.TextureName}_left_{gameBaseObject.CurrentFrame}"];
+                    break;
+                default:
+                    texture = _textureManager.Dictionary[
+                        $"{gameBaseObject.TextureName}_right_{gameBaseObject.CurrentFrame}"];
+                    break;
+            }
+        }
+        else
+        {
+            texture = _textureManager.Dictionary[gameBaseObject.TextureName];
+        }
+        SDL_RenderCopy(_renderer, texture, ref gameBaseObject.SRect,
             ref newRectangle);
     }
 
@@ -176,7 +205,10 @@ public class RenderManager
             return;
         }
 
-        SDL_RenderCopy(_renderer, _textureManager.Dictionary[gameBaseObject.TextureName], ref gameBaseObject.SRect,
+        var texture = gameBaseObject.IsBuildng
+            ? _textureManager.Dictionary[gameBaseObject.TextureName]
+            : _textureManager.Dictionary[$"{gameBaseObject.TextureName}_right_{gameBaseObject.CurrentFrame}"];
+        SDL_RenderCopy(_renderer, texture, ref gameBaseObject.SRect,
             ref newRectangle);
     }
 
@@ -205,7 +237,6 @@ public class RenderManager
     }
 
 
-
     private void Render()
     {
         SDL_RenderClear(_renderer);
@@ -214,6 +245,7 @@ public class RenderManager
         {
             RenderAllObject(b);
         }
+
         RenderMinimap(_buildings, _camera);
         RenderButtons();
         RenderHud();
