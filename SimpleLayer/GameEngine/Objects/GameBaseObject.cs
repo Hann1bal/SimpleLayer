@@ -20,7 +20,7 @@ public class GameBaseObject : IGameBaseObject
     public bool IsDead;
     public readonly int Damage;
     public bool IsBuildng = false;
-
+    
     public GameBaseObject(string textureName, int xPos, int yPos,
         int healthPoint, int team, bool isBuildng, int damage = 0)
     {
