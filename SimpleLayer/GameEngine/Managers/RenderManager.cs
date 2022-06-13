@@ -45,15 +45,14 @@ public class RenderManager
                 ref hud, ref tileManager);
     }
 
+    public void RunManager()
+    {
+        Render();
+    }
+
     public void RunManager(ref Building currentBuilding)
     {
-        if (currentBuilding != null) _currentBuilding = currentBuilding;
-        else
-        {
-            _currentBuilding = null;
-        }
-
-
+        _currentBuilding = currentBuilding;
         Render();
     }
 
@@ -106,11 +105,7 @@ public class RenderManager
             }
         }
     }
-
-    public void Animate()
-    {
-    }
-
+    
     private void RenderMesh()
     {
         for (var i = 0; i < 10; i++)
@@ -145,7 +140,7 @@ public class RenderManager
             return;
         }
 
-        
+
         if (!gameBaseObject.IsBuildng)
         {
             switch (gameBaseObject.CurrentXSpeed)
@@ -154,7 +149,7 @@ public class RenderManager
                     texture = _textureManager.Dictionary[
                         $"{gameBaseObject.TextureName}_right_{gameBaseObject.CurrentFrame}"];
                     break;
-                case <0:
+                case < 0:
                     texture = _textureManager.Dictionary[
                         $"{gameBaseObject.TextureName}_left_{gameBaseObject.CurrentFrame}"];
                     break;
@@ -168,36 +163,36 @@ public class RenderManager
         {
             texture = _textureManager.Dictionary[gameBaseObject.TextureName];
         }
+
         SDL_RenderCopy(_renderer, texture, ref gameBaseObject.SRect,
             ref newRectangle);
     }
 
     private void RenderSelectedObject()
     {
-        if (_currentBuilding != null)
+        if (_currentBuilding == null) return;
+        SDL_GetMouseState(out _x, out _y);
+        SDL_Rect newRectangle = new()
         {
-            SDL_GetMouseState(out _x, out _y);
-            SDL_Rect newRectangle = new()
-            {
-                h = 90,
-                w = 90,
-                x = _x,
-                y = _y
-            };
-            SDL_RenderCopy(_renderer, _textureManager.Dictionary[_currentBuilding.TextureName],
-                ref _currentBuilding.SRect,
-                ref newRectangle);
-        }
+            h = 90,
+            w = 90,
+            x = _x,
+            y = _y
+        };
+        SDL_RenderCopy(_renderer, _textureManager.Dictionary[_currentBuilding.TextureName],
+            ref _currentBuilding.SRect,
+            ref newRectangle);
     }
 
     private void RenderSingleIdleObjects(GameBaseObject gameBaseObject)
     {
+        IntPtr texture;
         SDL_Rect newRectangle = new()
         {
-            h = gameBaseObject.SRect.w / 100,
-            w = gameBaseObject.SRect.w / 100,
-            x = gameBaseObject.XPosition / 10,
-            y = 805 + gameBaseObject.YPosition / 10
+            h = gameBaseObject.SRect.w / 50,
+            w = gameBaseObject.SRect.w / 50,
+            x = 25+gameBaseObject.XPosition / 10,
+            y = 805 + gameBaseObject.YPosition / 12
         };
         if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + _camera.CameraRect.w ||
             newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + _camera.CameraRect.h)
@@ -205,9 +200,17 @@ public class RenderManager
             return;
         }
 
-        var texture = gameBaseObject.IsBuildng
-            ? _textureManager.Dictionary[gameBaseObject.TextureName]
-            : _textureManager.Dictionary[$"{gameBaseObject.TextureName}_right_{gameBaseObject.CurrentFrame}"];
+        if (gameBaseObject.IsBuildng)
+        {
+            texture = _textureManager.Dictionary[gameBaseObject.TextureName];
+        }
+        else
+        {
+            texture = gameBaseObject.CurrentFrame < 0
+                ? _textureManager.Dictionary[$"{gameBaseObject.TextureName}_left_{gameBaseObject.CurrentFrame}"]
+                : _textureManager.Dictionary[$"{gameBaseObject.TextureName}_right_{gameBaseObject.CurrentFrame}"];
+        }
+
         SDL_RenderCopy(_renderer, texture, ref gameBaseObject.SRect,
             ref newRectangle);
     }

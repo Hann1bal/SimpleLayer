@@ -12,6 +12,7 @@ public class GameBaseObject : IGameBaseObject
     public int HealthPoint;
     public string TextureName;
     public float CurrentXSpeed = 0;
+    public float CurrentYSpeed = 0;
     public int CurrentFrame = 1;
     public Vector2 LastQuadrant;
     public GameBaseObject Target;
@@ -48,10 +49,6 @@ public class GameBaseObject : IGameBaseObject
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        GC.SuppressFinalize(TextureName);
-
-        GC.SuppressFinalize(DRect);
-        GC.SuppressFinalize(SRect);
         GC.Collect(GC.MaxGeneration);
     }
 }

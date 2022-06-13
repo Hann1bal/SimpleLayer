@@ -16,6 +16,10 @@ public class Texture
         }
     }
 
+    public void CreateTextButton()
+    {
+        
+    }
     public void LoadTexture(IntPtr renderer)
     {
         GetAllTexturePath();

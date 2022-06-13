@@ -23,4 +23,19 @@
       <PackageReference Include="SDL_image" Version="1.2.12.3" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Data\Texture\Hud\Hud.png" />
+      <Content Include="Data\Texture\Hud\Hud.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Data\Texture\Hud\InitHud.jpg" />
+      <Content Include="Data\Texture\Hud\InitHud.jpg">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Data\Texture\Hud\MenuHud.png" />
+      <Content Include="Data\Texture\Hud\MenuHud.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>

@@ -31,3 +31,6 @@ C:\Users\wertu\SimpleLayer\SimpleLayer\bin\Debug\net6.0\SDL2_mixer.dll
 C:\Users\wertu\SimpleLayer\SimpleLayer\bin\Debug\net6.0\SDL2_ttf.dll
 C:\Users\wertu\SimpleLayer\SimpleLayer\bin\Debug\net6.0\zlib1.dll
 C:\Users\wertu\SimpleLayer\SimpleLayer\bin\Debug\net6.0\Sayers.SDL2.Core.dll
+C:\Users\wertu\SimpleLayer\SimpleLayer\bin\Debug\net6.0\Data\Texture\Hud\Hud.png
+C:\Users\wertu\SimpleLayer\SimpleLayer\bin\Debug\net6.0\Data\Texture\Hud\InitHud.jpg
+C:\Users\wertu\SimpleLayer\SimpleLayer\bin\Debug\net6.0\Data\Texture\Hud\MenuHud.png
