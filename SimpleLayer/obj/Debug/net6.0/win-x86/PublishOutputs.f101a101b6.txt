@@ -1,2 +1,0 @@
-C:\Users\wertu\SimpleLayer\SimpleLayer\bin\Debug\net6.0\win-x86\publish\SimpleLayer.pdb
-C:\Users\wertu\SimpleLayer\SimpleLayer\bin\Debug\net6.0\win-x86\publish\SimpleLayer.exe
