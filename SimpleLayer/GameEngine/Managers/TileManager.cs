@@ -1,4 +1,5 @@
-﻿using SDL2;
+﻿using System.Numerics;
+using SDL2;
 using SimpleLayer.GameEngine.UtilComponents;
 
 namespace SimpleLayer.GameEngine.Managers;
@@ -10,7 +11,8 @@ public class TileManager
     private Texture _textureManager;
     private Level _level;
 
-    public static TileManager GetInstance(ref Dictionary<int, Tile> tileManager, ref Texture textureManager, ref Level level)
+    public static TileManager GetInstance(ref Dictionary<int, Tile> tileManager, ref Texture textureManager,
+        ref Level level)
     {
         if (_tileManager != null)
         {
@@ -27,11 +29,18 @@ public class TileManager
         _tileList = tiles;
         _textureManager = textureManager;
         _level = level;
-        for (var x = 0; x < 486; x++)
+        Tile tile;
+        for (var dx = 0; dx < Level.LevelHeight / 32; dx++)
         {
-
-                _tileList.Add(cnt, new Tile(new SDL.SDL_Rect{h = 32,w = 32,x = 0,y = 0}, new SDL.SDL_Rect(), _textureManager.Dictionary[$"{cnt}"], cnt ));
+            for (var dy = 0; dy < Level.LevelWidth / 32; dy++)
+            {
+                tile = new Tile(new SDL.SDL_Rect {h = 32, w = 32, x = dx * 32, y = dy * 32},
+                    new SDL.SDL_Rect {h = 32, w = 32, x = 0, y = 0},
+                    _textureManager.Dictionary[$"{_level._levelMatrix[dx, dy]}"], cnt);
+                if (_level._levelMatrix[dx, dy] == 424) tile.isPlacibleTile = true;
+                _level._tileLevel.Add(new Vector2(dx, dy), tile);
                 cnt++;
+            }
         }
     }
 }

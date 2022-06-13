@@ -1,4 +1,5 @@
-﻿using SimpleLayer.Objects;
+﻿using SimpleLayer.GameEngine.UtilComponents;
+using SimpleLayer.Objects;
 using static SDL2.SDL;
 
 namespace SimpleLayer.GameEngine.Managers;
@@ -11,15 +12,26 @@ public class HudManager
     private int _mouseY;
     private int x, y;
     private Game.GameState _gameState;
+    private Game.GameState _cState;
     private Hud _hud;
+    private Texture _texture;
 
     private HudManager(ref List<Buttons> buttons, ref Hud hud, ref Game.GameState gameState)
     {
         _buttons = buttons;
         _hud = hud;
         _gameState = gameState;
+        _cState = gameState;
         Init();
     }
+
+    public static HudManager GetInstance(ref List<Buttons> buttons, ref Hud hud, ref Game.GameState gameState)
+    {
+        if (_hudManager != null) return _hudManager;
+        return _hudManager = new HudManager(ref buttons, ref hud, ref gameState);
+    }
+
+
     //MENU BUTTON TOP 400px :Y 760px :X;  MIDDLE 530px :Y 830:X, Down 660px :Y 930px :X; dx 100
     private void Init()
     {
@@ -30,11 +42,13 @@ public class HudManager
             //TODO Вынести все статичные данные в отдельный конфиг файл и инициализировать при загрузке игры.
             case Game.GameState.Menu:
                 _buttons.Add(new Buttons("playTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
-                    new SDL_Rect {h = 90, w = 150, x = 760, y = 405}, false));
-                _buttons.Add(new Buttons("playTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
-                    new SDL_Rect {h = 90, w = 150, x = 830, y = 535}, false));
-                _buttons.Add(new Buttons("playTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
-                    new SDL_Rect {h = 90, w = 150, x = 930, y = 665}, false));
+                    new SDL_Rect {h = 90, w = 150, x = 1465, y = 480}, false));
+                _buttons.Add(new Buttons("resumeTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
+                    new SDL_Rect {h = 90, w = 150, x = 1465, y = 480}, false));
+                _buttons.Add(new Buttons("settingsTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
+                    new SDL_Rect {h = 90, w = 150, x = 1535, y = 635}, false));
+                _buttons.Add(new Buttons("exitTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
+                    new SDL_Rect {h = 90, w = 150, x = 1635, y = 795}, false));
                 break;
             case Game.GameState.Play:
                 _buttons.Add(new Buttons("settings", new SDL_Rect {h = 32, w = 32, x = 0, y = 0},
@@ -51,6 +65,7 @@ public class HudManager
                         cnt++;
                     }
                 }
+
                 break;
             case Game.GameState.GameOver:
                 break;
@@ -77,9 +92,15 @@ public class HudManager
             ClearAllButton();
         }
 
+        Init();
+    }
+
+//230 height 460-190
+    private void SyncHud()
+    {
         _hud.TextureName = _gameState switch
         {
-            Game.GameState.Menu => "Menu", 
+            Game.GameState.Menu => "MenuHud",
             Game.GameState.Play => "Hud",
             Game.GameState.GameOver => "GameOver",
             Game.GameState.Lobby => "Lobby",
@@ -88,25 +109,25 @@ public class HudManager
         };
     }
 
-//230 height 460-190
-    public static HudManager GetInstance(ref List<Buttons> buttons, ref Hud hud, ref Game.GameState gameState)
-    {
-        if (_hudManager != null) return _hudManager;
-        return _hudManager = new HudManager(ref buttons, ref hud, ref gameState);
-    }
-
     public void RunManager()
     {
         Update();
+        SyncHud();
+        if (_cState != _gameState)
+        {
+            Console.WriteLine("i'am here");
+            ReInitHudForGameState();
+            _cState = _gameState;
+        }
     }
 
-    public void PressButton(Buttons button, ref bool gameState, ref Building curent)
+    public void PressButton(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref bool matchState, ref Building curent)
     {
         button.IsPressed = true;
-        DoAction(button, ref gameState, ref curent);
+        DoAction(button, ref gamePause, ref gameState, ref curent, ref matchState);
     }
 
-    private void DoAction(Buttons button, ref bool gameState, ref Building curent)
+    private void DoAction(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref Building curent, ref bool matchState)
     {
         SDL_GetMouseState(out x, out y);
         Console.WriteLine($"{x}, {y}");
@@ -119,16 +140,29 @@ public class HudManager
                 switch (button.TextureName)
                 {
                     case "settings":
+                        _gameState = Game.GameState.Menu;
+                        gameState = _gameState;
                         break;
                     case "pause":
                         button.TextureName = "resume";
-                        gameState = !gameState;
+                        gamePause = !gamePause;
                         break;
-
                     case "resume":
-                        gameState = !gameState;
-
+                        gamePause = !gamePause;
                         button.TextureName = "pause";
+                        break;
+                    case "playTextButton":
+                        _gameState = Game.GameState.Play;
+                        gameState = _gameState;
+                        break;
+                    case "exitTextButton":
+                        _gameState = Game.GameState.Exit;
+                        gameState = _gameState;
+                        matchState = false;
+                        break;
+                    case "resumeTextButton":
+                        _gameState = Game.GameState.Play;
+                        gameState = _gameState;
                         break;
                 }
 
@@ -152,6 +186,7 @@ public class HudManager
                 }
 
                 break;
+
             case Game.GameState.Play:
                 foreach (var button in _buttons)
                 {
@@ -159,6 +194,7 @@ public class HudManager
                 }
 
                 break;
+
             case Game.GameState.GameOver:
                 foreach (var button in _buttons)
                 {
@@ -166,6 +202,7 @@ public class HudManager
                 }
 
                 break;
+
             case Game.GameState.Lobby:
                 foreach (var button in _buttons)
                 {
@@ -173,6 +210,10 @@ public class HudManager
                 }
 
                 break;
+
+            case Game.GameState.Init:
+                break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(_gameState), _gameState, null);
         }

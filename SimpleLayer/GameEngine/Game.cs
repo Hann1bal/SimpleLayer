@@ -21,6 +21,7 @@ public class Game : IDisposable
     private Level _level;
     private Camera _camera;
     private List<Building> _playersBuildings = new();
+    private Dictionary<int, Tile> _tiles = new();
     private GameLogicManager _gameLogicManager;
     private RenderManager _rendererMeneger;
     private HudManager _hudMeneger;
@@ -30,8 +31,8 @@ public class Game : IDisposable
     private Hud _hud;
     private Building? _currentBuilding = null;
     private bool _isShiftPressed = false;
-    private Dictionary<int, Tile> _tileList = new Dictionary<int, Tile>();
     private GameState _gameState = GameState.Menu;
+    private bool _matchState = false;
 
     public enum GameState
     {
@@ -39,7 +40,8 @@ public class Game : IDisposable
         Play = 1,
         GameOver = 2,
         Lobby = 3,
-        Init = 4
+        Init = 4,
+        Exit = 5
     }
 
 
@@ -49,6 +51,7 @@ public class Game : IDisposable
         {
             Console.WriteLine($"There was an issue initializing SDL. {SDL_GetError()}");
         }
+
         _window = SDL_CreateWindow(
             "Simple Test Game",
             SDL_WINDOWPOS_CENTERED,
@@ -62,6 +65,11 @@ public class Game : IDisposable
             Console.WriteLine($"There was an issue creating the window. {SDL_GetError()}");
         }
 
+        if (SDL_ttf.TTF_Init() < 0)
+        {
+            Console.WriteLine($"There was an issue creating the renderer. {SDL_ttf.TTF_GetError()}");
+        }
+
 
         _renderer = SDL_CreateRenderer(
             _window,
@@ -73,14 +81,16 @@ public class Game : IDisposable
             Console.WriteLine($"There was an issue creating the renderer. {SDL_GetError()}");
         }
 
+        _gameState = GameState.Menu;
         _hud = Hud.GetInstance("Hud", new SDL_Rect {x = 0, y = 0, h = 900, w = 1440},
             new SDL_Rect {x = 0, y = 0, w = ScreenWidth, h = ScreenHeight});
         _textureManager.LoadTexture(_renderer);
         _hudMeneger = HudManager.GetInstance(ref _buttons, ref _hud, ref _gameState);
         _level = new Level();
         _camera = new Camera();
+        _tileManager = TileManager.GetInstance(ref _tiles, ref _textureManager, ref _level);
         _rendererMeneger = RenderManager.GetInstance(ref _renderer, ref _playersBuildings,
-            ref _textureManager, ref _camera, ref _level, ref _buttons, ref _hud, ref _tileList);
+            ref _textureManager, ref _camera, ref _level, ref _buttons, ref _hud, ref _tiles);
         _gameState = GameState.Init;
         SDL_SetWindowGrab(_window, SDL_bool.SDL_TRUE);
 
@@ -89,14 +99,8 @@ public class Game : IDisposable
             Console.WriteLine($"There was an issue creating the renderer. {SDL_ttf.TTF_GetError()}");
         }
 
-        SDL_ttf.TTF_OpenFont($"./Data/Fonts/OpenSans.ttf", 10);
         _gameLogicManager = GameLogicManager.GetInstance(ref _playersBuildings);
-        _tileManager = TileManager.GetInstance(ref _tileList, ref _textureManager, ref _level);
-        _gameState = GameState.Menu; 
-        _hudMeneger.RunManager();
-        _rendererMeneger.RunManager();
-        SDL_Delay(5000);
-
+        _gameState = GameState.Menu;
     }
 
 
@@ -115,7 +119,7 @@ public class Game : IDisposable
                         if (_currentBuilding != null)
                         {
                             _gameLogicManager.PlaceBuilding(e.button.x + _camera.CameraRect.x,
-                                e.button.y + _camera.CameraRect.y, ref _currentBuilding);
+                                e.button.y + _camera.CameraRect.y, ref _currentBuilding, ref _level);
                             if (!_isShiftPressed)
                             {
                                 _currentBuilding.Dispose();
@@ -134,7 +138,8 @@ public class Game : IDisposable
 
                     foreach (var button in _buttons.Where(b => b.IsFocused))
                     {
-                        _hudMeneger.PressButton(button, ref _isPaused, ref _currentBuilding);
+                        _hudMeneger.PressButton(button, ref _isPaused, ref _gameState, ref _matchState,
+                            ref _currentBuilding);
                     }
 
                     break;
@@ -166,6 +171,7 @@ public class Game : IDisposable
                         default:
                             break;
                     }
+
                     break;
                 case SDL_EventType.SDL_KEYUP:
                     switch (e.key.keysym.sym)
@@ -193,6 +199,7 @@ public class Game : IDisposable
                             _camera.Move(CameraDerection.RIGHT, ref _level);
                             break;
                     }
+
                     switch (e.motion.y)
                     {
                         case <= 2:
@@ -202,6 +209,7 @@ public class Game : IDisposable
                             _camera.Move(CameraDerection.DONW, ref _level);
                             break;
                     }
+
                     break;
                 default:
                     break;
@@ -223,9 +231,10 @@ public class Game : IDisposable
                 case GameState.Lobby:
                 case GameState.Menu:
                     _hudMeneger.RunManager();
-                    _rendererMeneger.RunManager();
+                    _rendererMeneger.RunManager(ref _matchState);
                     break;
                 case GameState.Play:
+                    _matchState = true;
                     _hudMeneger.RunManager();
                     var updateThread = new Thread(_gameLogicManager.RunManager);
                     if (!_isPaused)
@@ -233,11 +242,13 @@ public class Game : IDisposable
                         updateThread.Start();
                     }
 
-                    _gameLogicManager.GetState(ref _gameState);
-                    _rendererMeneger.RunManager(ref _currentBuilding);
+                    _rendererMeneger.RunManager(ref _currentBuilding, ref _matchState);
                     break;
                 case GameState.GameOver:
-                    _rendererMeneger.RunManager();
+                    _rendererMeneger.RunManager(ref _matchState);
+                    break;
+                case GameState.Exit:
+                    _running = false;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

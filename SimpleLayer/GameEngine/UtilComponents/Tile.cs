@@ -6,9 +6,11 @@ public class Tile : IDisposable
 {
     private bool _isMoveble = true;
     public int Id;
-    private readonly SDL.SDL_Rect _sdlDRect;
-    private readonly SDL.SDL_Rect _sdlSRect;
+    public SDL.SDL_Rect _sdlDRect;
+    public SDL.SDL_Rect _sdlSRect;
     public readonly IntPtr _texture;
+    public bool ContainBuilding = false;
+    public bool isPlacibleTile = false;
 
     public Tile(SDL.SDL_Rect sdlDRect, SDL.SDL_Rect sdlSRect, IntPtr texture, int id)
     {
@@ -27,8 +29,6 @@ public class Tile : IDisposable
     {
         GC.SuppressFinalize(this);
         GC.SuppressFinalize(_texture);
-        GC.SuppressFinalize(_sdlDRect);
-        GC.SuppressFinalize(_sdlSRect);
         GC.Collect(GC.MaxGeneration);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using SDL2;
+using SimpleLayer.GameEngine.UtilComponents;
 using SimpleLayer.Objects;
 
 namespace SimpleLayer.GameEngine;
@@ -13,7 +14,7 @@ public class GameLogicManager
     public Building BuildingBase;
     public Building BuildingBase2;
     private bool _state = false;
-    
+
     private GameLogicManager(ref List<Building> buildings)
     {
         _buildings = buildings;
@@ -69,7 +70,7 @@ public class GameLogicManager
         }
     }
 
-    public void PlaceBuilding(int x, int y, ref Building currenBuilding)
+    public void PlaceBuilding(int x, int y, ref Building currenBuilding, ref Level level)
     {
         Building building;
         var team = x switch
@@ -78,9 +79,13 @@ public class GameLogicManager
             > 2400 => 2,
             _ => 0
         };
-        building = new Building(currenBuilding.TextureName, x, y, currenBuilding.HealthPoint, team, true);
+        if (team == 0 || level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding ||
+            !level._tileLevel[new Vector2(x / 32, y / 32)].isPlacibleTile) return;
+        building = new Building(currenBuilding.TextureName, x-32, y-32, currenBuilding.HealthPoint, team, true);
         _buildings.Add(building);
         AddToQuadrant(building);
+        level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding = true;
+
     }
 
 
@@ -255,6 +260,7 @@ public class GameLogicManager
             state = Game.GameState.GameOver;
             return;
         }
+
         state = Game.GameState.Play;
     }
 }
