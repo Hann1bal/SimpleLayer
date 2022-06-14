@@ -1,27 +1,26 @@
 ﻿using System.Numerics;
 using SDL2;
-using SimpleLayer.GameEngine;
 
 namespace SimpleLayer.Objects;
 
 public class GameBaseObject : IGameBaseObject
 {
-    public int XPosition, YPosition;
-    public SDL.SDL_Rect SRect;
-    public SDL.SDL_Rect DRect;
-    public int HealthPoint;
-    public string TextureName;
+    public readonly int Damage;
+    public int CurrentFrame = 1;
     public float CurrentXSpeed = 0;
     public float CurrentYSpeed = 0;
-    public int CurrentFrame = 1;
+    public SDL.SDL_Rect DRect;
+    public int HealthPoint;
+    public bool IsBuildng;
+    public bool IsDead;
     public Vector2 LastQuadrant;
+    public SDL.SDL_Rect SRect;
     public GameBaseObject Target;
     public int TargetDistance;
     public int Team;
-    public bool IsDead;
-    public readonly int Damage;
-    public bool IsBuildng = false;
-    
+    public string TextureName;
+    public int XPosition, YPosition;
+
     public GameBaseObject(string textureName, int xPos, int yPos,
         int healthPoint, int team, bool isBuildng, int damage = 0)
     {
@@ -32,23 +31,23 @@ public class GameBaseObject : IGameBaseObject
         XPosition = xPos;
         YPosition = yPos;
         TextureName = textureName;
-        SRect.h = 300;
-        SRect.w = 300;
+        SRect.h = 210;
+        SRect.w = 210;
         DRect.x = XPosition;
         DRect.y = YPosition;
         DRect.w = SRect.w / 10;
         DRect.h = SRect.h / 10;
     }
 
-
-    ~GameBaseObject()
-    {
-        Dispose();
-    }
-
     public void Dispose()
     {
         GC.SuppressFinalize(this);
         GC.Collect(GC.MaxGeneration);
+    }
+
+
+    ~GameBaseObject()
+    {
+        Dispose();
     }
 }

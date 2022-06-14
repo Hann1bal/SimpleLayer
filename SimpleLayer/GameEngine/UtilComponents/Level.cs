@@ -23,11 +23,9 @@ public class Level
     public const int LevelStartY = 0;
     public const int LevelEndX = 3200;
     public const int LevelEndY = 3200;
-    public Dictionary<Vector2, Tile> _tileLevel = new();
-    public SDL_Rect SRect, DRect;
     public int[,] _levelMatrix;
 
-    private int[] _preGeneratedMap = new[]
+    private readonly int[] _preGeneratedMap =
     {
         77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77,
         77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77,
@@ -464,6 +462,9 @@ public class Level
         77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77
     };
 
+    public Dictionary<Vector2, Tile> _tileLevel = new();
+    public SDL_Rect SRect, DRect;
+
     public Level()
     {
         _levelMatrix = new int[LevelWidth / 32, LevelHeight / 32];
@@ -477,18 +478,16 @@ public class Level
     private void ConvertArrayToMatrix()
     {
         var cnt = 0;
-        for (var x = 0; x <= (LevelWidth / 32) - 1; x++)
+        for (var x = 0; x <= LevelWidth / 32 - 1; x++)
+        for (var y = 0; y <= LevelHeight / 32 - 1; y++)
         {
-            for (var y = 0; y <= (LevelHeight / 32) - 1; y++)
-            {
-                _levelMatrix[y, x] = _preGeneratedMap[cnt];
-                cnt++;
-            }
+            _levelMatrix[y, x] = _preGeneratedMap[cnt];
+            cnt++;
         }
     }
 
     public Level GetCopy()
     {
-        return (Level) this.MemberwiseClone();
+        return (Level) MemberwiseClone();
     }
 }

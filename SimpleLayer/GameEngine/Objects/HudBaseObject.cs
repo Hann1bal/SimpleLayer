@@ -1,14 +1,13 @@
 ﻿using SDL2;
-using SimpleLayer.GameEngine;
 
 namespace SimpleLayer.Objects;
 
 public class HudBaseObject : IGameBaseObject
 {
-    public string TextureName;
     public string CurrentTextureName;
-    public SDL.SDL_Rect SRect;
     public SDL.SDL_Rect DRect;
+    public SDL.SDL_Rect SRect;
+    public string TextureName;
 
     public HudBaseObject(string textureName, SDL.SDL_Rect sRect, SDL.SDL_Rect dRect)
     {
@@ -18,11 +17,6 @@ public class HudBaseObject : IGameBaseObject
         DRect = dRect;
     }
 
-    ~HudBaseObject()
-    {
-        Dispose();
-    }
-
     public void Dispose()
     {
         GC.SuppressFinalize(this);
@@ -30,5 +24,10 @@ public class HudBaseObject : IGameBaseObject
         GC.SuppressFinalize(SRect);
         GC.SuppressFinalize(DRect);
         GC.Collect(GC.MaxGeneration);
+    }
+
+    ~HudBaseObject()
+    {
+        Dispose();
     }
 }

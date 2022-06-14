@@ -4,8 +4,8 @@ namespace SimpleLayer.GameEngine.UtilComponents;
 
 public class Minimap
 {
-    public SDL.SDL_Rect Sminmap;
     public SDL.SDL_Rect Dminmap;
+    public SDL.SDL_Rect Sminmap;
 
     public Minimap()
     {

@@ -4,14 +4,15 @@ namespace SimpleLayer.ECSCore;
 
 public class Entity
 {
-    public int Id { get; private set; }
-    private Dictionary<Type, Component> _components;
+    private readonly Dictionary<Type, Component> _components;
 
     public Entity(int id)
     {
         Id = id;
         _components = new Dictionary<Type, Component>();
     }
+
+    public int Id { get; }
 
     internal void AddComponent(Component component)
     {

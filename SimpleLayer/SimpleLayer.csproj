@@ -10,20 +10,20 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <Prefer32bit>true</Prefer32bit>
+        <Prefer32bit>true</Prefer32bit>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <Prefer32bit>true</Prefer32bit>
+        <Prefer32bit>true</Prefer32bit>
     </PropertyGroup>
 
     <ItemGroup>
-      <Content Include="Data\**">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-</Content>
-      <PackageReference Include="Sayers.SDL2.Core" Version="1.0.11" />
-      <PackageReference Include="sdl2_ttf.nuget" Version="2.0.18" />
-      <PackageReference Include="SDL_image" Version="1.2.12.3" />
+        <Content Include="Data\**">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <PackageReference Include="Sayers.SDL2.Core" Version="1.0.11"/>
+        <PackageReference Include="sdl2_ttf.nuget" Version="2.0.18"/>
+        <PackageReference Include="SDL_image" Version="1.2.12.3"/>
     </ItemGroup>
 
 </Project>

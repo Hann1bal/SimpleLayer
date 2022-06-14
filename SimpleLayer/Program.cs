@@ -1,16 +1,12 @@
-﻿using System;
-using SimpleLayer;
-using SimpleLayer.GameEngine;
+﻿using SimpleLayer.GameEngine;
 
 namespace SimpleLayer;
 
-    class Program
+internal class Program
+{
+    private static void Main(string[] args)
     {
-        private static readonly Game Game = new Game();
-
-        static void Main(string[] args)
-        {
-            Game.Run();
-        }
+        var game = new Game();
+        game.Run();
     }
-
+}

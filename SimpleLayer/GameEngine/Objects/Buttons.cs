@@ -2,19 +2,21 @@
 
 namespace SimpleLayer.Objects;
 
-public class  Buttons: HudBaseObject
+public class Buttons : HudBaseObject
 {
-    public bool IsPressed = false;
-    public bool IsFocused = false;
-    public bool IsGameObject = false;
-
     public enum ButtonTextures
     {
         Focused = 1,
         Pressed = 2,
         Unfocused = 0
     }
-    public Buttons(string textureName, SDL.SDL_Rect sRect, SDL.SDL_Rect dRect, bool isGameObject) : base(textureName, sRect, dRect)
+
+    public bool IsFocused;
+    public bool IsGameObject;
+    public bool IsPressed;
+
+    public Buttons(string textureName, SDL.SDL_Rect sRect, SDL.SDL_Rect dRect, bool isGameObject) : base(textureName,
+        sRect, dRect)
     {
         IsGameObject = isGameObject;
     }

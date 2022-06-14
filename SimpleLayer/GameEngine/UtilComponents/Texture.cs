@@ -4,17 +4,15 @@ namespace SimpleLayer.GameEngine.UtilComponents;
 
 public class Texture
 {
-    public Dictionary<string, IntPtr> Dictionary = new();
-    private Dictionary<string, string> _pathList = new();
     private IntPtr _openSans;
+    private readonly Dictionary<string, string> _pathList = new();
+    public Dictionary<string, IntPtr> Dictionary = new();
 
     private void GetAllTexturePath()
     {
         foreach (var path in Directory.GetFiles(".\\Data\\Texture",
                      "*.png", SearchOption.AllDirectories))
-        {
             _pathList.Add(Path.GetFileName(path).Split(".").First(), path);
-        }
     }
 
     private void InitTextButtonTexture(string buttonText, string textureName, IntPtr renderer)
@@ -36,14 +34,12 @@ public class Texture
             SDL.SDL_FreeSurface(message);
         }
     }
-    
+
     public void LoadTexture(IntPtr renderer)
     {
         GetAllTexturePath();
         foreach (var (key, value) in _pathList)
-        {
             Dictionary.Add(key.Split(".").First(), SDL_image.IMG_LoadTexture(renderer, value));
-        }
 
         var tmpTextAndName = new Dictionary<string, string>
         {
@@ -53,10 +49,7 @@ public class Texture
             {"resumeTextButton", "Resume"}
         };
         _openSans = SDL_ttf.TTF_OpenFont(".\\Data\\Fonts\\OpenSans.ttf", 10);
-        foreach (var (key, value) in tmpTextAndName)
-        {
-            InitTextButtonTexture(value, key, renderer);
-        }
+        foreach (var (key, value) in tmpTextAndName) InitTextButtonTexture(value, key, renderer);
 
         tmpTextAndName.Clear();
     }

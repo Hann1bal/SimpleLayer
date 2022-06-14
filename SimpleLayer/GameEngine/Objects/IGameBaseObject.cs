@@ -1,6 +1,4 @@
-﻿using SimpleLayer.GameEngine;
-
-namespace SimpleLayer.Objects;
+﻿namespace SimpleLayer.Objects;
 
 public interface IGameBaseObject : IDisposable
 {

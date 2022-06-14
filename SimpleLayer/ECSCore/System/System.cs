@@ -4,38 +4,14 @@ namespace SimpleLayer.ECSCore.System;
 
 public abstract class System
 {
-    private HashSet<int> registeredEntityIds;
-    private List<Type> requiredComponents;
     protected Manager Manager;
+    private readonly HashSet<int> registeredEntityIds;
+    private readonly List<Type> requiredComponents;
 
     protected System()
     {
         registeredEntityIds = new HashSet<int>();
         requiredComponents = new List<Type>();
-    }
-
-    public void BindManager(Manager manager)
-    {
-        Manager = manager;
-    }
-
-    public void UpdateEntityRegistration(Entity entity)
-    {
-        bool matches = Matches(entity);
-        if (registeredEntityIds.Contains(entity.Id))
-        {
-            if (!matches)
-            {
-                registeredEntityIds.Remove(entity.Id);
-            }
-        }
-        else
-        {
-            if (matches)
-            {
-                registeredEntityIds.Add(entity.Id);
-            }
-        }
     }
 
     protected List<Entity> Entities
@@ -50,13 +26,29 @@ public abstract class System
         }
     }
 
+    public void BindManager(Manager manager)
+    {
+        Manager = manager;
+    }
+
+    public void UpdateEntityRegistration(Entity entity)
+    {
+        var matches = Matches(entity);
+        if (registeredEntityIds.Contains(entity.Id))
+        {
+            if (!matches) registeredEntityIds.Remove(entity.Id);
+        }
+        else
+        {
+            if (matches) registeredEntityIds.Add(entity.Id);
+        }
+    }
+
     private bool Matches(Entity entity)
     {
-        foreach (Type required in requiredComponents)
-        {
+        foreach (var required in requiredComponents)
             if (!entity.HasComponent(required))
                 return false;
-        }
 
         return true;
     }
@@ -68,19 +60,13 @@ public abstract class System
 
     public virtual void UpdateAll(float deltaTime)
     {
-        foreach (Entity entity in Entities)
-        {
-            Update(entity, deltaTime);
-        }
+        foreach (var entity in Entities) Update(entity, deltaTime);
     }
 
     protected abstract void Update(Entity entity, float deltaTime);
 
     public virtual void DeleteEntity(int id)
     {
-        if (registeredEntityIds.Contains(id))
-        {
-            registeredEntityIds.Remove(id);
-        }
+        if (registeredEntityIds.Contains(id)) registeredEntityIds.Remove(id);
     }
 }

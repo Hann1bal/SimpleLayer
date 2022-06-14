@@ -6,15 +6,15 @@ namespace SimpleLayer.GameEngine.Managers;
 
 public class HudManager
 {
-    private static HudManager _hudManager = null;
-    private List<Buttons> _buttons;
+    private static HudManager _hudManager;
+    private readonly List<Buttons> _buttons;
+    private Game.GameState _cState;
+    private Game.GameState _gameState;
+    private readonly Hud _hud;
     private int _mouseX;
     private int _mouseY;
-    private int x, y;
-    private Game.GameState _gameState;
-    private Game.GameState _cState;
-    private Hud _hud;
     private Texture _texture;
+    private int x, y;
 
     private HudManager(ref List<Buttons> buttons, ref Hud hud, ref Game.GameState gameState)
     {
@@ -57,13 +57,11 @@ public class HudManager
                     new SDL_Rect {h = 32, w = 32, x = 1770, y = 50}, false));
                 var cnt = 1;
                 for (var i = 0; i < 4; i++)
+                for (var j = 0; j < 2; j++)
                 {
-                    for (var j = 0; j < 2; j++)
-                    {
-                        _buttons.Add(new Buttons($"arab_{cnt}", new SDL_Rect {h = 210, w = 210, x = 0, y = 0},
-                            new SDL_Rect {h = 90, w = 90, x = 1305 + i * 90, y = 825 + j * 90}, true));
-                        cnt++;
-                    }
+                    _buttons.Add(new Buttons($"arab_{cnt}", new SDL_Rect {h = 210, w = 210, x = 0, y = 0},
+                        new SDL_Rect {h = 90, w = 90, x = 1305 + i * 90, y = 825 + j * 90}, true));
+                    cnt++;
                 }
 
                 break;
@@ -87,10 +85,7 @@ public class HudManager
 
     private void ReInitHudForGameState()
     {
-        if (_buttons.Count > 0)
-        {
-            ClearAllButton();
-        }
+        if (_buttons.Count > 0) ClearAllButton();
 
         Init();
     }
@@ -121,20 +116,22 @@ public class HudManager
         }
     }
 
-    public void PressButton(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref bool matchState, ref Building curent)
+    public void PressButton(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref bool matchState,
+        ref Building curent)
     {
         button.IsPressed = true;
         DoAction(button, ref gamePause, ref gameState, ref curent, ref matchState);
     }
 
-    private void DoAction(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref Building curent, ref bool matchState)
+    private void DoAction(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref Building curent,
+        ref bool matchState)
     {
         SDL_GetMouseState(out x, out y);
         Console.WriteLine($"{x}, {y}");
         switch (button.IsGameObject)
         {
             case true:
-                curent = new Building(button.TextureName, x, y, healtPpoint: 5000, team: 0, isFactory: true);
+                curent = new Building(button.TextureName, x, y, 5000, 0, true);
                 break;
             case false:
                 switch (button.TextureName)
@@ -180,34 +177,22 @@ public class HudManager
         switch (_gameState)
         {
             case Game.GameState.Menu:
-                foreach (var button in _buttons)
-                {
-                    CheckCollision(button);
-                }
+                foreach (var button in _buttons) CheckCollision(button);
 
                 break;
 
             case Game.GameState.Play:
-                foreach (var button in _buttons)
-                {
-                    CheckCollision(button);
-                }
+                foreach (var button in _buttons) CheckCollision(button);
 
                 break;
 
             case Game.GameState.GameOver:
-                foreach (var button in _buttons)
-                {
-                    CheckCollision(button);
-                }
+                foreach (var button in _buttons) CheckCollision(button);
 
                 break;
 
             case Game.GameState.Lobby:
-                foreach (var button in _buttons)
-                {
-                    CheckCollision(button);
-                }
+                foreach (var button in _buttons) CheckCollision(button);
 
                 break;
 
@@ -226,13 +211,9 @@ public class HudManager
             _mouseY < button.DRect.y + button.DRect.h)
         {
             if (button.IsFocused && button.IsPressed)
-            {
                 button.UpdateTextureName(Buttons.ButtonTextures.Pressed);
-            }
             else
-            {
                 button.UpdateTextureName(Buttons.ButtonTextures.Focused);
-            }
         }
         else
         {

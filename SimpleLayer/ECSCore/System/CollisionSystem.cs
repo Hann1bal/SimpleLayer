@@ -10,7 +10,7 @@ public class CollisionSystem : System
     protected override void Update(Entity entity, float deltaTime)
     {
         var intPtr = entity.GetComponent<SpriteComponent>().SdlRect;
-        Collision = SDL2.SDL.SDL_HasIntersection(ref intPtr,
+        Collision = SDL.SDL_HasIntersection(ref intPtr,
             ref intPtr);
     }
 }

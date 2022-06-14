@@ -5,6 +5,7 @@ namespace SimpleLayer.Objects;
 public class Hud : HudBaseObject
 {
     private static Hud _hud;
+
     protected Hud(string textureName, SDL.SDL_Rect sRect, SDL.SDL_Rect dRect) : base(textureName, sRect, dRect)
     {
     }

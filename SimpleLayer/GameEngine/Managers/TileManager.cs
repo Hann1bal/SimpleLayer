@@ -6,22 +6,10 @@ namespace SimpleLayer.GameEngine.Managers;
 
 public class TileManager
 {
-    private static TileManager? _tileManager = null;
+    private static TileManager? _tileManager;
+    private readonly Level _level;
+    private readonly Texture _textureManager;
     private Dictionary<int, Tile> _tileList;
-    private Texture _textureManager;
-    private Level _level;
-
-    public static TileManager GetInstance(ref Dictionary<int, Tile> tileManager, ref Texture textureManager,
-        ref Level level)
-    {
-        if (_tileManager != null)
-        {
-            return _tileManager;
-        }
-
-        _tileManager = new TileManager(ref tileManager, ref textureManager, ref level);
-        return _tileManager;
-    }
 
     private TileManager(ref Dictionary<int, Tile> tiles, ref Texture textureManager, ref Level level)
     {
@@ -31,16 +19,23 @@ public class TileManager
         _level = level;
         Tile tile;
         for (var dx = 0; dx < Level.LevelHeight / 32; dx++)
+        for (var dy = 0; dy < Level.LevelWidth / 32; dy++)
         {
-            for (var dy = 0; dy < Level.LevelWidth / 32; dy++)
-            {
-                tile = new Tile(new SDL.SDL_Rect {h = 32, w = 32, x = dx * 32, y = dy * 32},
-                    new SDL.SDL_Rect {h = 32, w = 32, x = 0, y = 0},
-                    _textureManager.Dictionary[$"{_level._levelMatrix[dx, dy]}"], cnt);
-                if (_level._levelMatrix[dx, dy] == 424) tile.isPlacibleTile = true;
-                _level._tileLevel.Add(new Vector2(dx, dy), tile);
-                cnt++;
-            }
+            tile = new Tile(new SDL.SDL_Rect {h = 32, w = 32, x = dx * 32, y = dy * 32},
+                new SDL.SDL_Rect {h = 32, w = 32, x = 0, y = 0},
+                _textureManager.Dictionary[$"{_level._levelMatrix[dx, dy]}"], cnt);
+            if (_level._levelMatrix[dx, dy] == 424) tile.isPlacibleTile = true;
+            _level._tileLevel.Add(new Vector2(dx, dy), tile);
+            cnt++;
         }
+    }
+
+    public static TileManager GetInstance(ref Dictionary<int, Tile> tileManager, ref Texture textureManager,
+        ref Level level)
+    {
+        if (_tileManager != null) return _tileManager;
+
+        _tileManager = new TileManager(ref tileManager, ref textureManager, ref level);
+        return _tileManager;
     }
 }

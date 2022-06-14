@@ -1,25 +1,19 @@
-﻿using System.Collections.ObjectModel;
-using System.Numerics;
-using SDL2;
-using SimpleLayer.GameEngine;
+﻿using SDL2;
 
 namespace SimpleLayer.Objects;
 
 public class Building : GameBaseObject
 {
-    public List<Unit> Units = new();
+    public readonly bool IsFactory;
+    public readonly uint SpawnRate = 5000;
     public int _xPos;
     public int _yPos;
-    public readonly uint SpawnRate = 5000;
-    public uint LastTick { get; set; }
-    public int _team;
-    public readonly bool IsFactory;
+    public List<Unit> Units = new();
 
     public Building(string textureName, int xPos, int yPos,
         int healtPpoint, int team, bool isFactory = true) :
-        base(textureName, xPos, yPos, healtPpoint, team, true, 0)
+        base(textureName, xPos, yPos, healtPpoint, team, true)
     {
-        _team = team;
         _xPos = xPos;
         _yPos = yPos;
         XPosition = _xPos;
@@ -28,19 +22,21 @@ public class Building : GameBaseObject
         IsFactory = isFactory;
     }
 
+    public uint LastTick { get; set; }
+
     public Unit Spawn()
     {
         Unit unit;
         switch (TextureName)
         {
             case "arab_1":
-                unit = new Unit("adventurer", _xPos, _yPos, 5, _team, 5, 8, 9);
+                unit = new Unit("adventurer", _xPos, _yPos, 5, Team, 5, 8, 9);
                 break;
             case "arab_2":
-                unit = new Unit("dwarf", _xPos, _yPos, 5, _team, 5, 8, 7);
+                unit = new Unit("dwarf", _xPos, _yPos, 5, Team, 5, 8, 7);
                 break;
             default:
-                unit = new Unit("dwarf", _xPos, _yPos, 5, _team, 5, 8, 7);
+                unit = new Unit("dwarf", _xPos, _yPos, 5, Team, 5, 8, 7);
                 break;
         }
 

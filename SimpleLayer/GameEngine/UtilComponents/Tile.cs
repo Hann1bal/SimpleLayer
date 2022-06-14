@@ -4,12 +4,12 @@ namespace SimpleLayer.GameEngine.UtilComponents;
 
 public class Tile : IDisposable
 {
+    public readonly IntPtr _texture;
     private bool _isMoveble = true;
-    public int Id;
     public SDL.SDL_Rect _sdlDRect;
     public SDL.SDL_Rect _sdlSRect;
-    public readonly IntPtr _texture;
     public bool ContainBuilding = false;
+    public int Id;
     public bool isPlacibleTile = false;
 
     public Tile(SDL.SDL_Rect sdlDRect, SDL.SDL_Rect sdlSRect, IntPtr texture, int id)
@@ -20,15 +20,15 @@ public class Tile : IDisposable
         Id = id;
     }
 
-    ~Tile()
-    {
-        Dispose();
-    }
-
     public void Dispose()
     {
         GC.SuppressFinalize(this);
         GC.SuppressFinalize(_texture);
         GC.Collect(GC.MaxGeneration);
+    }
+
+    ~Tile()
+    {
+        Dispose();
     }
 }
