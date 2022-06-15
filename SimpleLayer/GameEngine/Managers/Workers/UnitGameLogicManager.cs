@@ -7,7 +7,7 @@ namespace SimpleLayer.GameEngine.Managers.Workers;
 public class UnitGameLogicManager
 {
     private readonly List<Building> _buildings;
-    private readonly List<Unit> _playersDeadUnits = new();
+    private List<Unit> _playersDeadUnits = new();
     private readonly List<Unit> _playersUnits;
     private readonly Dictionary<Vector2, List<GameBaseObject>> _quadrant;
 
@@ -23,7 +23,6 @@ public class UnitGameLogicManager
     public void DoJob()
     {
         MoveAllunits();
-        ClearDeadUnitLeast();
     }
 
     private void MoveAllunits()
@@ -51,18 +50,10 @@ public class UnitGameLogicManager
      Помещаем в мусорный и после отдельно очищаем*/
     private void KillUnit(Unit unit)
     {
-        _playersDeadUnits.Add(unit);
-        _playersUnits.Remove(unit);
         _quadrant[unit.LastQuadrant].Remove(unit);
-    }
-
-    private void ClearDeadUnitLeast()
-    {
-        foreach (var unit in _playersDeadUnits)
-        {
-            unit.Target = null;
-            unit.Dispose();
-        }
+        _playersUnits.Remove(unit);
+        unit.Target = null;
+        unit.Dispose();
     }
 
     private void MoveUnit(Unit unit)
@@ -80,40 +71,40 @@ public class UnitGameLogicManager
 
     private void CheckCollision(GameBaseObject unit)
     {
-        for (var i = unit.LastQuadrant.X - 1; i <= unit.LastQuadrant.X + 1; i++)
-        for (var j = unit.LastQuadrant.Y - 1; j <= unit.LastQuadrant.Y + 1; j++)
-            foreach (var enemy in _quadrant[new Vector2(i, j)].Where(b => b.Team != unit.Team))
+            foreach (var enemy in _quadrant[unit.LastQuadrant].ToList().Where(enemy => unit.Team != enemy.Team && enemy.TargetDistance<=15))
+            {
                 switch (SDL.SDL_HasIntersection(ref unit.DRect, ref enemy.DRect))
                 {
                     case SDL.SDL_bool.SDL_TRUE:
                         unit.HealthPoint -= enemy.Damage;
                         enemy.HealthPoint -= unit.Damage;
-                        if (unit.HealthPoint == 0) unit.IsDead = true;
-
                         if (enemy.HealthPoint == 0) enemy.IsDead = true;
-
+                        if (unit.HealthPoint == 0) unit.IsDead = true;
                         break;
                     case SDL.SDL_bool.SDL_FALSE:
                         break;
                 }
+            }
     }
 
-    private void NearestCoords(Unit unit)
+    private void NearestCoords(GameBaseObject unit)
     {
         var minimumDistance = int.MaxValue;
         GameBaseObject nearestTarget = null;
         for (var i = unit.LastQuadrant.X - 1; i <= unit.LastQuadrant.X + 1; i++)
-        for (var j = unit.LastQuadrant.Y - 1; j <= unit.LastQuadrant.Y + 1; j++)
-            foreach (var enemy in _quadrant[new Vector2(i, j)].Where(b => b.Team != unit.Team)
-                         .Where(cb => cb.IsDead == false).ToArray())
+        {
+            for (var j = unit.LastQuadrant.Y - 1; j <= unit.LastQuadrant.Y + 1; j++)
             {
-                var distance = DistanceBetween(unit, enemy);
-                if (nearestTarget == null || minimumDistance > distance)
+                foreach (var enemy in _quadrant[new Vector2(i, j)].ToArray())
                 {
+                    if (unit.Team == enemy.Team || enemy.IsDead) continue;
+                    var distance = DistanceBetween(unit, enemy);
+                    if (nearestTarget != null && minimumDistance <= distance) continue;
                     nearestTarget = enemy;
                     minimumDistance = distance;
                 }
             }
+        }
 
         if (nearestTarget == null)
         {

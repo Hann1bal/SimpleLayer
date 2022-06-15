@@ -42,6 +42,8 @@ public class GameBaseObject : IGameBaseObject
     public void Dispose()
     {
         GC.SuppressFinalize(this);
+        GC.SuppressFinalize(DRect);
+        GC.SuppressFinalize(SRect);
         GC.Collect(GC.MaxGeneration);
     }
 

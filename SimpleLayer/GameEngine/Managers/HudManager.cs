@@ -31,6 +31,10 @@ public class HudManager
         return _hudManager = new HudManager(ref buttons, ref hud, ref gameState);
     }
 
+    public void SetGameState(ref Game.GameState gameState)
+    {
+        _gameState = gameState;
+    }
 
     //MENU BUTTON TOP 400px :Y 760px :X;  MIDDLE 530px :Y 830:X, Down 660px :Y 930px :X; dx 100
     private void Init()
@@ -42,25 +46,25 @@ public class HudManager
             //TODO Вынести все статичные данные в отдельный конфиг файл и инициализировать при загрузке игры.
             case Game.GameState.Menu:
                 _buttons.Add(new Buttons("playTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
-                    new SDL_Rect {h = 90, w = 150, x = 1465, y = 480}, false));
+                    new SDL_Rect {h = 90, w = 150, x = 1465, y = 480}, false, true));
                 _buttons.Add(new Buttons("resumeTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
-                    new SDL_Rect {h = 90, w = 150, x = 1465, y = 480}, false));
+                    new SDL_Rect {h = 90, w = 150, x = 1465, y = 480}, false, true));
                 _buttons.Add(new Buttons("settingsTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
-                    new SDL_Rect {h = 90, w = 150, x = 1535, y = 635}, false));
+                    new SDL_Rect {h = 90, w = 150, x = 1535, y = 635}, false, true));
                 _buttons.Add(new Buttons("exitTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
-                    new SDL_Rect {h = 90, w = 150, x = 1635, y = 795}, false));
+                    new SDL_Rect {h = 90, w = 150, x = 1635, y = 795}, false, true));
                 break;
             case Game.GameState.Play:
                 _buttons.Add(new Buttons("settings", new SDL_Rect {h = 32, w = 32, x = 0, y = 0},
-                    new SDL_Rect {h = 32, w = 32, x = 1820, y = 50}, false));
+                    new SDL_Rect {h = 32, w = 32, x = 1820, y = 50}, false, false));
                 _buttons.Add(new Buttons("pause", new SDL_Rect {h = 32, w = 32, x = 0, y = 0},
-                    new SDL_Rect {h = 32, w = 32, x = 1770, y = 50}, false));
+                    new SDL_Rect {h = 32, w = 32, x = 1770, y = 50}, false, false));
                 var cnt = 1;
                 for (var i = 0; i < 4; i++)
                 for (var j = 0; j < 2; j++)
                 {
                     _buttons.Add(new Buttons($"arab_{cnt}", new SDL_Rect {h = 210, w = 210, x = 0, y = 0},
-                        new SDL_Rect {h = 90, w = 90, x = 1305 + i * 90, y = 825 + j * 90}, true));
+                        new SDL_Rect {h = 90, w = 90, x = 1305 + i * 90, y = 825 + j * 90}, true, false));
                     cnt++;
                 }
 
@@ -69,58 +73,20 @@ public class HudManager
                 break;
             case Game.GameState.Lobby:
                 break;
+            case Game.GameState.Exit:
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
-    }
-
-    private void ClearAllButton()
-    {
-        foreach (var button in _buttons.ToArray())
-        {
-            _buttons.Remove(button);
-            button.Dispose();
-        }
-    }
-
-    private void ReInitHudForGameState()
-    {
-        if (_buttons.Count > 0) ClearAllButton();
-
-        Init();
-    }
-
-//230 height 460-190
-    private void SyncHud()
-    {
-        _hud.TextureName = _gameState switch
-        {
-            Game.GameState.Menu => "MenuHud",
-            Game.GameState.Play => "Hud",
-            Game.GameState.GameOver => "GameOver",
-            Game.GameState.Lobby => "Lobby",
-            Game.GameState.Init => "InitHud",
-            _ => throw new ArgumentOutOfRangeException()
-        };
     }
 
     public void RunManager()
     {
         Update();
         SyncHud();
-        if (_cState != _gameState)
-        {
-            Console.WriteLine("i'am here");
-            ReInitHudForGameState();
-            _cState = _gameState;
-        }
-    }
-
-    public void PressButton(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref bool matchState,
-        ref Building curent)
-    {
-        button.IsPressed = true;
-        DoAction(button, ref gamePause, ref gameState, ref curent, ref matchState);
+        if (_cState == _gameState) return;
+        ReInitHudForGameState();
+        _cState = _gameState;
     }
 
     private void DoAction(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref Building curent,
@@ -167,9 +133,54 @@ public class HudManager
         }
     }
 
+    public void PressButton(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref bool matchState,
+        ref Building curent)
+    {
+        button.IsPressed = true;
+        DoAction(button, ref gamePause, ref gameState, ref curent, ref matchState);
+    }
+
     public void ReleaseButton(Buttons button)
     {
         button.IsPressed = false;
+    }
+
+    //230 height 460-190
+    private void SyncHud()
+    {
+        _hud.TextureName = _gameState switch
+        {
+            Game.GameState.Menu => "MenuHud",
+            Game.GameState.Play => "Hud",
+            Game.GameState.GameOver => "GameOver",
+            Game.GameState.Lobby => "Lobby",
+            Game.GameState.Init => "InitHud",
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+
+    private void ReInitHudForGameState()
+    {
+        if (_buttons.Count > 0) ClearAllButton();
+
+        Init();
+    }
+
+    private void CheckCollision(Buttons button)
+    {
+        SDL_GetMouseState(out _mouseX, out _mouseY);
+        if (_mouseX > button.DRect.x && _mouseX < button.DRect.x + button.DRect.w && _mouseY > button.DRect.y &&
+            _mouseY < button.DRect.y + button.DRect.h)
+        {
+            if (button.IsFocused && button.IsPressed)
+                button.UpdateTextureName(Buttons.ButtonTextures.Pressed);
+            else
+                button.UpdateTextureName(Buttons.ButtonTextures.Focused);
+        }
+        else
+        {
+            button.UpdateTextureName(Buttons.ButtonTextures.Unfocused);
+        }
     }
 
     private void Update()
@@ -204,20 +215,13 @@ public class HudManager
         }
     }
 
-    private void CheckCollision(Buttons button)
+
+    private void ClearAllButton()
     {
-        SDL_GetMouseState(out _mouseX, out _mouseY);
-        if (_mouseX > button.DRect.x && _mouseX < button.DRect.x + button.DRect.w && _mouseY > button.DRect.y &&
-            _mouseY < button.DRect.y + button.DRect.h)
+        foreach (var button in _buttons.ToArray())
         {
-            if (button.IsFocused && button.IsPressed)
-                button.UpdateTextureName(Buttons.ButtonTextures.Pressed);
-            else
-                button.UpdateTextureName(Buttons.ButtonTextures.Focused);
-        }
-        else
-        {
-            button.UpdateTextureName(Buttons.ButtonTextures.Unfocused);
+            _buttons.Remove(button);
+            button.Dispose();
         }
     }
 }

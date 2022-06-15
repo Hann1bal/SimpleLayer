@@ -8,6 +8,7 @@ namespace SimpleLayer.GameEngine;
 
 public class Game : IDisposable
 {
+    
     public enum GameState
     {
         Menu = 0,
@@ -44,23 +45,25 @@ public class Game : IDisposable
     private IntPtr _window;
 
     //Инициализация игровых менеджеров
-    private RenderManager _rendererMeneger;
+    private RenderManager _rendererManager;
     private GameLogicManager _gameLogicManager;
-    private HudManager _hudMeneger;
+    private HudManager _hudManager;
     private TileManager _tileManager;
+    private EventMananager _eventManager;
 
     //Инициализация игровых объектов
     private Building? _currentBuilding;
     private Camera _camera;
     private Hud _hud;
     private Level _level;
-    private Texture _textureManager =new ();
+    private Texture _textureManager = new();
 
 
     public Game()
     {
         InitSdl();
         InitGameObjects();
+        InitGameManager();
     }
 
     public void Dispose()
@@ -101,7 +104,8 @@ public class Game : IDisposable
 
         SDL_SetWindowGrab(_window, SDL_bool.SDL_TRUE);
 
-        if (SDL_ttf.TTF_Init() < 0) Console.WriteLine($"There was an issue creating the renderer. {SDL_ttf.TTF_GetError()}");
+        if (SDL_ttf.TTF_Init() < 0)
+            Console.WriteLine($"There was an issue creating the renderer. {SDL_ttf.TTF_GetError()}");
     }
 
     private void InitGameObjects()
@@ -110,115 +114,22 @@ public class Game : IDisposable
         _hud = Hud.GetInstance("Hud", new SDL_Rect {x = 0, y = 0, h = 900, w = 1440},
             new SDL_Rect {x = 0, y = 0, w = ScreenWidth, h = ScreenHeight});
         _textureManager.LoadTexture(_renderer);
-        _hudMeneger = HudManager.GetInstance(ref _buttons, ref _hud, ref _gameState);
         _level = new Level();
         _camera = new Camera();
+    }
+
+    private void InitGameManager()
+    {
+        _hudManager = HudManager.GetInstance(ref _buttons, ref _hud, ref _gameState);
         _tileManager = TileManager.GetInstance(ref _tiles, ref _textureManager, ref _level);
-        _rendererMeneger = RenderManager.GetInstance(ref _renderer, ref _playersBuildings,
+        _rendererManager = RenderManager.GetInstance(ref _renderer, ref _playersBuildings,
             ref _textureManager, ref _camera, ref _level, ref _buttons, ref _hud, ref _tiles, ref _playersUnits);
         _gameLogicManager = GameLogicManager.GetInstance(ref _playersBuildings, ref _playersUnits);
+        _eventManager = EventMananager.GetInstance();
         _gameState = GameState.Menu;
+        _hudManager.SetGameState(ref _gameState);
     }
 
-
-    private void PollEvents()
-    {
-        while (SDL_PollEvent(out var e) == 1)
-            switch (e.type)
-            {
-                case SDL_EventType.SDL_QUIT:
-                    _running = false;
-                    break;
-                case SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                    if (e.button.button != 3)
-                    {
-                        if (_currentBuilding != null)
-                        {
-                            _gameLogicManager.BuildingWorker.PlaceBuilding(e.button.x + _camera.CameraRect.x,
-                                e.button.y + _camera.CameraRect.y, ref _currentBuilding, ref _level);
-                            if (!_isShiftPressed)
-                            {
-                                _currentBuilding.Dispose();
-                                _currentBuilding = null;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (_currentBuilding != null)
-                        {
-                            _currentBuilding.Dispose();
-                            _currentBuilding = null;
-                        }
-                    }
-
-                    foreach (var button in _buttons.Where(b => b.IsFocused))
-                        _hudMeneger.PressButton(button, ref _isPaused, ref _gameState, ref _matchState,
-                            ref _currentBuilding);
-
-                    break;
-                case SDL_EventType.SDL_MOUSEBUTTONUP:
-                    foreach (var button in _buttons.Where(b => b.IsPressed)) _hudMeneger.ReleaseButton(button);
-
-                    break;
-                case SDL_EventType.SDL_KEYDOWN:
-                    switch (e.key.keysym.sym)
-                    {
-                        case SDL_Keycode.SDLK_LEFT:
-                            _camera.Move(CameraDerection.LEFT, ref _level);
-                            break;
-                        case SDL_Keycode.SDLK_RIGHT:
-                            _camera.Move(CameraDerection.RIGHT, ref _level);
-                            break;
-                        case SDL_Keycode.SDLK_UP:
-                            _camera.Move(CameraDerection.UP, ref _level);
-                            break;
-                        case SDL_Keycode.SDLK_DOWN:
-                            _camera.Move(CameraDerection.DONW, ref _level);
-                            break;
-                        case SDL_Keycode.SDLK_LSHIFT:
-                            _isShiftPressed = true;
-                            break;
-                    }
-
-                    break;
-                case SDL_EventType.SDL_KEYUP:
-                    switch (e.key.keysym.sym)
-                    {
-                        case SDL_Keycode.SDLK_LSHIFT:
-                            _isShiftPressed = false;
-                            break;
-                    }
-
-                    break;
-                case SDL_EventType.SDL_MOUSEWHEEL:
-                    if (e.wheel.y > 0) _camera.Move(CameraDerection.LEFT, ref _level);
-
-                    break;
-                case SDL_EventType.SDL_MOUSEMOTION:
-                    switch (e.motion.x)
-                    {
-                        case <= 2:
-                            _camera.Move(CameraDerection.LEFT, ref _level);
-                            break;
-                        case >= 1915:
-                            _camera.Move(CameraDerection.RIGHT, ref _level);
-                            break;
-                    }
-
-                    switch (e.motion.y)
-                    {
-                        case <= 2:
-                            _camera.Move(CameraDerection.UP, ref _level);
-                            break;
-                        case >= 1072:
-                            _camera.Move(CameraDerection.DONW, ref _level);
-                            break;
-                    }
-
-                    break;
-            }
-    }
 
     /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
     public void Run()
@@ -226,24 +137,27 @@ public class Game : IDisposable
         while (_running)
         {
             _frameStart = SDL_GetTicks();
-            PollEvents();
+
+            _eventManager.RunJob(ref _isPaused, ref _matchState, ref _isShiftPressed, ref _currentBuilding, ref _camera,
+                ref _level, _buttons, ref _gameState, ref _gameLogicManager, ref _hudManager);
+            
             switch (_gameState)
             {
                 case GameState.Init:
                 case GameState.Lobby:
                 case GameState.Menu:
-                    _hudMeneger.RunManager();
-                    _rendererMeneger.RunManager(ref _matchState);
+                    _hudManager.RunManager();
+                    _rendererManager.RunManager(ref _matchState);
                     break;
                 case GameState.Play:
                     _matchState = true;
-                    _hudMeneger.RunManager();
+                    _hudManager.RunManager();
                     var updateThread = new Thread(_gameLogicManager.RunManager);
                     if (!_isPaused) updateThread.Start();
-                    _rendererMeneger.RunManager(ref _currentBuilding, ref _matchState);
+                    _rendererManager.RunManager(ref _currentBuilding, ref _matchState);
                     break;
                 case GameState.GameOver:
-                    _rendererMeneger.RunManager(ref _matchState);
+                    _rendererManager.RunManager(ref _matchState);
                     break;
                 case GameState.Exit:
                     _running = false;

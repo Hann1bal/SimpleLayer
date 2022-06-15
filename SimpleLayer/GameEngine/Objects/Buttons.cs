@@ -12,13 +12,15 @@ public class Buttons : HudBaseObject
     }
 
     public bool IsFocused;
-    public bool IsGameObject;
+    public readonly bool IsGameObject;
+    public readonly bool IsMenuObject;
     public bool IsPressed;
 
-    public Buttons(string textureName, SDL.SDL_Rect sRect, SDL.SDL_Rect dRect, bool isGameObject) : base(textureName,
+    public Buttons(string textureName, SDL.SDL_Rect sRect, SDL.SDL_Rect dRect, bool isGameObject, bool isMenuObject) : base(textureName,
         sRect, dRect)
     {
         IsGameObject = isGameObject;
+        IsMenuObject = isMenuObject;
     }
 
     public void UpdateTextureName(ButtonTextures textures)

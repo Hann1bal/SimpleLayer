@@ -23,6 +23,8 @@ public class Tile : IDisposable
     public void Dispose()
     {
         GC.SuppressFinalize(this);
+        GC.SuppressFinalize(_sdlSRect);
+        GC.SuppressFinalize(_sdlDRect);
         GC.SuppressFinalize(_texture);
         GC.Collect(GC.MaxGeneration);
     }

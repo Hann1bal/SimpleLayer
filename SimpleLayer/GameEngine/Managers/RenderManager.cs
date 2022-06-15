@@ -60,7 +60,7 @@ public class RenderManager
     }
 
 
-    private void DrawMap(Camera camera, bool flag)
+    private void DrawMap(bool flag)
     {
         for (var x = 0; x < Level.LevelWidth / 32; x++)
         for (var y = 0; y < Level.LevelHeight / 32; y++)
@@ -122,14 +122,10 @@ public class RenderManager
         }
 
         SDL_SetRenderDrawColor(_renderer, 0, 255, 0, 255);
-
         SDL_RenderDrawRect(_renderer, ref newCameraSRect);
-
-        foreach (var build in buildings)
-        {
-            RenderSingleIdleObjects(build);
-            foreach (var unit in build.Units) RenderSingleIdleObjects(unit);
-        }
+        Console.WriteLine(_units.Count);
+        foreach (var build in buildings) RenderSingleIdleObjects(build);
+        foreach (var unit in _units.ToArray()) RenderSingleIdleObjects(unit);
     }
 
     private void RenderMesh()
@@ -175,6 +171,8 @@ public class RenderManager
 
         SDL_RenderCopy(_renderer, texture, ref gameBaseObject.SRect,
             ref newRectangle);
+        
+        texture = IntPtr.Zero;
     }
 
 
@@ -203,12 +201,6 @@ public class RenderManager
             ref newRectangle);
     }
 
-    private void RenderAllObject(Building building)
-    {
-        RenderSingleObjects(building);
-        foreach (var unit in building.Units.ToArray()) RenderSingleObjects(unit);
-    }
-
 
     private void RenderHud()
     {
@@ -216,13 +208,9 @@ public class RenderManager
             ref _hud.DRect);
     }
 
-    private void RenderButtons(ref bool matchState)
+    private void RenderButtons(ref bool matchState, List<Buttons> buttons)
     {
-        foreach (var button in _buttonsList.Where(btn => btn.IsGameObject))
-            SDL_RenderCopy(_renderer, _textureManager.Dictionary[button.CurrentTextureName], ref button.SRect,
-                ref button.DRect);
-
-        foreach (var button in _buttonsList.Where(btn => !btn.IsGameObject))
+        foreach (var button in buttons)
             switch (matchState)
             {
                 case true when button.TextureName == "playTextButton":
@@ -235,7 +223,7 @@ public class RenderManager
             }
     }
 
-    private void RenderSelectedObject(Building currentBuilding)
+    private void RenderSelectedObject(GameBaseObject selectedObject)
     {
         SDL_GetMouseState(out _x, out _y);
         SDL_Rect newRectangle = new()
@@ -245,8 +233,8 @@ public class RenderManager
             x = _x,
             y = _y
         };
-        SDL_RenderCopy(_renderer, _textureManager.Dictionary[currentBuilding.TextureName],
-            ref currentBuilding.SRect,
+        SDL_RenderCopy(_renderer, _textureManager.Dictionary[selectedObject.TextureName],
+            ref selectedObject.SRect,
             ref newRectangle);
     }
 
@@ -254,21 +242,21 @@ public class RenderManager
     {
         SDL_RenderClear(_renderer);
         RenderHud();
-        RenderButtons(ref matchState);
+        RenderButtons(ref matchState, _buttonsList.Where(d => !d.IsGameObject && d.IsMenuObject).ToList());
         SDL_RenderPresent(_renderer);
     }
 
     private void Render(Building currentBuilding, ref bool matchState)
     {
         SDL_RenderClear(_renderer);
-        DrawMap(_camera, currentBuilding != null);
-        foreach (var b in _buildings.ToArray()) RenderAllObject(b);
-
+        DrawMap(currentBuilding != null);
+        foreach (var building in _buildings.ToArray()) RenderSingleObjects(building);
+        foreach (var unit in _units.ToArray()) RenderSingleObjects(unit);
         RenderMinimap(_buildings, _camera);
         RenderHud();
-        RenderButtons(ref matchState);
+        RenderButtons(ref matchState, _buttonsList.Where(b => b.IsGameObject && !b.IsMenuObject).ToList());
+        RenderButtons(ref matchState, _buttonsList.Where(b => !b.IsGameObject && !b.IsMenuObject).ToList());
         if (currentBuilding != null) RenderSelectedObject(currentBuilding);
-
         SDL_RenderPresent(_renderer);
     }
 }

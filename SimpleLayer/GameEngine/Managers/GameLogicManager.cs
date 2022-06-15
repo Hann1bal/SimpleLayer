@@ -9,7 +9,7 @@ public class GameLogicManager
     private static GameLogicManager _gameLogicManager;
     private readonly List<Building> _buildings;
     private readonly Dictionary<Vector2, List<GameBaseObject>> _quadrant = new();
-    private readonly List<Unit> _units;
+    private List<Unit> _units;
     public Building BuildingBase;
     public Building BuildingBase2;
     public BuildGameLogicWorker BuildingWorker;
@@ -20,7 +20,7 @@ public class GameLogicManager
         _buildings = buildings;
         _units = playersUnits;
         InitQuadrant();
-        BuildingWorker = new BuildGameLogicWorker(ref _buildings, ref _quadrant);
+        BuildingWorker = new BuildGameLogicWorker(ref _buildings, ref _quadrant, ref _units);
         BuildingWorker.InitPlayerBase();
         UnitWorker = new UnitGameLogicManager(ref _units, ref _quadrant, ref buildings);
     }

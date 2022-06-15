@@ -8,13 +8,15 @@ public class BuildGameLogicWorker
 {
     private readonly List<Building> _buildings;
     private readonly Dictionary<Vector2, List<GameBaseObject>> _quadrant = new();
+    private List<Unit> _units;
     public Building BuildingBase;
     public Building BuildingBase2;
 
-    public BuildGameLogicWorker(ref List<Building> buildings, ref Dictionary<Vector2, List<GameBaseObject>> quadrant)
+    public BuildGameLogicWorker(ref List<Building> buildings, ref Dictionary<Vector2, List<GameBaseObject>> quadrant, ref List<Unit> units)
     {
         _buildings = buildings;
         _quadrant = quadrant;
+        _units = units;
     }
 
     public void DoJob()
@@ -60,7 +62,9 @@ public class BuildGameLogicWorker
                      .Where(building => tick - building.LastTick >= building.SpawnRate)
                      .Where(building => !building.IsDead).ToArray())
         {
-            AddToQuadrant(building.Spawn());
+            var unit = building.Spawn();
+            _units.Add(unit);
+            AddToQuadrant(unit);
             building.LastTick = tick;
         }
     }
@@ -79,7 +83,9 @@ public class BuildGameLogicWorker
         {
             _buildings.Remove(building);
             _quadrant[building.LastQuadrant].Remove(building);
+            
             building.Dispose();
+            
         }
     }
 }
