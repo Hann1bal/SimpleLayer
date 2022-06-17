@@ -123,7 +123,6 @@ public class RenderManager
 
         SDL_SetRenderDrawColor(_renderer, 0, 255, 0, 255);
         SDL_RenderDrawRect(_renderer, ref newCameraSRect);
-        Console.WriteLine(_units.Count);
         foreach (var build in buildings) RenderSingleIdleObjects(build);
         foreach (var unit in _units.ToArray()) RenderSingleIdleObjects(unit);
     }

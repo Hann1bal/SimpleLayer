@@ -2,6 +2,7 @@ using System.Numerics;
 
 namespace SimpleLayer.Objects;
 
+[Serializable]
 public struct Event
 {
     public int Id { get; set; }

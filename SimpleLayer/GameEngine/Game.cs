@@ -36,6 +36,7 @@ public class Game : IDisposable
     private uint _frameStart;
     private uint _frameTime;
     private GameLogicManager _gameLogicManager;
+    private NetworkManager _networkManager;
     private GameState _gameState;
     private Hud _hud;
     private HudManager _hudManager;
@@ -57,6 +58,9 @@ public class Game : IDisposable
     private Dictionary<int, Tile> _tiles = new();
     private IntPtr _window;
 
+    //Инициализация событий
+    private Stack<Event> _events = new();
+    private Stack<Event> _recieveEvents = new();
 
     public Game()
     {
@@ -123,9 +127,10 @@ public class Game : IDisposable
         _tileManager = TileManager.GetInstance(ref _tiles, ref _textureManager, ref _level);
         _rendererManager = RenderManager.GetInstance(ref _renderer, ref _playersBuildings,
             ref _textureManager, ref _camera, ref _level, ref _buttons, ref _hud, ref _tiles, ref _playersUnits);
-        _gameLogicManager = GameLogicManager.GetInstance(ref _playersBuildings, ref _playersUnits);
+        _gameLogicManager = GameLogicManager.GetInstance(ref _playersBuildings, ref _playersUnits, ref _events);
         _eventManager = EventMananager.GetInstance();
         _gameState = GameState.Menu;
+        _networkManager = NetworkManager.GetInstance(ref _events, ref _recieveEvents);
         _hudManager.SetGameState(ref _gameState);
     }
 
@@ -151,6 +156,7 @@ public class Game : IDisposable
                 case GameState.Play:
                     _matchState = true;
                     _hudManager.RunManager();
+                    _networkManager.RunManger();
                     if (!_isPaused) new Thread(_gameLogicManager.RunManager).Start();
                     _rendererManager.RunManager(ref _currentBuilding, ref _matchState);
                     break;

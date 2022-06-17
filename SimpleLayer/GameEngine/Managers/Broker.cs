@@ -4,21 +4,21 @@ namespace SimpleLayer.GameEngine.Managers;
 
 public class Broker
 {
-    private Stack<Event> _events;
+    public Stack<Event> Events;
 
-    public Broker()
+    public Broker(Stack<Event> events)
     {
-        _events = new Stack<Event>();
+        Events = events;
     }
 
     public void AddNewEvent(Event userEvent)
     {
-        _events.Push(userEvent);
+        Events.Push(userEvent);
     }
 
     public Event RemoveEvent()
     {
-        return _events.Pop();
+        return Events.Pop();
     }
 }
     

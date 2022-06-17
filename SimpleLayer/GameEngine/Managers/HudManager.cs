@@ -93,7 +93,6 @@ public class HudManager
         ref bool matchState)
     {
         SDL_GetMouseState(out x, out y);
-        Console.WriteLine($"{x}, {y}");
         switch (button.IsGameObject)
         {
             case true:

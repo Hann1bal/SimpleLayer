@@ -14,21 +14,24 @@ public class GameLogicManager
     public Building BuildingBase2;
     public BuildGameLogicWorker BuildingWorker;
     public UnitGameLogicManager UnitWorker;
+    private Stack<Event> _events;
 
-    private GameLogicManager(ref List<Building> buildings, ref List<Unit> playersUnits)
+
+    private GameLogicManager(ref List<Building> buildings, ref List<Unit> playersUnits, ref  Stack<Event> events)
     {
         _buildings = buildings;
         _units = playersUnits;
+        _events = events;
         InitQuadrant();
-        BuildingWorker = new BuildGameLogicWorker(ref _buildings, ref _quadrant, ref _units);
+        BuildingWorker = new BuildGameLogicWorker(ref _buildings, ref _quadrant, ref _units, ref events);
         BuildingWorker.InitPlayerBase();
         UnitWorker = new UnitGameLogicManager(ref _units, ref _quadrant, ref buildings);
     }
 
-    public static GameLogicManager GetInstance(ref List<Building> buildings, ref List<Unit> playersUnits)
+    public static GameLogicManager GetInstance(ref List<Building> buildings, ref List<Unit> playersUnits, ref Stack<Event> events)
     {
         if (_gameLogicManager != null) return _gameLogicManager;
-        return _gameLogicManager = new GameLogicManager(ref buildings, ref playersUnits);
+        return _gameLogicManager = new GameLogicManager(ref buildings, ref playersUnits, ref events);
     }
 
 

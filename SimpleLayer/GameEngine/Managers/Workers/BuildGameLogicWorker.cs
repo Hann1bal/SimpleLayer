@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Security.Cryptography;
 using SDL2;
 using SimpleLayer.Objects;
 
@@ -11,13 +12,17 @@ public class BuildGameLogicWorker
     private readonly List<Unit> _units;
     public Building BuildingBase;
     public Building BuildingBase2;
+    private Stack<Event> _events;
+
 
     public BuildGameLogicWorker(ref List<Building> buildings, ref Dictionary<Vector2, List<GameBaseObject>> quadrant,
-        ref List<Unit> units)
+        ref List<Unit> units, ref Stack<Event> events
+    )
     {
         _buildings = buildings;
         _quadrant = quadrant;
         _units = units;
+        _events = events;
     }
 
     public void DoJob()
@@ -54,6 +59,7 @@ public class BuildGameLogicWorker
         _buildings.Add(building);
         AddToQuadrant(building);
         level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding = true;
+        _events.Push(new Event(){Id = 1+x, TargetName = currenBuilding.TextureName, TargetType = "building", X = x, Y = y});
     }
 
     private void SpawnUnits()
