@@ -4,9 +4,9 @@ namespace SimpleLayer.ECSCore.System;
 
 public abstract class System
 {
-    protected Manager Manager;
     private readonly HashSet<int> registeredEntityIds;
     private readonly List<Type> requiredComponents;
+    protected Manager Manager;
 
     protected System()
     {

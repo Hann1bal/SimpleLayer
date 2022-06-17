@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLayer", "SimpleLayer\SimpleLayer.csproj", "{2CC4099F-F9DC-40CA-B5D5-939AB437F56A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{CCBCE6A6-72B0-4CB3-B139-E941B0F20841}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{95CED161-EC40-4C79-A658-5187E43AA6AC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,15 @@ Global
 		{2CC4099F-F9DC-40CA-B5D5-939AB437F56A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2CC4099F-F9DC-40CA-B5D5-939AB437F56A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CC4099F-F9DC-40CA-B5D5-939AB437F56A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCBCE6A6-72B0-4CB3-B139-E941B0F20841}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCBCE6A6-72B0-4CB3-B139-E941B0F20841}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCBCE6A6-72B0-4CB3-B139-E941B0F20841}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCBCE6A6-72B0-4CB3-B139-E941B0F20841}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95CED161-EC40-4C79-A658-5187E43AA6AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95CED161-EC40-4C79-A658-5187E43AA6AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95CED161-EC40-4C79-A658-5187E43AA6AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95CED161-EC40-4C79-A658-5187E43AA6AC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal

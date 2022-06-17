@@ -8,19 +8,19 @@ namespace SimpleLayer.GameEngine;
 public class RenderManager
 {
     private static RenderManager _renderManager;
-    private readonly Camera _camera;
-    private readonly Level _level;
-    private readonly Level _level2;
-    private readonly Dictionary<int, Tile> _tileList;
     private readonly List<Building> _buildings;
 
     private readonly List<Buttons> _buttonsList;
+    private readonly Camera _camera;
 
     // public Building _currentBuilding { get; set; }
     private readonly Hud _hud;
+    private readonly Level _level;
+    private readonly Level _level2;
     private readonly IntPtr _renderer;
     private readonly Texture _textureManager;
-    private List<Unit> _units;
+    private readonly Dictionary<int, Tile> _tileList;
+    private readonly List<Unit> _units;
     private int _x, _y;
 
     private RenderManager(ref IntPtr renderer, ref List<Building> buildings,
@@ -171,7 +171,7 @@ public class RenderManager
 
         SDL_RenderCopy(_renderer, texture, ref gameBaseObject.SRect,
             ref newRectangle);
-        
+
         texture = IntPtr.Zero;
     }
 

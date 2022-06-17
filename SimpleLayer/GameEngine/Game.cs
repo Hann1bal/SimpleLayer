@@ -8,7 +8,6 @@ namespace SimpleLayer.GameEngine;
 
 public class Game : IDisposable
 {
-    
     public enum GameState
     {
         Menu = 0,
@@ -27,36 +26,36 @@ public class Game : IDisposable
 
     // Инициализация списков игровых объектов
     private List<Buttons> _buttons = new();
-    private List<Building> _playersBuildings = new();
-    private List<Unit> _playersUnits = new();
+    private Camera _camera;
 
-    // Инициализация словарей игровых объектов
-    private Dictionary<int, Tile> _tiles = new();
+    //Инициализация игровых объектов
+    private Building? _currentBuilding;
+    private EventMananager _eventManager;
 
     // Инициализация системных объектов
     private uint _frameStart;
     private uint _frameTime;
+    private GameLogicManager _gameLogicManager;
+    private GameState _gameState;
+    private Hud _hud;
+    private HudManager _hudManager;
     private bool _isPaused;
     private bool _isShiftPressed;
+    private Level _level;
     private bool _matchState;
-    private bool _running = true;
-    private GameState _gameState;
+    private List<Building> _playersBuildings = new();
+    private List<Unit> _playersUnits = new();
     private IntPtr _renderer;
-    private IntPtr _window;
 
     //Инициализация игровых менеджеров
     private RenderManager _rendererManager;
-    private GameLogicManager _gameLogicManager;
-    private HudManager _hudManager;
-    private TileManager _tileManager;
-    private EventMananager _eventManager;
-
-    //Инициализация игровых объектов
-    private Building? _currentBuilding;
-    private Camera _camera;
-    private Hud _hud;
-    private Level _level;
+    private bool _running = true;
     private Texture _textureManager = new();
+    private TileManager _tileManager;
+
+    // Инициализация словарей игровых объектов
+    private Dictionary<int, Tile> _tiles = new();
+    private IntPtr _window;
 
 
     public Game()
@@ -140,7 +139,7 @@ public class Game : IDisposable
 
             _eventManager.RunJob(ref _isPaused, ref _matchState, ref _isShiftPressed, ref _currentBuilding, ref _camera,
                 ref _level, _buttons, ref _gameState, ref _gameLogicManager, ref _hudManager);
-            
+
             switch (_gameState)
             {
                 case GameState.Init:
@@ -152,8 +151,7 @@ public class Game : IDisposable
                 case GameState.Play:
                     _matchState = true;
                     _hudManager.RunManager();
-                    var updateThread = new Thread(_gameLogicManager.RunManager);
-                    if (!_isPaused) updateThread.Start();
+                    if (!_isPaused) new Thread(_gameLogicManager.RunManager).Start();
                     _rendererManager.RunManager(ref _currentBuilding, ref _matchState);
                     break;
                 case GameState.GameOver:

@@ -4,8 +4,8 @@ namespace SimpleLayer.GameEngine.UtilComponents;
 
 public class Texture
 {
-    private IntPtr _openSans;
     private readonly Dictionary<string, string> _pathList = new();
+    private IntPtr _openSans;
     public Dictionary<string, IntPtr> Dictionary = new();
 
     private void GetAllTexturePath()

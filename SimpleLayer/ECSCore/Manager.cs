@@ -2,10 +2,10 @@
 
 public class Manager
 {
-    private int currentId;
     private readonly Dictionary<int, Entity> entities;
     private readonly Dictionary<Type, System.System> systems;
     private readonly List<int> toDelete;
+    private int currentId;
 
     public Manager()
     {

@@ -1,4 +1,3 @@
-using SDL2;
 using SimpleLayer.Objects;
 using static SDL2.SDL;
 
@@ -20,7 +19,7 @@ public class EventMananager
     }
 
     public void RunJob(ref bool isPaused, ref bool matchState, ref bool isShiftPressed,
-        ref Building currentBuilding, ref Camera camera,
+        ref Building? currentBuilding, ref Camera camera,
         ref Level level, List<Buttons> buttons, ref Game.GameState gameState, ref GameLogicManager gameLogicManager,
         ref HudManager hudManager)
     {
@@ -31,7 +30,7 @@ public class EventMananager
     }
 
     private void PollEvents(ref bool isPaused, ref bool matchState, ref bool isShiftPressed,
-        ref Building currentBuilding, ref Camera camera,
+        ref Building? currentBuilding, ref Camera camera,
         ref Level level, List<Buttons> buttons, ref Game.GameState gameState, ref GameLogicManager gameLogicManager,
         ref HudManager hudManager)
     {

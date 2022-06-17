@@ -8,9 +8,9 @@ public class HudManager
 {
     private static HudManager _hudManager;
     private readonly List<Buttons> _buttons;
+    private readonly Hud _hud;
     private Game.GameState _cState;
     private Game.GameState _gameState;
-    private readonly Hud _hud;
     private int _mouseX;
     private int _mouseY;
     private Texture _texture;
@@ -89,7 +89,7 @@ public class HudManager
         _cState = _gameState;
     }
 
-    private void DoAction(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref Building curent,
+    private void DoAction(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref Building? curent,
         ref bool matchState)
     {
         SDL_GetMouseState(out x, out y);
@@ -97,7 +97,7 @@ public class HudManager
         switch (button.IsGameObject)
         {
             case true:
-                curent = new Building(button.TextureName, x, y, 5000, 0, true);
+                curent = new Building(button.TextureName, x, y, 5000, 0);
                 break;
             case false:
                 switch (button.TextureName)
@@ -134,7 +134,7 @@ public class HudManager
     }
 
     public void PressButton(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref bool matchState,
-        ref Building curent)
+        ref Building? curent)
     {
         button.IsPressed = true;
         DoAction(button, ref gamePause, ref gameState, ref curent, ref matchState);

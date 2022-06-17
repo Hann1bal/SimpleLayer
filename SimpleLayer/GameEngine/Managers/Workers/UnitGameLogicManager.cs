@@ -7,9 +7,9 @@ namespace SimpleLayer.GameEngine.Managers.Workers;
 public class UnitGameLogicManager
 {
     private readonly List<Building> _buildings;
-    private List<Unit> _playersDeadUnits = new();
     private readonly List<Unit> _playersUnits;
     private readonly Dictionary<Vector2, List<GameBaseObject>> _quadrant;
+    private List<Unit> _playersDeadUnits = new();
 
 
     public UnitGameLogicManager(ref List<Unit> playersUnits, ref Dictionary<Vector2, List<GameBaseObject>> quadrant,
@@ -71,19 +71,18 @@ public class UnitGameLogicManager
 
     private void CheckCollision(GameBaseObject unit)
     {
-            foreach (var enemy in _quadrant[unit.LastQuadrant].ToList().Where(enemy => unit.Team != enemy.Team && enemy.TargetDistance<=15))
+        foreach (var enemy in _quadrant[unit.LastQuadrant].ToList()
+                     .Where(enemy => unit.Team != enemy.Team && enemy.TargetDistance <= 15))
+            switch (SDL.SDL_HasIntersection(ref unit.DRect, ref enemy.DRect))
             {
-                switch (SDL.SDL_HasIntersection(ref unit.DRect, ref enemy.DRect))
-                {
-                    case SDL.SDL_bool.SDL_TRUE:
-                        unit.HealthPoint -= enemy.Damage;
-                        enemy.HealthPoint -= unit.Damage;
-                        if (enemy.HealthPoint == 0) enemy.IsDead = true;
-                        if (unit.HealthPoint == 0) unit.IsDead = true;
-                        break;
-                    case SDL.SDL_bool.SDL_FALSE:
-                        break;
-                }
+                case SDL.SDL_bool.SDL_TRUE:
+                    unit.HealthPoint -= enemy.Damage;
+                    enemy.HealthPoint -= unit.Damage;
+                    if (enemy.HealthPoint == 0) enemy.IsDead = true;
+                    if (unit.HealthPoint == 0) unit.IsDead = true;
+                    break;
+                case SDL.SDL_bool.SDL_FALSE:
+                    break;
             }
     }
 
@@ -92,19 +91,15 @@ public class UnitGameLogicManager
         var minimumDistance = int.MaxValue;
         GameBaseObject nearestTarget = null;
         for (var i = unit.LastQuadrant.X - 1; i <= unit.LastQuadrant.X + 1; i++)
-        {
-            for (var j = unit.LastQuadrant.Y - 1; j <= unit.LastQuadrant.Y + 1; j++)
+        for (var j = unit.LastQuadrant.Y - 1; j <= unit.LastQuadrant.Y + 1; j++)
+            foreach (var enemy in _quadrant[new Vector2(i, j)].ToArray())
             {
-                foreach (var enemy in _quadrant[new Vector2(i, j)].ToArray())
-                {
-                    if (unit.Team == enemy.Team || enemy.IsDead) continue;
-                    var distance = DistanceBetween(unit, enemy);
-                    if (nearestTarget != null && minimumDistance <= distance) continue;
-                    nearestTarget = enemy;
-                    minimumDistance = distance;
-                }
+                if (unit.Team == enemy.Team || enemy.IsDead) continue;
+                var distance = DistanceBetween(unit, enemy);
+                if (nearestTarget != null && minimumDistance <= distance) continue;
+                nearestTarget = enemy;
+                minimumDistance = distance;
             }
-        }
 
         if (nearestTarget == null)
         {

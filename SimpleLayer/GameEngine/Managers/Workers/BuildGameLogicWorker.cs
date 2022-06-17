@@ -8,11 +8,12 @@ public class BuildGameLogicWorker
 {
     private readonly List<Building> _buildings;
     private readonly Dictionary<Vector2, List<GameBaseObject>> _quadrant = new();
-    private List<Unit> _units;
+    private readonly List<Unit> _units;
     public Building BuildingBase;
     public Building BuildingBase2;
 
-    public BuildGameLogicWorker(ref List<Building> buildings, ref Dictionary<Vector2, List<GameBaseObject>> quadrant, ref List<Unit> units)
+    public BuildGameLogicWorker(ref List<Building> buildings, ref Dictionary<Vector2, List<GameBaseObject>> quadrant,
+        ref List<Unit> units)
     {
         _buildings = buildings;
         _quadrant = quadrant;
@@ -37,7 +38,7 @@ public class BuildGameLogicWorker
         _buildings.Add(BuildingBase2);
     }
 
-    public void PlaceBuilding(int x, int y, ref Building currenBuilding, ref Level level)
+    public void PlaceBuilding(int x, int y, ref Building? currenBuilding, ref Level level)
     {
         Building building;
         var team = x switch
@@ -83,9 +84,8 @@ public class BuildGameLogicWorker
         {
             _buildings.Remove(building);
             _quadrant[building.LastQuadrant].Remove(building);
-            
+
             building.Dispose();
-            
         }
     }
 }

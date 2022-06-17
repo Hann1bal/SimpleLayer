@@ -23,7 +23,6 @@ public class Level
     public const int LevelStartY = 0;
     public const int LevelEndX = 3200;
     public const int LevelEndY = 3200;
-    public int[,] _levelMatrix;
 
     private readonly int[] _preGeneratedMap =
     {
@@ -461,6 +460,8 @@ public class Level
         77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77,
         77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77
     };
+
+    public int[,] _levelMatrix;
 
     public Dictionary<Vector2, Tile> _tileLevel = new();
     public SDL_Rect SRect, DRect;
