@@ -86,7 +86,7 @@ public class Game : IDisposable
             Console.WriteLine($"There was an issue initializing SDL. {SDL_GetError()}");
 
         _window = SDL_CreateWindow(
-            "Simple Test Game",
+            "Simple Test Debug"+Guid.NewGuid().ToString(),
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
             ScreenWidth,

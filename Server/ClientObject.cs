@@ -29,7 +29,7 @@ public class ClientObject
             userName = Id;
             var message = userName + " Вошёл в игру";
             Console.WriteLine(message);
-            var data = new byte[64];
+            var data = new byte[2048];
             while (true)
                 try
                 {
@@ -57,10 +57,10 @@ public class ClientObject
 
     private byte[] GetMessage()
     {
-        var data = new byte[64];
+        var data = new byte[2048];
         do
         {
-           var bytes = Stream.Read(data, 0, data.Length);
+            Stream.Read(data, 0, data.Length);
         } while (Stream.DataAvailable);
 
         return data;

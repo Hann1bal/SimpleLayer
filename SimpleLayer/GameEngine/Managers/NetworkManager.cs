@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
@@ -18,6 +19,7 @@ public class NetworkManager
     private bool IsActiveThread = false;
     private bool IsConnected = false;
     private Thread _thread;
+
     private NetworkManager(ref Stack<Event> events, ref Stack<Event> recieveEvents)
     {
         _events = events;
@@ -53,20 +55,23 @@ public class NetworkManager
         }
     }
 
+    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH", MessageId = "type: System.Byte[]")]
     private void RecieveEvents()
     {
         while (IsConnected)
             try
             {
-                var message = new byte[1024]; // буфер для получаемых данных
-                do
+                var message = new byte[2048]; // буфер для получаемых данных
+                while (stream.DataAvailable)
                 {
+                    stream.Read(message, 0, message.Length);
+                    using var stream2 = new MemoryStream(message, 0, message.Length);
                     var formatter = new BinaryFormatter();
-                    var recieveEvent = (Event) formatter.Deserialize(stream);
-                    _recieveEvents.Push(recieveEvent);
-                } while (stream.DataAvailable);
+                    var recieveEvent = formatter.Deserialize(stream2);
+                    _recieveEvents.Push((Event) recieveEvent);
+                } 
 
-                Console.WriteLine(message); //вывод сообщения
+                // Console.WriteLine(message); //вывод сообщения
             }
             catch
             {
@@ -81,8 +86,6 @@ public class NetworkManager
         client = new TcpClient();
         client.Connect(_host, _port);
         stream = client.GetStream(); // получаем поток
-        var userName = Guid.NewGuid().ToString();
-        stream.Write(Encoding.Unicode.GetBytes(userName), 0, userName.Length);
         IsConnected = true;
     }
 
