@@ -21,24 +21,24 @@ public class EventMananager
     public void RunJob(ref bool isPaused, ref bool matchState, ref bool isShiftPressed,
         ref Building? currentBuilding, ref Camera camera,
         ref Level level, List<Buttons> buttons, ref Game.GameState gameState, ref GameLogicManager gameLogicManager,
-        ref HudManager hudManager)
+        ref HudManager hudManager, ref bool running)
     {
         PollEvents(ref isPaused, ref matchState, ref isShiftPressed,
             ref currentBuilding, ref camera,
             ref level, buttons, ref gameState, ref gameLogicManager,
-            ref hudManager);
+            ref hudManager, ref  running);
     }
 
     private void PollEvents(ref bool isPaused, ref bool matchState, ref bool isShiftPressed,
         ref Building? currentBuilding, ref Camera camera,
         ref Level level, List<Buttons> buttons, ref Game.GameState gameState, ref GameLogicManager gameLogicManager,
-        ref HudManager hudManager)
+        ref HudManager hudManager, ref bool running)
     {
         while (SDL_PollEvent(out var e) == 1)
             switch (e.type)
             {
                 case SDL_EventType.SDL_QUIT:
-                    isShiftPressed = false;
+                    running = false;
                     break;
                 case SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     if (e.button.button != 3)
@@ -46,7 +46,7 @@ public class EventMananager
                         if (currentBuilding != null)
                         {
                             gameLogicManager.BuildingWorker.PlaceBuilding(e.button.x + camera.CameraRect.x,
-                                e.button.y + camera.CameraRect.y, ref currentBuilding, ref level);
+                                e.button.y + camera.CameraRect.y, ref currentBuilding);
                             if (!isShiftPressed)
                             {
                                 currentBuilding.Dispose();

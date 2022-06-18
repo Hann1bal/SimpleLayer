@@ -60,7 +60,7 @@ public class Game : IDisposable
 
     //Инициализация событий
     private Stack<Event> _events = new();
-    private Stack<Event> _recieveEvents = new();
+    private Stack<Event> _receiveEvents = new();
 
     public Game()
     {
@@ -71,6 +71,7 @@ public class Game : IDisposable
 
     public void Dispose()
     {
+        _networkManager.Disconnect();
         _textureManager.ClearAllTexture();
         SDL_DestroyRenderer(_renderer);
         SDL_DestroyWindow(_window);
@@ -90,7 +91,7 @@ public class Game : IDisposable
             SDL_WINDOWPOS_CENTERED,
             ScreenWidth,
             ScreenHeight,
-            SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS | SDL_WindowFlags.SDL_WINDOW_VULKAN);
+            SDL_WindowFlags.SDL_WINDOW_VULKAN);
 
         if (_window == IntPtr.Zero) Console.WriteLine($"There was an issue creating the window. {SDL_GetError()}");
 
@@ -127,10 +128,10 @@ public class Game : IDisposable
         _tileManager = TileManager.GetInstance(ref _tiles, ref _textureManager, ref _level);
         _rendererManager = RenderManager.GetInstance(ref _renderer, ref _playersBuildings,
             ref _textureManager, ref _camera, ref _level, ref _buttons, ref _hud, ref _tiles, ref _playersUnits);
-        _gameLogicManager = GameLogicManager.GetInstance(ref _playersBuildings, ref _playersUnits, ref _events);
+        _gameLogicManager = GameLogicManager.GetInstance(ref _playersBuildings, ref _playersUnits, ref _events, ref _receiveEvents, ref _level);
         _eventManager = EventMananager.GetInstance();
         _gameState = GameState.Menu;
-        _networkManager = NetworkManager.GetInstance(ref _events, ref _recieveEvents);
+        _networkManager = NetworkManager.GetInstance(ref _events, ref _receiveEvents);
         _hudManager.SetGameState(ref _gameState);
     }
 
@@ -143,7 +144,7 @@ public class Game : IDisposable
             _frameStart = SDL_GetTicks();
 
             _eventManager.RunJob(ref _isPaused, ref _matchState, ref _isShiftPressed, ref _currentBuilding, ref _camera,
-                ref _level, _buttons, ref _gameState, ref _gameLogicManager, ref _hudManager);
+                ref _level, _buttons, ref _gameState, ref _gameLogicManager, ref _hudManager, ref _running);
 
             switch (_gameState)
             {

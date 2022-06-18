@@ -13,20 +13,22 @@ public class BuildGameLogicWorker
     public Building BuildingBase;
     public Building BuildingBase2;
     private Stack<Event> _events;
-
-
+    private Stack<Event> _receiveEvents;
+    private Level _level;
     public BuildGameLogicWorker(ref List<Building> buildings, ref Dictionary<Vector2, List<GameBaseObject>> quadrant,
-        ref List<Unit> units, ref Stack<Event> events
-    )
+        ref List<Unit> units, ref Stack<Event> events, ref Stack<Event> receiveEvents,  ref Level level)
     {
         _buildings = buildings;
         _quadrant = quadrant;
         _units = units;
         _events = events;
+        _receiveEvents = receiveEvents;
+        _level = level;
     }
 
     public void DoJob()
     {
+        HandleEvent();
         DestroyDeadBuildings();
         SpawnUnits();
     }
@@ -43,7 +45,7 @@ public class BuildGameLogicWorker
         _buildings.Add(BuildingBase2);
     }
 
-    public void PlaceBuilding(int x, int y, ref Building? currenBuilding, ref Level level)
+    public void PlaceBuilding(int x, int y, ref Building? currenBuilding)
     {
         Building building;
         var team = x switch
@@ -52,13 +54,13 @@ public class BuildGameLogicWorker
             > 2400 => 2,
             _ => 0
         };
-        if (team == 0 || level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding ||
-            !level._tileLevel[new Vector2(x / 32, y / 32)].isPlacibleTile) return;
-        building = new Building(currenBuilding.TextureName, level._tileLevel[new Vector2(x / 32, y / 32)]._sdlDRect.x,
-            level._tileLevel[new Vector2(x / 32, y / 32)]._sdlDRect.y, currenBuilding.HealthPoint, team);
+        if (team == 0 || _level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding ||
+            !_level._tileLevel[new Vector2(x / 32, y / 32)].isPlacibleTile) return;
+        building = new Building(currenBuilding.TextureName, _level._tileLevel[new Vector2(x / 32, y / 32)]._sdlDRect.x,
+            _level._tileLevel[new Vector2(x / 32, y / 32)]._sdlDRect.y, currenBuilding.HealthPoint, team);
         _buildings.Add(building);
         AddToQuadrant(building);
-        level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding = true;
+        _level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding = true;
         _events.Push(new Event(){Id = 1+x, TargetName = currenBuilding.TextureName, TargetType = "building", X = x, Y = y});
     }
 
@@ -84,6 +86,26 @@ public class BuildGameLogicWorker
         gameBaseObject.LastQuadrant = new Vector2(qudX, qudY);
     }
 
+    private void HandleEvent()
+    {
+        if (_receiveEvents == null) return;
+
+        while (_receiveEvents.Count > 0)
+        {
+
+            var oppEvent = _receiveEvents.Pop();
+            var team = oppEvent.X switch
+            {
+                < 800 => 1,
+                > 2400 => 2,
+                _ => 0
+            };
+            var building = new Building(oppEvent.TargetName, oppEvent.X, oppEvent.Y, 5000, team, true);
+            PlaceBuilding(oppEvent.X, oppEvent.Y, ref building );
+
+        }
+    }
+    
     private void DestroyDeadBuildings()
     {
         foreach (var building in _buildings.Where(building => building.IsDead).ToArray())

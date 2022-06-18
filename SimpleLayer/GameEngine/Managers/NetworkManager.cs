@@ -8,7 +8,6 @@ namespace SimpleLayer.GameEngine.Managers;
 public class NetworkManager
 {
     private static NetworkManager _manager;
-
     private const string _host = "127.0.0.1";
     private const int _port = 27015;
     private static string userName;
@@ -18,6 +17,7 @@ public class NetworkManager
     private Stack<Event> _recieveEvents;
     private bool IsActiveThread = false;
     private bool IsConnected = false;
+    private Thread _thread;
     private NetworkManager(ref Stack<Event> events, ref Stack<Event> recieveEvents)
     {
         _events = events;
@@ -33,8 +33,8 @@ public class NetworkManager
     {   if(!IsConnected) Connect();
         SendEvent();
         if (IsActiveThread) return;
-        var thread = new Thread(RecieveEvents);
-        thread.Start();
+        _thread = new Thread(RecieveEvents);
+        _thread.Start();
         IsActiveThread = true;
     }
 
@@ -49,19 +49,19 @@ public class NetworkManager
             data.Serialize(memoryStream, userEvent);
             var message = memoryStream.ToArray();
             stream.Write(message, 0, message.Length);
+            
         }
     }
 
     private void RecieveEvents()
     {
-        while (true)
+        while (IsConnected)
             try
             {
                 var message = new byte[1024]; // буфер для получаемых данных
                 do
                 {
                     var formatter = new BinaryFormatter();
-                    stream.Position = 0;
                     var recieveEvent = (Event) formatter.Deserialize(stream);
                     _recieveEvents.Push(recieveEvent);
                 } while (stream.DataAvailable);
@@ -86,7 +86,7 @@ public class NetworkManager
         IsConnected = true;
     }
 
-    private void Disconnect()
+    public void Disconnect()
     {
         IsConnected = false;
         if (stream != null)
@@ -95,4 +95,6 @@ public class NetworkManager
             client.Close(); //отключение клиента
         Environment.Exit(0); //завершение процесса
     }
+
+
 }

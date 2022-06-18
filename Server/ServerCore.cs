@@ -16,14 +16,11 @@ public class ServerCore
 
     protected internal void RemoveConnection(string id)
     {
-        // получаем по id закрытое подключение
         var client = clients.FirstOrDefault(c => c.Id == id);
-        // и удаляем его из списка подключений
         if (client != null)
             clients.Remove(client);
     }
 
-    // прослушивание входящих подключений
     protected internal void Listen()
     {
         try
@@ -35,7 +32,6 @@ public class ServerCore
             while (true)
             {
                 var tcpClient = tcpListener.AcceptTcpClient();
-
                 var clientObject = new ClientObject(tcpClient, this);
                 var clientThread = new Thread(clientObject.Process);
                 clientThread.Start();
@@ -47,23 +43,21 @@ public class ServerCore
             Disconnect();
         }
     }
-
-    // трансляция сообщения подключенным клиентам
-    protected internal void BroadcastMessage(string message, string id)
+    
+    protected internal void BroadcastMessage(byte[] data, string id)
     {
-        var data = Encoding.Unicode.GetBytes(message);
-        for (var i = 0; i < clients.Count; i++)
-            if (clients[i].Id != id) // если id клиента не равно id отправляющего
-                clients[i].Stream.Write(data, 0, data.Length); //передача данных
+        foreach (var t in clients.Where(t => t.Id != id))
+            t.Stream.Write(data, 0, data.Length); 
     }
 
-    // отключение всех клиентов
+
     protected internal void Disconnect()
     {
-        tcpListener.Stop(); //остановка сервера
+        tcpListener.Stop(); 
 
-        for (var i = 0; i < clients.Count; i++) clients[i].Close(); //отключение клиента
+        foreach (var t in clients)
+            t.Close();
 
-        Environment.Exit(0); //завершение процесса
+        Environment.Exit(0); 
     }
 }

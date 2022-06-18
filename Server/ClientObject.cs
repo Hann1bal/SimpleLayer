@@ -26,25 +26,21 @@ public class ClientObject
         {
             Stream = client.GetStream();
             // получаем имя пользователя
-            var message = GetMessage();
-            userName = "Client 1";
-
-            message = userName + " Вошёл в игру";
-            server.BroadcastMessage(message, Id);
+            userName = Id;
+            var message = userName + " Вошёл в игру";
             Console.WriteLine(message);
+            var data = new byte[64];
             while (true)
                 try
                 {
-                    message = GetMessage();
-                    message = string.Format("{0}: {1}", userName, message);
-                    Console.WriteLine(message);
-                    server.BroadcastMessage(message, Id);
+                    data = GetMessage();
+                    Console.WriteLine(data);
+                    server.BroadcastMessage(data, Id);
                 }
                 catch
                 {
-                    message = string.Format("{0}: покинул чат", userName);
-                    Console.WriteLine(message);
-                    server.BroadcastMessage(message, Id);
+                    Console.WriteLine(data);
+                    server.BroadcastMessage(data, Id);
                     break;
                 }
         }
@@ -54,25 +50,20 @@ public class ClientObject
         }
         finally
         {
-            // в случае выхода из цикла закрываем ресурсы
             server.RemoveConnection(Id);
             Close();
         }
     }
 
-    // чтение входящего сообщения и преобразование в строку
-    private string GetMessage()
+    private byte[] GetMessage()
     {
-        var data = new byte[64]; // буфер для получаемых данных
-        var builder = new StringBuilder();
-        var bytes = 0;
+        var data = new byte[64];
         do
         {
-            bytes = Stream.Read(data, 0, data.Length);
-            builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+           var bytes = Stream.Read(data, 0, data.Length);
         } while (Stream.DataAvailable);
 
-        return builder.ToString();
+        return data;
     }
 
     // закрытие подключения
