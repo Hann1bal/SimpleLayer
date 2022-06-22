@@ -96,7 +96,7 @@ public class HudManager
         switch (button.IsGameObject)
         {
             case true:
-                curent = new Building(button.TextureName, x, y, 5000, 0);
+                curent = new Building(button.TextureName, x, y, 5000, 0, false);
                 break;
             case false:
                 switch (button.TextureName)

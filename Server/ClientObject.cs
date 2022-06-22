@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
 using System.Text;
 
@@ -20,17 +21,19 @@ public class ClientObject
     protected internal string Id { get; }
     protected internal NetworkStream Stream { get; private set; }
 
+    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH", MessageId = "type: WhereListIterator`1[Server.ClientObject]")]
     public void Process()
     {
         try
         {
             Stream = client.GetStream();
-            // получаем имя пользователя
             userName = Id;
             var message = userName + " Вошёл в игру";
             Console.WriteLine(message);
             var data = new byte[2048];
-            while (true)
+            var cnt = 0;
+            var flag = true;
+            while (flag)
                 try
                 {
                     data = GetMessage();
@@ -38,10 +41,20 @@ public class ClientObject
                     server.BroadcastMessage(data, Id);
                 }
                 catch
-                {
-                    Console.WriteLine(data);
-                    server.BroadcastMessage(data, Id);
+                {   
+                    
+                    Thread.Sleep(2000);
+                    if (cnt < 5)
+                    {
+                        Console.WriteLine(data);
+                        server.BroadcastMessage(data, Id);
+                        cnt++;
+                        break;
+                    }
+                    flag = false;
+                    Console.WriteLine("Connection timeout");  
                     break;
+                    
                 }
         }
         catch (Exception e)

@@ -9,7 +9,7 @@ namespace SimpleLayer.GameEngine.Managers;
 public class NetworkManager
 {
     private static NetworkManager _manager;
-    private const string _host = "127.0.0.1";
+    private const string _host = "45.151.144.128";
     private const int _port = 27015;
     private static string userName;
     private static TcpClient client;

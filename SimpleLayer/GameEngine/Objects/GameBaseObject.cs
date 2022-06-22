@@ -7,6 +7,7 @@ public class GameBaseObject : IGameBaseObject
 {
     public readonly int Damage;
     public int CurrentFrame = 1;
+    public int CurrentAttackFrame = 1;
     public float CurrentXSpeed = 0;
     public float CurrentYSpeed = 0;
     public SDL.SDL_Rect DRect;
@@ -17,9 +18,12 @@ public class GameBaseObject : IGameBaseObject
     public SDL.SDL_Rect SRect;
     public GameBaseObject Target;
     public int TargetDistance;
+    public readonly int AttackDistance = 5;
     public int Team;
     public string TextureName;
     public int XPosition, YPosition;
+    public int Accelaration = 1;
+
 
     public GameBaseObject(string textureName, int xPos, int yPos,
         int healthPoint, int team, bool isBuildng, int damage = 0)

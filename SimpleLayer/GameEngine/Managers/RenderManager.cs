@@ -157,21 +157,29 @@ public class RenderManager
             newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + _camera.CameraRect.h)
             return;
 
-
-        if (!gameBaseObject.IsBuildng)
-            texture = gameBaseObject.CurrentXSpeed switch
+        texture = gameBaseObject.IsBuildng switch
+        {
+            false when gameBaseObject.Accelaration == 1 => gameBaseObject.CurrentXSpeed switch
             {
                 > 0 => _textureManager.Dictionary[$"{gameBaseObject.TextureName}_right_{gameBaseObject.CurrentFrame}"],
                 < 0 => _textureManager.Dictionary[$"{gameBaseObject.TextureName}_left_{gameBaseObject.CurrentFrame}"],
                 _ => _textureManager.Dictionary[$"{gameBaseObject.TextureName}_right_{gameBaseObject.CurrentFrame}"]
-            };
-        else
-            texture = _textureManager.Dictionary[gameBaseObject.TextureName];
+            },
+            false when gameBaseObject.Accelaration == 0 => gameBaseObject.CurrentXSpeed switch
+            {
+                > 0 => _textureManager.Dictionary[
+                    $"{gameBaseObject.TextureName}_right_atack_{gameBaseObject.CurrentAttackFrame}"],
+                < 0 => _textureManager.Dictionary[
+                    $"{gameBaseObject.TextureName}_left_atack_{gameBaseObject.CurrentAttackFrame}"],
+                _ => _textureManager.Dictionary[
+                    $"{gameBaseObject.TextureName}_right_atack_{gameBaseObject.CurrentAttackFrame}"]
+            },
+            _ => _textureManager.Dictionary[gameBaseObject.TextureName]
+        };
 
         SDL_RenderCopy(_renderer, texture, ref gameBaseObject.SRect,
             ref newRectangle);
-
-        texture = IntPtr.Zero;
+        
     }
 
 

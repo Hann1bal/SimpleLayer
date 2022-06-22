@@ -8,8 +8,9 @@ public class UnitGameLogicManager
 {
     private readonly List<Building> _buildings;
     private readonly List<Unit> _playersUnits;
+
     private readonly Dictionary<Vector2, List<GameBaseObject>> _quadrant;
-    private List<Unit> _playersDeadUnits = new();
+    // private List<Unit> _playersDeadUnits = new();
 
 
     public UnitGameLogicManager(ref List<Unit> playersUnits, ref Dictionary<Vector2, List<GameBaseObject>> quadrant,
@@ -37,7 +38,7 @@ public class UnitGameLogicManager
                     break;
             }
 
-            CheckCollision(unit);
+            CheckDistanceToTarget(unit);
             if (unit.IsDead) KillUnit(unit);
 
             NearestCoords(unit);
@@ -61,29 +62,40 @@ public class UnitGameLogicManager
         if (unit.TargetDistance == 0) return;
         unit.CurrentXSpeed = (float) (unit.Target.XPosition - unit.XPosition) / unit.TargetDistance;
         unit.CurrentYSpeed = (float) (unit.Target.YPosition - unit.YPosition) / unit.TargetDistance;
-        unit.XPosition += 2 * (int) Math.Round(unit.CurrentXSpeed);
-        unit.YPosition += 2 * (int) Math.Round(unit.CurrentYSpeed);
+        unit.XPosition += unit.Accelaration * 2 * (int) Math.Round(unit.CurrentXSpeed);
+        unit.YPosition += unit.Accelaration * 2 * (int) Math.Round(unit.CurrentYSpeed);
         unit.DRect.x = unit.XPosition;
         unit.DRect.y = unit.YPosition;
         if (unit.CurrentFrame < unit.MaxFrame) unit.CurrentFrame++;
         else unit.CurrentFrame = 1;
     }
 
-    private void CheckCollision(GameBaseObject unit)
+    private void CheckDistanceToTarget(Unit unit)
     {
         foreach (var enemy in _quadrant[unit.LastQuadrant].ToList()
-                     .Where(enemy => unit.Team != enemy.Team && enemy.TargetDistance <= 15))
-            switch (SDL.SDL_HasIntersection(ref unit.DRect, ref enemy.DRect))
+                     .Where(enemy => unit.Team != enemy.Team))
+        {
+            if (unit.TargetDistance >= unit.AttackDistance)
             {
-                case SDL.SDL_bool.SDL_TRUE:
-                    unit.HealthPoint -= enemy.Damage;
-                    enemy.HealthPoint -= unit.Damage;
-                    if (enemy.HealthPoint == 0) enemy.IsDead = true;
-                    if (unit.HealthPoint == 0) unit.IsDead = true;
-                    break;
-                case SDL.SDL_bool.SDL_FALSE:
-                    break;
+                unit.Accelaration = 1;
+                continue;
             }
+            unit.Accelaration = 0;
+            if (unit.CurrentAttackFrame < unit.MaxAttackFrame) unit.CurrentAttackFrame++;
+            else
+            {
+                unit.CurrentAttackFrame = 1;
+                DoAttack(unit, enemy);
+            }
+        }
+    }
+
+    private void DoAttack(Unit unit, GameBaseObject enemy)
+    {
+        unit.HealthPoint -= enemy.Damage;
+        enemy.HealthPoint -= unit.Damage;
+        enemy.IsDead = enemy.HealthPoint == 0;
+        unit.IsDead = unit.HealthPoint == 0;
     }
 
     private void NearestCoords(GameBaseObject unit)

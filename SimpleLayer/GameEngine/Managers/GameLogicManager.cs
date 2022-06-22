@@ -56,16 +56,4 @@ public class GameLogicManager
         for (var j = -1; j <= 10; j++)
             _quadrant.Add(new Vector2(i, j), new List<GameBaseObject>());
     }
-
-    public void GetState(ref Game.GameState state)
-    {
-        if (BuildingBase == null || BuildingBase2 == null || BuildingBase.HealthPoint <= 0 ||
-            BuildingBase2.HealthPoint <= 0)
-        {
-            state = Game.GameState.GameOver;
-            return;
-        }
-
-        state = Game.GameState.Play;
-    }
 }

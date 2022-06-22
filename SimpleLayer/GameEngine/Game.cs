@@ -21,7 +21,7 @@ public class Game : IDisposable
     // Инициализация констант графического движка
     private const int ScreenHeight = 1080;
     private const int ScreenWidth = 1920;
-    private const int Fps = 60;
+    private const int Fps = 30;
     private const int FrameDelay = 1000 / Fps;
 
     // Инициализация списков игровых объектов
