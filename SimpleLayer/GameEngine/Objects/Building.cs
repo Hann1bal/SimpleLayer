@@ -1,39 +1,30 @@
 ﻿using SDL2;
+using SimpleLayer.Objects.States;
 
 namespace SimpleLayer.Objects;
 
 public class Building : GameBaseObject
 {
-    public readonly bool IsFactory;
-    public readonly bool IsMine;
-    public readonly uint SpawnRate = 5000;
-    public int _xPos;
-    public int _yPos;
-    public int Tier;
+    public BuildingAttributes BuildingAttributes;
 
     public Building(string textureName, int xPos, int yPos,
-        int healthPpoint, int team, bool isMine, bool isFactory = true) :
-        base(textureName, xPos, yPos, healthPpoint, team, true)
+        int healthPpoint, int team, int timer, BuildingType buildingType) :
+        base(textureName, xPos, yPos, healthPpoint, team, ObjectType.Building)
     {
-        _xPos = xPos;
-        _yPos = yPos;
-        IsMine = isMine;
-        XPosition = _xPos;
-        YPosition = _yPos;
-        LastTick = SDL.SDL_GetTicks();
-        IsFactory = isFactory;
-        Tier = 1;
+        BuildingAttributes = new BuildingAttributes {SpawnRate = 5, LastTick = timer, BuildingType = buildingType};
     }
-
-    public uint LastTick { get; set; }
 
     public Unit Spawn()
     {
-        var unit = TextureName switch
+        var unit = BaseObjectAttribute.TextureName switch
         {
-            "arab_1" => new Unit("adventurer", _xPos, _yPos, 5, Team, 5, 8, 7),
-            "arab_2" => new Unit("dwarf", _xPos, _yPos, 5, Team, 5, 8, 7),
-            _ => new Unit("dwarf", _xPos, _yPos, 5, Team, 5, 8, 7)
+            "arab_1" => new Unit("adventurer", (int) Math.Round(BaseObjectAttribute.XPosition),
+                (int) Math.Round(BaseObjectAttribute.YPosition), 25, BaseObjectAttribute.Team, 5, 8,
+                7),
+            "arab_2" => new Unit("dwarf", (int) Math.Round(BaseObjectAttribute.XPosition),
+                (int) Math.Round(BaseObjectAttribute.YPosition), 25, BaseObjectAttribute.Team, 5, 8, 7),
+            _ => new Unit("dwarf", (int) Math.Round(BaseObjectAttribute.XPosition),
+                (int) Math.Round(BaseObjectAttribute.YPosition), 5, BaseObjectAttribute.Team, 5, 8, 7)
         };
         return unit;
     }

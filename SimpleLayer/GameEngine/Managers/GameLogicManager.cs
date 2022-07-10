@@ -43,12 +43,11 @@ public class GameLogicManager
     }
 
 
-    public void RunManager()
+    public void RunManager(object? o)
     {
-        BuildingWorker.DoJob();
-        UnitWorker.DoJob();
+        BuildingWorker.RunJob((Time) o);
+        UnitWorker.RunJob();
     }
-
 
     private void InitQuadrant()
     {

@@ -21,18 +21,18 @@ public class EventMananager
     public void RunJob(ref bool isPaused, ref bool matchState, ref bool isShiftPressed,
         ref Building? currentBuilding, ref Camera camera,
         ref Level level, List<Buttons> buttons, ref Game.GameState gameState, ref GameLogicManager gameLogicManager,
-        ref HudManager hudManager, ref bool running)
+        ref HudManager hudManager, ref bool running, ref Time timer)
     {
         PollEvents(ref isPaused, ref matchState, ref isShiftPressed,
             ref currentBuilding, ref camera,
             ref level, buttons, ref gameState, ref gameLogicManager,
-            ref hudManager, ref  running);
+            ref hudManager, ref  running, ref timer);
     }
 
     private void PollEvents(ref bool isPaused, ref bool matchState, ref bool isShiftPressed,
         ref Building? currentBuilding, ref Camera camera,
         ref Level level, List<Buttons> buttons, ref Game.GameState gameState, ref GameLogicManager gameLogicManager,
-        ref HudManager hudManager, ref bool running)
+        ref HudManager hudManager, ref bool running, ref Time timer)
     {
         while (SDL_PollEvent(out var e) == 1)
             switch (e.type)
@@ -46,7 +46,7 @@ public class EventMananager
                         if (currentBuilding != null)
                         {
                             gameLogicManager.BuildingWorker.PlaceBuilding(e.button.x + camera.CameraRect.x,
-                                e.button.y + camera.CameraRect.y, ref currentBuilding);
+                                e.button.y + camera.CameraRect.y, ref currentBuilding, timer);
                             if (!isShiftPressed)
                             {
                                 currentBuilding.Dispose();
@@ -65,7 +65,7 @@ public class EventMananager
 
                     foreach (var button in buttons.Where(b => b.IsFocused))
                         hudManager.PressButton(button, ref isPaused, ref gameState, ref matchState,
-                            ref currentBuilding);
+                            ref currentBuilding, ref  timer);
 
                     break;
                 case SDL_EventType.SDL_MOUSEBUTTONUP:

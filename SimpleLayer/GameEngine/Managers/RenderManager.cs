@@ -1,6 +1,8 @@
 ﻿using System.Numerics;
+using SDL2;
 using SimpleLayer.GameEngine.UtilComponents;
 using SimpleLayer.Objects;
+using SimpleLayer.Objects.States;
 using static SDL2.SDL;
 
 namespace SimpleLayer.GameEngine;
@@ -22,6 +24,11 @@ public class RenderManager
     private readonly Dictionary<int, Tile> _tileList;
     private readonly List<Unit> _units;
     private int _x, _y;
+    private IntPtr monserat = SDL_ttf.TTF_OpenFont($"./Data/Fonts/OpenSans.ttf", 10);
+    private SDL_Color _color = new SDL_Color() {a = 0, r = 255, b = 0, g = 0};
+    private string _time = "";
+    private SDL_Rect mes = new SDL_Rect();
+    private SDL_Rect mesh = new SDL_Rect();
 
     private RenderManager(ref IntPtr renderer, ref List<Building> buildings,
         ref Texture textureManager, ref Camera camera, ref Level level, ref List<Buttons> buttonsList, ref Hud hud,
@@ -54,11 +61,10 @@ public class RenderManager
         Render(ref matchState);
     }
 
-    public void RunManager(ref Building currentBuilding, ref bool matchState)
+    public void RunManager(ref Building currentBuilding, ref bool matchState, ref int time)
     {
-        Render(currentBuilding, ref matchState);
+        Render(currentBuilding, ref matchState, ref time);
     }
-
 
     private void DrawMap(bool flag)
     {
@@ -143,45 +149,65 @@ public class RenderManager
         }
     }
 
-    private void RenderSingleObjects(GameBaseObject gameBaseObject)
+    private void RenderSingleObjects(Building building)
     {
         IntPtr texture;
         SDL_Rect newRectangle = new()
         {
-            h = gameBaseObject.SRect.w / 5,
-            w = gameBaseObject.SRect.w / 5,
-            x = gameBaseObject.XPosition - _camera.CameraRect.x,
-            y = gameBaseObject.YPosition - _camera.CameraRect.y
+            h = building.SRect.w / 5,
+            w = building.SRect.w / 5,
+            x = (int) Math.Round(building.BaseObjectAttribute.XPosition) - _camera.CameraRect.x,
+            y = (int) Math.Round(building.BaseObjectAttribute.YPosition) - _camera.CameraRect.y
         };
         if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + _camera.CameraRect.w ||
             newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + _camera.CameraRect.h)
             return;
 
-        texture = gameBaseObject.IsBuildng switch
-        {
-            false when gameBaseObject.Accelaration == 1 => gameBaseObject.CurrentXSpeed switch
-            {
-                > 0 => _textureManager.Dictionary[$"{gameBaseObject.TextureName}_right_{gameBaseObject.CurrentFrame}"],
-                < 0 => _textureManager.Dictionary[$"{gameBaseObject.TextureName}_left_{gameBaseObject.CurrentFrame}"],
-                _ => _textureManager.Dictionary[$"{gameBaseObject.TextureName}_right_{gameBaseObject.CurrentFrame}"]
-            },
-            false when gameBaseObject.Accelaration == 0 => gameBaseObject.CurrentXSpeed switch
-            {
-                > 0 => _textureManager.Dictionary[
-                    $"{gameBaseObject.TextureName}_right_atack_{gameBaseObject.CurrentAttackFrame}"],
-                < 0 => _textureManager.Dictionary[
-                    $"{gameBaseObject.TextureName}_left_atack_{gameBaseObject.CurrentAttackFrame}"],
-                _ => _textureManager.Dictionary[
-                    $"{gameBaseObject.TextureName}_right_atack_{gameBaseObject.CurrentAttackFrame}"]
-            },
-            _ => _textureManager.Dictionary[gameBaseObject.TextureName]
-        };
-
-        SDL_RenderCopy(_renderer, texture, ref gameBaseObject.SRect,
-            ref newRectangle);
-        
+        texture = _textureManager.Dictionary[building.BaseObjectAttribute.TextureName];
+        SDL_RenderCopy(_renderer, texture, ref building.SRect, ref newRectangle);
     }
 
+    private void RenderSingleObjects(Unit unit)
+    {
+        IntPtr texture;
+        SDL_Rect newRectangle = new()
+        {
+            h = unit.SRect.w / 5,
+            w = unit.SRect.w / 5,
+            x = (int) Math.Round(unit.BaseObjectAttribute.XPosition) - _camera.CameraRect.x,
+            y = (int) Math.Round(unit.BaseObjectAttribute.YPosition) - _camera.CameraRect.y
+        };
+        if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + _camera.CameraRect.w ||
+            newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + _camera.CameraRect.h)
+            return;
+
+        texture = unit.UnitsAttributes.MoAState switch
+        {
+            MoAState.Moving => unit.UnitsAttributes.DeltaX switch
+            {
+                > 0f => _textureManager.Dictionary[
+                    $"{unit.BaseObjectAttribute.TextureName}_right_{unit.UnitsAttributes.CurrentMovingFrame}"],
+                < 0f => _textureManager.Dictionary[
+                    $"{unit.BaseObjectAttribute.TextureName}_left_{unit.UnitsAttributes.CurrentMovingFrame}"],
+                _ => _textureManager.Dictionary[
+                    $"{unit.BaseObjectAttribute.TextureName}_right_{unit.UnitsAttributes.CurrentMovingFrame}"]
+            },
+            MoAState.Attacking => unit.UnitsAttributes.DeltaX switch
+            {
+                > 0f => _textureManager.Dictionary[
+                    $"{unit.BaseObjectAttribute.TextureName}_right_atack_{unit.UnitsAttributes.CurrentAttackFrame}"],
+                < 0f => _textureManager.Dictionary[
+                    $"{unit.BaseObjectAttribute.TextureName}_left_atack_{unit.UnitsAttributes.CurrentAttackFrame}"],
+                _ => _textureManager.Dictionary[
+                    $"{unit.BaseObjectAttribute.TextureName}_right_atack_{unit.UnitsAttributes.CurrentAttackFrame}"]
+            },
+            _ => _textureManager.Dictionary[
+                $"{unit.BaseObjectAttribute.TextureName}_right_{unit.UnitsAttributes.CurrentMovingFrame}"]
+        };
+
+        SDL_RenderCopy(_renderer, texture, ref unit.SRect,
+            ref newRectangle);
+    }
 
     private void RenderSingleIdleObjects(GameBaseObject gameBaseObject)
     {
@@ -190,24 +216,31 @@ public class RenderManager
         {
             h = gameBaseObject.SRect.w / 50,
             w = gameBaseObject.SRect.w / 50,
-            x = 25 + gameBaseObject.XPosition / 10,
-            y = 805 + gameBaseObject.YPosition / 12
+            x = 25 + (int) Math.Round(gameBaseObject.BaseObjectAttribute.XPosition) / 10,
+            y = 805 + (int) Math.Round(gameBaseObject.BaseObjectAttribute.YPosition) / 12
         };
         if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + _camera.CameraRect.w ||
             newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + _camera.CameraRect.h)
             return;
 
-        if (gameBaseObject.IsBuildng)
-            texture = _textureManager.Dictionary[gameBaseObject.TextureName];
-        else
-            texture = gameBaseObject.CurrentFrame < 0
-                ? _textureManager.Dictionary[$"{gameBaseObject.TextureName}_left_{gameBaseObject.CurrentFrame}"]
-                : _textureManager.Dictionary[$"{gameBaseObject.TextureName}_right_{gameBaseObject.CurrentFrame}"];
+        texture = gameBaseObject.BaseObjectAttribute.ObjectType switch
+        {
+            ObjectType.Building => _textureManager.Dictionary[gameBaseObject.BaseObjectAttribute.TextureName],
+            ObjectType.Unit when gameBaseObject is Unit unit => unit.UnitsAttributes.DeltaX switch
+            {
+                > 0 => _textureManager.Dictionary[
+                    $"{unit.BaseObjectAttribute.TextureName}_right_{unit.UnitsAttributes.CurrentMovingFrame}"],
+                < 0 => _textureManager.Dictionary[
+                    $"{unit.BaseObjectAttribute.TextureName}_left_{unit.UnitsAttributes.CurrentMovingFrame}"],
+                _ => _textureManager.Dictionary[
+                    $"{unit.BaseObjectAttribute.TextureName}_right_{unit.UnitsAttributes.CurrentMovingFrame}"]
+            }
+        };
+
 
         SDL_RenderCopy(_renderer, texture, ref gameBaseObject.SRect,
             ref newRectangle);
     }
-
 
     private void RenderHud()
     {
@@ -230,6 +263,38 @@ public class RenderManager
             }
     }
 
+    private void RenderUnitInfo(Unit unit, int x, int y)
+    {
+        var message = SDL_ttf.TTF_RenderText_Solid(monserat,
+            $"{unit.UnitsAttributes.Accelaration}, {unit.UnitsAttributes.DeltaX}, {unit.UnitsAttributes.DeltaY}, {unit.BaseObjectAttribute.XPosition}, {unit.BaseObjectAttribute.YPosition},  {unit.UnitsAttributes.TargetDistance}",
+            _color);
+        var textureWreed = SDL_CreateTextureFromSurface(_renderer, message);
+        mesh.x = x; //controls the rect's x coorinate 
+        mesh.y = y; // controls the rect's y coordinte
+        mesh.w = 300; // controls the width of the rect
+        mesh.h = 50; // controls the height of the rect
+        SDL_RenderCopy(_renderer, textureWreed, IntPtr.Zero, ref mesh);
+        SDL_FreeSurface(message);
+        SDL_DestroyTexture(textureWreed);
+    }
+
+    private void RenderTime(ref int time)
+    {
+        var minutes = time / 60;
+        var seconds = time - (minutes * 60);
+        var message = SDL_ttf.TTF_RenderText_Solid(monserat,
+            $"{minutes}:{seconds}", _color);
+        var textureWreed = SDL_CreateTextureFromSurface(_renderer, message);
+        mes.x = 950; //controls the rect's x coorinate 
+        mes.y = 10; // controls the rect's y coordinte
+        mes.w = 100; // controls the width of the rect
+        mes.h = 100; // controls the height of the rect
+
+        SDL_RenderCopy(_renderer, textureWreed, IntPtr.Zero, ref mes);
+        SDL_FreeSurface(message);
+        SDL_DestroyTexture(textureWreed);
+    }
+
     private void RenderSelectedObject(GameBaseObject selectedObject)
     {
         SDL_GetMouseState(out _x, out _y);
@@ -240,7 +305,7 @@ public class RenderManager
             x = _x,
             y = _y
         };
-        SDL_RenderCopy(_renderer, _textureManager.Dictionary[selectedObject.TextureName],
+        SDL_RenderCopy(_renderer, _textureManager.Dictionary[selectedObject.BaseObjectAttribute.TextureName],
             ref selectedObject.SRect,
             ref newRectangle);
     }
@@ -253,17 +318,25 @@ public class RenderManager
         SDL_RenderPresent(_renderer);
     }
 
-    private void Render(Building currentBuilding, ref bool matchState)
+    private void Render(Building currentBuilding, ref bool matchState, ref int time)
     {
         SDL_RenderClear(_renderer);
         DrawMap(currentBuilding != null);
         foreach (var building in _buildings.ToArray()) RenderSingleObjects(building);
         foreach (var unit in _units.ToArray()) RenderSingleObjects(unit);
+        var cnt = 1;
+        foreach (var unit in _units.ToArray())
+        {
+            RenderUnitInfo(unit, 50, 100 * cnt);
+            cnt++;
+        }
+
         RenderMinimap(_buildings, _camera);
         RenderHud();
         RenderButtons(ref matchState, _buttonsList.Where(b => b.IsGameObject && !b.IsMenuObject).ToList());
         RenderButtons(ref matchState, _buttonsList.Where(b => !b.IsGameObject && !b.IsMenuObject).ToList());
         if (currentBuilding != null) RenderSelectedObject(currentBuilding);
+        RenderTime(ref time);
         SDL_RenderPresent(_renderer);
     }
 }

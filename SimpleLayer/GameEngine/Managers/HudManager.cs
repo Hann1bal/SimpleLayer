@@ -1,5 +1,6 @@
 ﻿using SimpleLayer.GameEngine.UtilComponents;
 using SimpleLayer.Objects;
+using SimpleLayer.Objects.States;
 using static SDL2.SDL;
 
 namespace SimpleLayer.GameEngine.Managers;
@@ -90,13 +91,13 @@ public class HudManager
     }
 
     private void DoAction(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref Building? curent,
-        ref bool matchState)
+        ref bool matchState, ref Time timer)
     {
         SDL_GetMouseState(out x, out y);
         switch (button.IsGameObject)
         {
             case true:
-                curent = new Building(button.TextureName, x, y, 5000, 0, false);
+                curent = new Building(button.TextureName, x, y, 100, 0, timer.Seconds, BuildingType.Factory);
                 break;
             case false:
                 switch (button.TextureName)
@@ -108,9 +109,11 @@ public class HudManager
                     case "pause":
                         button.TextureName = "resume";
                         gamePause = !gamePause;
+                        gameState = Game.GameState.Pause;
                         break;
                     case "resume":
                         gamePause = !gamePause;
+                        gameState = Game.GameState.Play;
                         button.TextureName = "pause";
                         break;
                     case "playTextButton":
@@ -133,10 +136,10 @@ public class HudManager
     }
 
     public void PressButton(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref bool matchState,
-        ref Building? curent)
+        ref Building? curent, ref Time timer)
     {
         button.IsPressed = true;
-        DoAction(button, ref gamePause, ref gameState, ref curent, ref matchState);
+        DoAction(button, ref gamePause, ref gameState, ref curent, ref matchState, ref timer);
     }
 
     public void ReleaseButton(Buttons button)

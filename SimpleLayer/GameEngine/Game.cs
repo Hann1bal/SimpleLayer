@@ -15,8 +15,12 @@ public class Game : IDisposable
         GameOver = 2,
         Lobby = 3,
         Init = 4,
-        Exit = 5
+        Exit = 5,
+        Pause = 6
     }
+
+    //Инициализация игрового таймера
+    private uint _gameClock;
 
     // Инициализация констант графического движка
     private const int ScreenHeight = 1080;
@@ -47,13 +51,15 @@ public class Game : IDisposable
     private List<Building> _playersBuildings = new();
     private List<Unit> _playersUnits = new();
     private IntPtr _renderer;
+    private Time Timer = new Time();
 
+    
     //Инициализация игровых менеджеров
     private RenderManager _rendererManager;
     private bool _running = true;
     private Texture _textureManager = new();
     private TileManager _tileManager;
-
+    
     // Инициализация словарей игровых объектов
     private Dictionary<int, Tile> _tiles = new();
     private IntPtr _window;
@@ -61,7 +67,7 @@ public class Game : IDisposable
     //Инициализация событий
     private Stack<Event> _events = new();
     private Stack<Event> _receiveEvents = new();
-
+    
     public Game()
     {
         InitSdl();
@@ -86,7 +92,7 @@ public class Game : IDisposable
             Console.WriteLine($"There was an issue initializing SDL. {SDL_GetError()}");
 
         _window = SDL_CreateWindow(
-            "Simple Test Debug"+Guid.NewGuid().ToString(),
+            "Simple Test Debug" + Guid.NewGuid().ToString(),
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
             ScreenWidth,
@@ -128,11 +134,17 @@ public class Game : IDisposable
         _tileManager = TileManager.GetInstance(ref _tiles, ref _textureManager, ref _level);
         _rendererManager = RenderManager.GetInstance(ref _renderer, ref _playersBuildings,
             ref _textureManager, ref _camera, ref _level, ref _buttons, ref _hud, ref _tiles, ref _playersUnits);
-        _gameLogicManager = GameLogicManager.GetInstance(ref _playersBuildings, ref _playersUnits, ref _events, ref _receiveEvents, ref _level);
+        _gameLogicManager = GameLogicManager.GetInstance(ref _playersBuildings, ref _playersUnits, ref _events,
+            ref _receiveEvents, ref _level);
         _eventManager = EventMananager.GetInstance();
         _gameState = GameState.Menu;
         _networkManager = NetworkManager.GetInstance(ref _events, ref _receiveEvents);
         _hudManager.SetGameState(ref _gameState);
+    }
+
+    private void Clock()
+    {
+
     }
 
 
@@ -144,7 +156,7 @@ public class Game : IDisposable
             _frameStart = SDL_GetTicks();
 
             _eventManager.RunJob(ref _isPaused, ref _matchState, ref _isShiftPressed, ref _currentBuilding, ref _camera,
-                ref _level, _buttons, ref _gameState, ref _gameLogicManager, ref _hudManager, ref _running);
+                ref _level, _buttons, ref _gameState, ref _gameLogicManager, ref _hudManager, ref _running, ref Timer);
 
             switch (_gameState)
             {
@@ -157,9 +169,16 @@ public class Game : IDisposable
                 case GameState.Play:
                     _matchState = true;
                     _hudManager.RunManager();
-                    _networkManager.RunManger();
-                    if (!_isPaused) new Thread(_gameLogicManager.RunManager).Start();
-                    _rendererManager.RunManager(ref _currentBuilding, ref _matchState);
+                    // _networkManager.RunManger();
+                    if (!_isPaused) new Thread(_gameLogicManager.RunManager).Start(Timer);
+                    _rendererManager.RunManager(ref _currentBuilding, ref _matchState, ref Timer.Seconds);
+                    Timer.StartGameTimer();
+                    break;
+                case GameState.Pause:
+                    _matchState = true;
+                    _hudManager.RunManager();
+                    // _networkManager.RunManger();
+                    _rendererManager.RunManager(ref _currentBuilding, ref _matchState, ref Timer.Seconds);
                     break;
                 case GameState.GameOver:
                     _rendererManager.RunManager(ref _matchState);
