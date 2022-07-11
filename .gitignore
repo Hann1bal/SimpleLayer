@@ -2,3 +2,5 @@
 /.vs
 /SimpleLayer/obj
 /SimpleLayer/bin
+/Server/obj
+/Server/bin
