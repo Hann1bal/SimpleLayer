@@ -1,27 +1,42 @@
-using SDL2;
+using SimpleLayer.Objects;
 
 namespace SimpleLayer.GameEngine.Managers.Workers;
 
-public class EconomyGameManager
+public class EconomyGameManagerWorker
 {
-    public int Gold { get; set; }
-    public uint LastTick;
+    private int LastTick;
+    public List<Building> Mines;
 
-    public EconomyGameManager()
+    /// <summary>
+    ///     Управление экономикой игрока
+    /// </summary>
+    public EconomyGameManagerWorker()
     {
-        Gold = 50;
     }
 
-    public void RunJob()
+    /// <summary>
+    ///     Запускает базовое накопление золота
+    /// </summary>
+    public void RunJob(Player player, Time time)
     {
-        GetCache();
+        RunDefaultMine(player, time);
+        // RunMineWork(ref Gold, Mines, ref time);
     }
 
-    private void GetCache()
+    private void RunDefaultMine(Player player, Time time)
     {
-        if (SDL.SDL_GetTicks() - 15000 <= LastTick) return;
-        Gold++;
-        LastTick = SDL.SDL_GetTicks();
-        
+        if (time.Seconds - 15 < LastTick) return;
+        player.PlayerAttribute.Gold++;
+        LastTick = time.Seconds;
+    }
+
+    private void RunMineWork(ref int Gold, List<Building> Mines, ref Time time)
+    {
+        foreach (var mine in Mines)
+        {
+            if (time.Seconds - 15 < mine.BuildingAttributes.LastTick) return;
+            Gold++;
+            LastTick = time.Seconds;
+        }
     }
 }

@@ -1,6 +1,4 @@
 using System.Numerics;
-using System.Security.Cryptography;
-using SDL2;
 using SimpleLayer.Objects;
 using SimpleLayer.Objects.States;
 
@@ -9,14 +7,14 @@ namespace SimpleLayer.GameEngine.Managers.Workers;
 public class BuildGameLogicWorker
 {
     private readonly List<Building> _buildings;
+    private readonly Stack<Event> _events;
+    private readonly Level _level;
     private readonly Dictionary<Vector2, List<GameBaseObject>> _quadrant = new();
+    private readonly Stack<Event> _receiveEvents;
     private readonly List<Unit> _units;
+    private Broker Broker;
     public Building BuildingBase;
     public Building BuildingBase2;
-    private Broker Broker;
-    private Stack<Event> _events;
-    private Stack<Event> _receiveEvents;
-    private Level _level;
 
     public BuildGameLogicWorker(ref List<Building> buildings, ref Dictionary<Vector2, List<GameBaseObject>> quadrant,
         ref List<Unit> units, ref Stack<Event> events, ref Stack<Event> receiveEvents, ref Level level)
@@ -42,7 +40,7 @@ public class BuildGameLogicWorker
         BuildingBase = new Building("tron",
             400, 1600, 50000, 1, 0, BuildingType.Base);
         BuildingBase2 = new Building("tron",
-            2800, 1600, 50000, 2, 0,BuildingType.Base);
+            2800, 1600, 50000, 2, 0, BuildingType.Base);
         AddToQuadrant(BuildingBase);
         AddToQuadrant(BuildingBase2);
         _buildings.Add(BuildingBase);
@@ -60,19 +58,28 @@ public class BuildGameLogicWorker
         };
         if (team == 0 || _level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding ||
             !_level._tileLevel[new Vector2(x / 32, y / 32)].isPlacibleTile) return;
-        building = new Building(currenBuilding.BaseObjectAttribute.TextureName, _level._tileLevel[new Vector2(x / 32, y / 32)]._sdlDRect.x,
-            _level._tileLevel[new Vector2(x / 32, y / 32)]._sdlDRect.y, currenBuilding.BaseObjectAttribute.HealthPoint, team,timer.Seconds,BuildingType.Factory);
+        //TODO Переделать под нормальный тип
+        switch (currenBuilding.BaseObjectAttribute.TextureName)
+        {
+        }
+
+        building = new Building(currenBuilding.BaseObjectAttribute.TextureName,
+            _level._tileLevel[new Vector2(x / 32, y / 32)]._sdlDRect.x,
+            _level._tileLevel[new Vector2(x / 32, y / 32)]._sdlDRect.y, currenBuilding.BaseObjectAttribute.HealthPoint,
+            team, timer.Seconds, BuildingType.Factory);
         _buildings.Add(building);
         AddToQuadrant(building);
         _level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding = true;
-        Broker.AddNewEvent(new Event
-            {Id = 1 + x, TargetName = currenBuilding.BaseObjectAttribute.TextureName, TargetType = "building", X = x, Y = y});
+        // Broker.AddNewEvent(new Event
+        // {Id = 1 + x, TargetName = currenBuilding.BaseObjectAttribute.TextureName, TargetType = "building", X = x, Y = y});
     }
 
     private void SpawnUnits(Time timer)
     {
-        foreach (var building in _buildings.Where(building => building.BuildingAttributes.BuildingType == BuildingType.Factory)
-                     .Where(building => timer.Seconds - building.BuildingAttributes.LastTick >= building.BuildingAttributes.SpawnRate)
+        foreach (var building in _buildings
+                     .Where(building => building.BuildingAttributes.BuildingType == BuildingType.Factory)
+                     .Where(building => timer.Seconds - building.BuildingAttributes.LastTick >=
+                                        building.BuildingAttributes.SpawnRate)
                      .Where(building => building.BaseObjectAttribute.DoAState == DoAState.Alive).ToArray())
         {
             // if (_units.Count >= 2) return;
@@ -85,8 +92,8 @@ public class BuildGameLogicWorker
 
     private void AddToQuadrant(GameBaseObject gameBaseObject)
     {
-        var qudX = (int)Math.Round(gameBaseObject.BaseObjectAttribute.XPosition / 320);
-        var qudY = (int)Math.Round(gameBaseObject.BaseObjectAttribute.YPosition / 320);
+        var qudX = (int) Math.Round(gameBaseObject.BaseObjectAttribute.XPosition / 320);
+        var qudY = (int) Math.Round(gameBaseObject.BaseObjectAttribute.YPosition / 320);
         _quadrant[new Vector2(qudX, qudY)].Add(gameBaseObject);
         gameBaseObject.BaseObjectAttribute.LastQuadrant = new Vector2(qudX, qudY);
     }
@@ -111,7 +118,8 @@ public class BuildGameLogicWorker
 
     private void DestroyDeadBuildings()
     {
-        foreach (var building in _buildings.Where(building => building.BaseObjectAttribute.DoAState == DoAState.Dead).ToArray())
+        foreach (var building in _buildings.Where(building => building.BaseObjectAttribute.DoAState == DoAState.Dead)
+                     .ToArray())
         {
             _buildings.Remove(building);
             _quadrant[building.BaseObjectAttribute.LastQuadrant].Remove(building);

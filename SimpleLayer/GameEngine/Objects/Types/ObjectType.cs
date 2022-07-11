@@ -1,6 +1,6 @@
 namespace SimpleLayer.Objects.States;
 
-public enum ObjectType:short
+public enum ObjectType : short
 {
     Building = 1,
     Unit = 2,

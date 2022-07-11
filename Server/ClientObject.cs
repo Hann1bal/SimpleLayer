@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
-using System.Text;
 
 namespace Server;
 
@@ -21,7 +20,8 @@ public class ClientObject
     protected internal string Id { get; }
     protected internal NetworkStream Stream { get; private set; }
 
-    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH", MessageId = "type: WhereListIterator`1[Server.ClientObject]")]
+    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH",
+        MessageId = "type: WhereListIterator`1[Server.ClientObject]")]
     public void Process()
     {
         try
@@ -41,8 +41,7 @@ public class ClientObject
                     server.BroadcastMessage(data, Id);
                 }
                 catch
-                {   
-                    
+                {
                     Thread.Sleep(2000);
                     if (cnt < 5)
                     {
@@ -51,10 +50,10 @@ public class ClientObject
                         cnt++;
                         break;
                     }
+
                     flag = false;
-                    Console.WriteLine("Connection timeout");  
+                    Console.WriteLine("Connection timeout");
                     break;
-                    
                 }
         }
         catch (Exception e)

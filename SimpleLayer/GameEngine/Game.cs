@@ -19,9 +19,6 @@ public class Game : IDisposable
         Pause = 6
     }
 
-    //Инициализация игрового таймера
-    private uint _gameClock;
-
     // Инициализация констант графического движка
     private const int ScreenHeight = 1080;
     private const int ScreenWidth = 1920;
@@ -36,11 +33,16 @@ public class Game : IDisposable
     private Building? _currentBuilding;
     private EventMananager _eventManager;
 
+    //Инициализация событий
+    private Stack<Event> _events = new();
+
     // Инициализация системных объектов
     private uint _frameStart;
     private uint _frameTime;
+
+    //Инициализация игрового таймера
+    private uint _gameClock;
     private GameLogicManager _gameLogicManager;
-    private NetworkManager _networkManager;
     private GameState _gameState;
     private Hud _hud;
     private HudManager _hudManager;
@@ -48,26 +50,26 @@ public class Game : IDisposable
     private bool _isShiftPressed;
     private Level _level;
     private bool _matchState;
+    private NetworkManager _networkManager;
+    private Player _player = new();
     private List<Building> _playersBuildings = new();
+    private List<Building> _playersMines = new();
     private List<Unit> _playersUnits = new();
+    private Stack<Event> _receiveEvents = new();
     private IntPtr _renderer;
-    private Time Timer = new Time();
 
-    
+
     //Инициализация игровых менеджеров
     private RenderManager _rendererManager;
     private bool _running = true;
     private Texture _textureManager = new();
     private TileManager _tileManager;
-    
+
     // Инициализация словарей игровых объектов
     private Dictionary<int, Tile> _tiles = new();
     private IntPtr _window;
+    private Time Timer = new();
 
-    //Инициализация событий
-    private Stack<Event> _events = new();
-    private Stack<Event> _receiveEvents = new();
-    
     public Game()
     {
         InitSdl();
@@ -92,7 +94,7 @@ public class Game : IDisposable
             Console.WriteLine($"There was an issue initializing SDL. {SDL_GetError()}");
 
         _window = SDL_CreateWindow(
-            "Simple Test Debug" + Guid.NewGuid().ToString(),
+            "Simple Test Debug" + Guid.NewGuid(),
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
             ScreenWidth,
@@ -120,7 +122,7 @@ public class Game : IDisposable
 
     private void InitGameObjects()
     {
-        _gameState = GameState.Init;
+        _gameState = GameState.Menu;
         _hud = Hud.GetInstance("Hud", new SDL_Rect {x = 0, y = 0, h = 900, w = 1440},
             new SDL_Rect {x = 0, y = 0, w = ScreenWidth, h = ScreenHeight});
         _textureManager.LoadTexture(_renderer);
@@ -139,14 +141,7 @@ public class Game : IDisposable
         _eventManager = EventMananager.GetInstance();
         _gameState = GameState.Menu;
         _networkManager = NetworkManager.GetInstance(ref _events, ref _receiveEvents);
-        _hudManager.SetGameState(ref _gameState);
     }
-
-    private void Clock()
-    {
-
-    }
-
 
     /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
     public void Run()
@@ -163,22 +158,23 @@ public class Game : IDisposable
                 case GameState.Init:
                 case GameState.Lobby:
                 case GameState.Menu:
-                    _hudManager.RunManager();
+                    _hudManager.RunManager(ref _gameState);
                     _rendererManager.RunManager(ref _matchState);
                     break;
                 case GameState.Play:
                     _matchState = true;
-                    _hudManager.RunManager();
+                    _hudManager.RunManager(ref _gameState);
                     // _networkManager.RunManger();
-                    if (!_isPaused) new Thread(_gameLogicManager.RunManager).Start(Timer);
-                    _rendererManager.RunManager(ref _currentBuilding, ref _matchState, ref Timer.Seconds);
+                    object dos = new object[2] {Timer, _player};
+                    if (!_isPaused) new Thread(_gameLogicManager.RunManager).Start(dos);
+                    _rendererManager.RunManager(ref _currentBuilding, ref _matchState, ref Timer.Seconds, ref _player);
                     Timer.StartGameTimer();
                     break;
                 case GameState.Pause:
                     _matchState = true;
-                    _hudManager.RunManager();
+                    _hudManager.RunManager(ref _gameState);
                     // _networkManager.RunManger();
-                    _rendererManager.RunManager(ref _currentBuilding, ref _matchState, ref Timer.Seconds);
+                    _rendererManager.RunManager(ref _currentBuilding, ref _matchState, ref Timer.Seconds, ref _player);
                     break;
                 case GameState.GameOver:
                     _rendererManager.RunManager(ref _matchState);

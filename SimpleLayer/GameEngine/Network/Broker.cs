@@ -23,4 +23,3 @@ public class Broker
         return ReceiveEvents.Pop();
     }
 }
-    

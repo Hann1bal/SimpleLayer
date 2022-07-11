@@ -1,5 +1,4 @@
-﻿using SDL2;
-using SimpleLayer.Objects.States;
+﻿using SimpleLayer.Objects.States;
 
 namespace SimpleLayer.Objects;
 

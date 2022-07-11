@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using SDL2;
+﻿using SDL2;
 using SimpleLayer.Objects.States;
 
 namespace SimpleLayer.Objects;
@@ -7,8 +6,8 @@ namespace SimpleLayer.Objects;
 public class GameBaseObject : IGameBaseObject
 {
     public GameBaseObjectAttribute BaseObjectAttribute;
-    public SDL.SDL_Rect SRect;
     public SDL.SDL_Rect DRect;
+    public SDL.SDL_Rect SRect;
 
     protected GameBaseObject(string textureName, int xPos, int yPos,
         int healthPoint, int team, ObjectType objectType)

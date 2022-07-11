@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 
 namespace Server;
 
@@ -43,21 +42,21 @@ public class ServerCore
             Disconnect();
         }
     }
-    
+
     protected internal void BroadcastMessage(byte[] data, string id)
     {
         foreach (var t in clients.Where(t => t.Id != id))
-            t.Stream.Write(data, 0, data.Length); 
+            t.Stream.Write(data, 0, data.Length);
     }
 
 
     protected internal void Disconnect()
     {
-        tcpListener.Stop(); 
+        tcpListener.Stop();
 
         foreach (var t in clients)
             t.Close();
 
-        Environment.Exit(0); 
+        Environment.Exit(0);
     }
 }

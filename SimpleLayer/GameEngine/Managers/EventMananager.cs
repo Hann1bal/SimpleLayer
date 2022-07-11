@@ -1,4 +1,5 @@
 using SimpleLayer.Objects;
+using SimpleLayer.Objects.States;
 using static SDL2.SDL;
 
 namespace SimpleLayer.GameEngine.Managers;
@@ -26,7 +27,7 @@ public class EventMananager
         PollEvents(ref isPaused, ref matchState, ref isShiftPressed,
             ref currentBuilding, ref camera,
             ref level, buttons, ref gameState, ref gameLogicManager,
-            ref hudManager, ref  running, ref timer);
+            ref hudManager, ref running, ref timer);
     }
 
     private void PollEvents(ref bool isPaused, ref bool matchState, ref bool isShiftPressed,
@@ -63,14 +64,14 @@ public class EventMananager
                         }
                     }
 
-                    foreach (var button in buttons.Where(b => b.IsFocused))
+                    foreach (var button in buttons.Where(b => b.ButtonAttribute.ButtonState == ButtonState.Focused))
                         hudManager.PressButton(button, ref isPaused, ref gameState, ref matchState,
-                            ref currentBuilding, ref  timer);
-
+                            ref currentBuilding, ref timer);
                     break;
                 case SDL_EventType.SDL_MOUSEBUTTONUP:
-                    foreach (var button in buttons.Where(b => b.IsPressed)) hudManager.ReleaseButton(button);
-
+                    foreach (var button in buttons.Where(b =>
+                                 b.ButtonAttribute.ButtonPressState == ButtonPressState.Pressed))
+                        hudManager.ReleaseButton(button);
                     break;
                 case SDL_EventType.SDL_KEYDOWN:
                     switch (e.key.keysym.sym)

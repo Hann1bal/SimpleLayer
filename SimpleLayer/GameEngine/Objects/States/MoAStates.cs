@@ -4,5 +4,5 @@ public enum MoAState : short
 {
     Attacking = 1,
     Moving = 2,
-    Stunned = 3,
+    Stunned = 3
 }

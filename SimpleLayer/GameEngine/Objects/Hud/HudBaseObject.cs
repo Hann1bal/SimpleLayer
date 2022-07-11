@@ -4,15 +4,14 @@ namespace SimpleLayer.Objects;
 
 public class HudBaseObject : IGameBaseObject
 {
-    public string CurrentTextureName;
     public SDL.SDL_Rect DRect;
+    public HudBaseObjectAttribute hudBaseObjectAttribute;
     public SDL.SDL_Rect SRect;
-    public string TextureName;
 
     public HudBaseObject(string textureName, SDL.SDL_Rect sRect, SDL.SDL_Rect dRect)
     {
-        TextureName = textureName;
-        CurrentTextureName = TextureName;
+        hudBaseObjectAttribute = new HudBaseObjectAttribute
+            {TextureName = textureName, CurrentTextureName = textureName};
         SRect = sRect;
         DRect = dRect;
     }
@@ -20,7 +19,7 @@ public class HudBaseObject : IGameBaseObject
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        GC.SuppressFinalize(TextureName);
+        GC.SuppressFinalize(hudBaseObjectAttribute);
         GC.SuppressFinalize(SRect);
         GC.SuppressFinalize(DRect);
         GC.Collect(GC.MaxGeneration);

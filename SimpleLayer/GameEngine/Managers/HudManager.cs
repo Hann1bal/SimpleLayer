@@ -1,4 +1,5 @@
-﻿using SimpleLayer.GameEngine.UtilComponents;
+﻿using SimpleLayer.GameEngine.Objects.Types;
+using SimpleLayer.GameEngine.UtilComponents;
 using SimpleLayer.Objects;
 using SimpleLayer.Objects.States;
 using static SDL2.SDL;
@@ -10,20 +11,17 @@ public class HudManager
     private static HudManager _hudManager;
     private readonly List<Buttons> _buttons;
     private readonly Hud _hud;
-    private Game.GameState _cState;
-    private Game.GameState _gameState;
     private int _mouseX;
     private int _mouseY;
     private Texture _texture;
+    private Game.GameState curentGameState;
     private int x, y;
 
     private HudManager(ref List<Buttons> buttons, ref Hud hud, ref Game.GameState gameState)
     {
         _buttons = buttons;
         _hud = hud;
-        _gameState = gameState;
-        _cState = gameState;
-        Init();
+        Init(ref gameState);
     }
 
     public static HudManager GetInstance(ref List<Buttons> buttons, ref Hud hud, ref Game.GameState gameState)
@@ -32,40 +30,35 @@ public class HudManager
         return _hudManager = new HudManager(ref buttons, ref hud, ref gameState);
     }
 
-    public void SetGameState(ref Game.GameState gameState)
-    {
-        _gameState = gameState;
-    }
-
     //MENU BUTTON TOP 400px :Y 760px :X;  MIDDLE 530px :Y 830:X, Down 660px :Y 930px :X; dx 100
-    private void Init()
+    private void Init(ref Game.GameState gameState)
     {
-        switch (_gameState)
+        switch (gameState)
         {
             case Game.GameState.Init:
                 break;
             //TODO Вынести все статичные данные в отдельный конфиг файл и инициализировать при загрузке игры.
             case Game.GameState.Menu:
                 _buttons.Add(new Buttons("playTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
-                    new SDL_Rect {h = 90, w = 150, x = 1465, y = 480}, false, true));
+                    new SDL_Rect {h = 90, w = 150, x = 1465, y = 480}, ButtonType.MenuButton));
                 _buttons.Add(new Buttons("resumeTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
-                    new SDL_Rect {h = 90, w = 150, x = 1465, y = 480}, false, true));
+                    new SDL_Rect {h = 90, w = 150, x = 1465, y = 480}, ButtonType.MenuButton));
                 _buttons.Add(new Buttons("settingsTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
-                    new SDL_Rect {h = 90, w = 150, x = 1535, y = 635}, false, true));
+                    new SDL_Rect {h = 90, w = 150, x = 1535, y = 635}, ButtonType.MenuButton));
                 _buttons.Add(new Buttons("exitTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
-                    new SDL_Rect {h = 90, w = 150, x = 1635, y = 795}, false, true));
+                    new SDL_Rect {h = 90, w = 150, x = 1635, y = 795}, ButtonType.MenuButton));
                 break;
             case Game.GameState.Play:
                 _buttons.Add(new Buttons("settings", new SDL_Rect {h = 32, w = 32, x = 0, y = 0},
-                    new SDL_Rect {h = 32, w = 32, x = 1820, y = 50}, false, false));
+                    new SDL_Rect {h = 32, w = 32, x = 1820, y = 50}, ButtonType.Blank));
                 _buttons.Add(new Buttons("pause", new SDL_Rect {h = 32, w = 32, x = 0, y = 0},
-                    new SDL_Rect {h = 32, w = 32, x = 1770, y = 50}, false, false));
+                    new SDL_Rect {h = 32, w = 32, x = 1770, y = 50}, ButtonType.Blank));
                 var cnt = 1;
                 for (var i = 0; i < 4; i++)
                 for (var j = 0; j < 2; j++)
                 {
                     _buttons.Add(new Buttons($"arab_{cnt}", new SDL_Rect {h = 210, w = 210, x = 0, y = 0},
-                        new SDL_Rect {h = 90, w = 90, x = 1305 + i * 90, y = 825 + j * 90}, true, false));
+                        new SDL_Rect {h = 90, w = 90, x = 1305 + i * 90, y = 825 + j * 90}, ButtonType.MatchHudButton));
                     cnt++;
                 }
 
@@ -76,81 +69,91 @@ public class HudManager
                 break;
             case Game.GameState.Exit:
                 break;
+            case Game.GameState.Pause:
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
 
-    public void RunManager()
+    public void RunManager(ref Game.GameState gameState)
     {
-        Update();
-        SyncHud();
-        if (_cState == _gameState) return;
-        ReInitHudForGameState();
-        _cState = _gameState;
+        Update(ref gameState);
+        SyncHud(ref gameState);
+        if (gameState != curentGameState)
+        {
+            ReInitHudForGameState(ref gameState);
+            curentGameState = gameState;
+        }
     }
 
-    private void DoAction(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref Building? curent,
+    private void DoAction(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref Building? current,
         ref bool matchState, ref Time timer)
     {
         SDL_GetMouseState(out x, out y);
-        switch (button.IsGameObject)
+        switch (button.ButtonAttribute.ButtonType)
         {
-            case true:
-                curent = new Building(button.TextureName, x, y, 100, 0, timer.Seconds, BuildingType.Factory);
+            case ButtonType.MatchHudButton:
+                current = new Building(button.hudBaseObjectAttribute.TextureName, x, y, 100, 0, timer.Seconds,
+                    BuildingType.Factory);
                 break;
-            case false:
-                switch (button.TextureName)
+            case ButtonType.MenuButton:
+                switch (button.hudBaseObjectAttribute.TextureName)
                 {
-                    case "settings":
-                        _gameState = Game.GameState.Menu;
-                        gameState = _gameState;
-                        break;
-                    case "pause":
-                        button.TextureName = "resume";
-                        gamePause = !gamePause;
-                        gameState = Game.GameState.Pause;
-                        break;
-                    case "resume":
-                        gamePause = !gamePause;
-                        gameState = Game.GameState.Play;
-                        button.TextureName = "pause";
-                        break;
                     case "playTextButton":
-                        _gameState = Game.GameState.Play;
-                        gameState = _gameState;
+                        gameState = Game.GameState.Play;
                         break;
                     case "exitTextButton":
-                        _gameState = Game.GameState.Exit;
-                        gameState = _gameState;
+                        gameState = Game.GameState.Exit;
                         matchState = false;
                         break;
                     case "resumeTextButton":
-                        _gameState = Game.GameState.Play;
-                        gameState = _gameState;
+                        gameState = Game.GameState.Play;
                         break;
                 }
 
                 break;
+            case ButtonType.Blank:
+                switch (button.hudBaseObjectAttribute.CurrentTextureName)
+                {
+                    case "settings":
+                        gameState = Game.GameState.Menu;
+                        break;
+                    case "pause":
+                        button.hudBaseObjectAttribute.CurrentTextureName = "resume";
+                        gamePause = !gamePause;
+                        gameState = Game.GameState.Pause;
+                        break;
+                    case "resume":
+                        button.hudBaseObjectAttribute.CurrentTextureName = "pause";
+                        gamePause = !gamePause;
+                        gameState = Game.GameState.Play;
+                        break;
+                }
+
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
     public void PressButton(Buttons button, ref bool gamePause, ref Game.GameState gameState, ref bool matchState,
-        ref Building? curent, ref Time timer)
+        ref Building? current, ref Time timer)
     {
-        button.IsPressed = true;
-        DoAction(button, ref gamePause, ref gameState, ref curent, ref matchState, ref timer);
+        button.ButtonAttribute.ButtonPressState = ButtonPressState.Pressed;
+        DoAction(button, ref gamePause, ref gameState, ref current, ref matchState, ref timer);
     }
 
     public void ReleaseButton(Buttons button)
     {
-        button.IsPressed = false;
+        button.ButtonAttribute.ButtonPressState = ButtonPressState.Released;
     }
 
     //230 height 460-190
-    private void SyncHud()
+    private void SyncHud(ref Game.GameState gameState)
     {
-        _hud.TextureName = _gameState switch
+        _hud.hudBaseObjectAttribute.CurrentTextureName = gameState switch
         {
             Game.GameState.Menu => "MenuHud",
             Game.GameState.Play => "Hud",
@@ -161,59 +164,58 @@ public class HudManager
         };
     }
 
-    private void ReInitHudForGameState()
+    private void ReInitHudForGameState(ref Game.GameState gameState)
     {
         if (_buttons.Count > 0) ClearAllButton();
 
-        Init();
+        Init(ref gameState);
     }
 
-    private void CheckCollision(Buttons button)
+    private void CheckButtonCollision(Buttons button)
     {
         SDL_GetMouseState(out _mouseX, out _mouseY);
         if (_mouseX > button.DRect.x && _mouseX < button.DRect.x + button.DRect.w && _mouseY > button.DRect.y &&
             _mouseY < button.DRect.y + button.DRect.h)
         {
-            if (button.IsFocused && button.IsPressed)
-                button.UpdateTextureName(Buttons.ButtonTextures.Pressed);
-            else
-                button.UpdateTextureName(Buttons.ButtonTextures.Focused);
+            if (button.ButtonAttribute.ButtonState == ButtonState.Focused &&
+                button.ButtonAttribute.ButtonPressState == ButtonPressState.Pressed)
+                button.UpdateTextureName(ButtonState.Focused, ButtonPressState.Pressed);
+            else button.UpdateTextureName(ButtonState.Focused, ButtonPressState.Released);
         }
         else
         {
-            button.UpdateTextureName(Buttons.ButtonTextures.Unfocused);
+            button.UpdateTextureName(ButtonState.Unfocused, ButtonPressState.Released);
         }
     }
 
-    private void Update()
+    private void Update(ref Game.GameState gameState)
     {
-        switch (_gameState)
+        switch (gameState)
         {
             case Game.GameState.Menu:
-                foreach (var button in _buttons) CheckCollision(button);
-
+                foreach (var button in _buttons) CheckButtonCollision(button);
                 break;
 
             case Game.GameState.Play:
-                foreach (var button in _buttons) CheckCollision(button);
-
+                foreach (var button in _buttons) CheckButtonCollision(button);
                 break;
 
             case Game.GameState.GameOver:
-                foreach (var button in _buttons) CheckCollision(button);
-
+                foreach (var button in _buttons) CheckButtonCollision(button);
                 break;
 
             case Game.GameState.Lobby:
-                foreach (var button in _buttons) CheckCollision(button);
-
+                foreach (var button in _buttons) CheckButtonCollision(button);
                 break;
 
             case Game.GameState.Init:
                 break;
 
+            case Game.GameState.Exit:
+            case Game.GameState.Pause:
+                break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(_gameState), _gameState, null);
+                throw new ArgumentOutOfRangeException();
         }
     }
 

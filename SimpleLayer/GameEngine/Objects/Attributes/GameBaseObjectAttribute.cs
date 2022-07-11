@@ -1,5 +1,4 @@
 using System.Numerics;
-using SDL2;
 using SimpleLayer.Objects.States;
 
 namespace SimpleLayer.Objects;

@@ -1,5 +1,6 @@
-﻿using System.Numerics;
-using SDL2;
+﻿using SDL2;
+using SimpleLayer.GameEngine.Managers.Workers;
+using SimpleLayer.GameEngine.Objects.Types;
 using SimpleLayer.GameEngine.UtilComponents;
 using SimpleLayer.Objects;
 using SimpleLayer.Objects.States;
@@ -10,25 +11,28 @@ namespace SimpleLayer.GameEngine;
 public class RenderManager
 {
     private static RenderManager _renderManager;
+    private readonly IntPtr monserat = SDL_ttf.TTF_OpenFont("./Data/Fonts/OpenSans.ttf", 10);
     private readonly List<Building> _buildings;
 
     private readonly List<Buttons> _buttonsList;
-    private readonly Camera _camera;
+    private Camera _camera;
+    private readonly SDL_Color _color = new() {a = 0, r = 255, b = 0, g = 0};
 
     // public Building _currentBuilding { get; set; }
     private readonly Hud _hud;
-    private readonly Level _level;
-    private readonly Level _level2;
-    private readonly IntPtr _renderer;
-    private readonly Texture _textureManager;
-    private readonly Dictionary<int, Tile> _tileList;
+    private Level _level;
+    private Level _level2;
+    private IntPtr _renderer;
+    private Texture _textureManager;
+    private Dictionary<int, Tile> _tileList;
+    private string _time = "";
     private readonly List<Unit> _units;
     private int _x, _y;
-    private IntPtr monserat = SDL_ttf.TTF_OpenFont($"./Data/Fonts/OpenSans.ttf", 10);
-    private SDL_Color _color = new SDL_Color() {a = 0, r = 255, b = 0, g = 0};
-    private string _time = "";
-    private SDL_Rect mes = new SDL_Rect();
-    private SDL_Rect mesh = new SDL_Rect();
+    private SDL_Rect mes;
+    private SDL_Rect mesh;
+    private readonly RenderMapWorker RenderMapWorker = new();
+    private readonly RenderMiniMapWorker RenderMiniMapWorker = new();
+    private readonly RenderObjectsWorker RenderObjectsWorker = new();
 
     private RenderManager(ref IntPtr renderer, ref List<Building> buildings,
         ref Texture textureManager, ref Camera camera, ref Level level, ref List<Buttons> buttonsList, ref Hud hud,
@@ -61,77 +65,11 @@ public class RenderManager
         Render(ref matchState);
     }
 
-    public void RunManager(ref Building currentBuilding, ref bool matchState, ref int time)
+    public void RunManager(ref Building currentBuilding, ref bool matchState, ref int time, ref Player player)
     {
-        Render(currentBuilding, ref matchState, ref time);
+        Render(currentBuilding, ref matchState, ref time, ref player);
     }
 
-    private void DrawMap(bool flag)
-    {
-        for (var x = 0; x < Level.LevelWidth / 32; x++)
-        for (var y = 0; y < Level.LevelHeight / 32; y++)
-        {
-            if (flag)
-                switch (_level._tileLevel[new Vector2(x, y)].isPlacibleTile)
-                {
-                    case true:
-                        switch (_level._tileLevel[new Vector2(x, y)].ContainBuilding)
-                        {
-                            case false:
-                                SDL_SetTextureColorMod(_level._tileLevel[new Vector2(x, y)]._texture, 0, 100, 0);
-                                break;
-                            default:
-                                SDL_SetTextureColorMod(_level._tileLevel[new Vector2(x, y)]._texture, 100, 0, 0);
-                                break;
-                        }
-
-                        break;
-                    default:
-                        SDL_SetTextureColorMod(_level._tileLevel[new Vector2(x, y)]._texture, 100, 0, 0);
-                        break;
-                }
-            else
-                SDL_SetTextureColorMod(_level._tileLevel[new Vector2(x, y)]._texture, 255, 255, 255);
-
-            var tmpDRect = new SDL_Rect
-            {
-                h = _level._tileLevel[new Vector2(x, y)]._sdlDRect.h,
-                w = _level._tileLevel[new Vector2(x, y)]._sdlDRect.w,
-                x = _level._tileLevel[new Vector2(x, y)]._sdlDRect.x - _camera.CameraRect.x,
-                y = _level._tileLevel[new Vector2(x, y)]._sdlDRect.y - _camera.CameraRect.y
-            };
-            // SDL_SetRenderTarget(_renderer, _level._tileLevel[new Vector2(x, y)]._texture);
-            SDL_RenderCopy(_renderer, _level._tileLevel[new Vector2(x, y)]._texture,
-                ref _level._tileLevel[new Vector2(x, y)]._sdlSRect,
-                ref tmpDRect);
-        }
-    }
-
-
-    private void RenderMinimap(List<Building> buildings, Camera camera)
-    {
-        var newCameraSRect = new SDL_Rect
-        {
-            h = 90, w = 192,
-            x = 22 + camera.CameraRect.x / 10,
-            y = 805 + camera.CameraRect.y / 12
-        };
-        for (var x = 0; x < Level.LevelWidth / 32; x++)
-        for (var y = 0; y < Level.LevelHeight / 32; y++)
-        {
-            _level2.DRect.x = 22 + x * 32 / 10;
-            _level2.DRect.y = 805 + y * 32 / 12;
-            _level2.DRect.h = _level2.SRect.h / 8;
-            _level2.DRect.w = _level2.SRect.w / 8;
-            SDL_RenderCopy(_renderer, _level._tileLevel[new Vector2(x, y)]._texture, ref _level2.SRect,
-                ref _level2.DRect);
-        }
-
-        SDL_SetRenderDrawColor(_renderer, 0, 255, 0, 255);
-        SDL_RenderDrawRect(_renderer, ref newCameraSRect);
-        foreach (var build in buildings) RenderSingleIdleObjects(build);
-        foreach (var unit in _units.ToArray()) RenderSingleIdleObjects(unit);
-    }
 
     private void RenderMesh()
     {
@@ -149,102 +87,11 @@ public class RenderManager
         }
     }
 
-    private void RenderSingleObjects(Building building)
-    {
-        IntPtr texture;
-        SDL_Rect newRectangle = new()
-        {
-            h = building.SRect.w / 5,
-            w = building.SRect.w / 5,
-            x = (int) Math.Round(building.BaseObjectAttribute.XPosition) - _camera.CameraRect.x,
-            y = (int) Math.Round(building.BaseObjectAttribute.YPosition) - _camera.CameraRect.y
-        };
-        if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + _camera.CameraRect.w ||
-            newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + _camera.CameraRect.h)
-            return;
-
-        texture = _textureManager.Dictionary[building.BaseObjectAttribute.TextureName];
-        SDL_RenderCopy(_renderer, texture, ref building.SRect, ref newRectangle);
-    }
-
-    private void RenderSingleObjects(Unit unit)
-    {
-        IntPtr texture;
-        SDL_Rect newRectangle = new()
-        {
-            h = unit.SRect.w / 5,
-            w = unit.SRect.w / 5,
-            x = (int) Math.Round(unit.BaseObjectAttribute.XPosition) - _camera.CameraRect.x,
-            y = (int) Math.Round(unit.BaseObjectAttribute.YPosition) - _camera.CameraRect.y
-        };
-        if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + _camera.CameraRect.w ||
-            newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + _camera.CameraRect.h)
-            return;
-
-        texture = unit.UnitsAttributes.MoAState switch
-        {
-            MoAState.Moving => unit.UnitsAttributes.DeltaX switch
-            {
-                > 0f => _textureManager.Dictionary[
-                    $"{unit.BaseObjectAttribute.TextureName}_right_{unit.UnitsAttributes.CurrentMovingFrame}"],
-                < 0f => _textureManager.Dictionary[
-                    $"{unit.BaseObjectAttribute.TextureName}_left_{unit.UnitsAttributes.CurrentMovingFrame}"],
-                _ => _textureManager.Dictionary[
-                    $"{unit.BaseObjectAttribute.TextureName}_right_{unit.UnitsAttributes.CurrentMovingFrame}"]
-            },
-            MoAState.Attacking => unit.UnitsAttributes.DeltaX switch
-            {
-                > 0f => _textureManager.Dictionary[
-                    $"{unit.BaseObjectAttribute.TextureName}_right_atack_{unit.UnitsAttributes.CurrentAttackFrame}"],
-                < 0f => _textureManager.Dictionary[
-                    $"{unit.BaseObjectAttribute.TextureName}_left_atack_{unit.UnitsAttributes.CurrentAttackFrame}"],
-                _ => _textureManager.Dictionary[
-                    $"{unit.BaseObjectAttribute.TextureName}_right_atack_{unit.UnitsAttributes.CurrentAttackFrame}"]
-            },
-            _ => _textureManager.Dictionary[
-                $"{unit.BaseObjectAttribute.TextureName}_right_{unit.UnitsAttributes.CurrentMovingFrame}"]
-        };
-
-        SDL_RenderCopy(_renderer, texture, ref unit.SRect,
-            ref newRectangle);
-    }
-
-    private void RenderSingleIdleObjects(GameBaseObject gameBaseObject)
-    {
-        IntPtr texture;
-        SDL_Rect newRectangle = new()
-        {
-            h = gameBaseObject.SRect.w / 50,
-            w = gameBaseObject.SRect.w / 50,
-            x = 25 + (int) Math.Round(gameBaseObject.BaseObjectAttribute.XPosition) / 10,
-            y = 805 + (int) Math.Round(gameBaseObject.BaseObjectAttribute.YPosition) / 12
-        };
-        if (newRectangle.x + newRectangle.w < 0 || newRectangle.x > 0 + _camera.CameraRect.w ||
-            newRectangle.y + newRectangle.h < 0 || newRectangle.y > 0 + _camera.CameraRect.h)
-            return;
-
-        texture = gameBaseObject.BaseObjectAttribute.ObjectType switch
-        {
-            ObjectType.Building => _textureManager.Dictionary[gameBaseObject.BaseObjectAttribute.TextureName],
-            ObjectType.Unit when gameBaseObject is Unit unit => unit.UnitsAttributes.DeltaX switch
-            {
-                > 0 => _textureManager.Dictionary[
-                    $"{unit.BaseObjectAttribute.TextureName}_right_{unit.UnitsAttributes.CurrentMovingFrame}"],
-                < 0 => _textureManager.Dictionary[
-                    $"{unit.BaseObjectAttribute.TextureName}_left_{unit.UnitsAttributes.CurrentMovingFrame}"],
-                _ => _textureManager.Dictionary[
-                    $"{unit.BaseObjectAttribute.TextureName}_right_{unit.UnitsAttributes.CurrentMovingFrame}"]
-            }
-        };
-
-
-        SDL_RenderCopy(_renderer, texture, ref gameBaseObject.SRect,
-            ref newRectangle);
-    }
 
     private void RenderHud()
     {
-        SDL_RenderCopy(_renderer, _textureManager.Dictionary[_hud.TextureName], ref _hud.SRect,
+        SDL_RenderCopy(_renderer, _textureManager.Dictionary[_hud.hudBaseObjectAttribute.CurrentTextureName],
+            ref _hud.SRect,
             ref _hud.DRect);
     }
 
@@ -253,24 +100,28 @@ public class RenderManager
         foreach (var button in buttons)
             switch (matchState)
             {
-                case true when button.TextureName == "playTextButton":
-                case false when button.TextureName == "resumeTextButton":
+                case true when button.hudBaseObjectAttribute.TextureName == "playTextButton":
+                case false when button.hudBaseObjectAttribute.TextureName == "resumeTextButton":
                     continue;
                 default:
-                    SDL_RenderCopy(_renderer, _textureManager.Dictionary[button.CurrentTextureName], ref button.SRect,
+                    if (button.hudBaseObjectAttribute.TextureName == "playTextButton" &&
+                        button.ButtonAttribute.ButtonState == ButtonState.Focused)
+                        Console.WriteLine(button.hudBaseObjectAttribute.CurrentTextureName);
+                    SDL_RenderCopy(_renderer,
+                        _textureManager.Dictionary[button.hudBaseObjectAttribute.CurrentTextureName], ref button.SRect,
                         ref button.DRect);
                     break;
             }
     }
 
-    private void RenderUnitInfo(Unit unit, int x, int y)
+    private void RenderUnitInfo(ref Player player)
     {
         var message = SDL_ttf.TTF_RenderText_Solid(monserat,
-            $"{unit.UnitsAttributes.Accelaration}, {unit.UnitsAttributes.DeltaX}, {unit.UnitsAttributes.DeltaY}, {unit.BaseObjectAttribute.XPosition}, {unit.BaseObjectAttribute.YPosition},  {unit.UnitsAttributes.TargetDistance}",
+            $"{player.PlayerAttribute.Gold},{player.PlayerAttribute.Nickname}",
             _color);
         var textureWreed = SDL_CreateTextureFromSurface(_renderer, message);
-        mesh.x = x; //controls the rect's x coorinate 
-        mesh.y = y; // controls the rect's y coordinte
+        mesh.x = 100; //controls the rect's x coorinate 
+        mesh.y = 10; // controls the rect's y coordinte
         mesh.w = 300; // controls the width of the rect
         mesh.h = 50; // controls the height of the rect
         SDL_RenderCopy(_renderer, textureWreed, IntPtr.Zero, ref mesh);
@@ -281,7 +132,7 @@ public class RenderManager
     private void RenderTime(ref int time)
     {
         var minutes = time / 60;
-        var seconds = time - (minutes * 60);
+        var seconds = time - minutes * 60;
         var message = SDL_ttf.TTF_RenderText_Solid(monserat,
             $"{minutes}:{seconds}", _color);
         var textureWreed = SDL_CreateTextureFromSurface(_renderer, message);
@@ -310,33 +161,41 @@ public class RenderManager
             ref newRectangle);
     }
 
+    /// <summary>
+    ///     Перегрузка только для меню игры.
+    /// </summary>
+    /// <param name="matchState"></param>
     private void Render(ref bool matchState)
     {
         SDL_RenderClear(_renderer);
         RenderHud();
-        RenderButtons(ref matchState, _buttonsList.Where(d => !d.IsGameObject && d.IsMenuObject).ToList());
+        RenderButtons(ref matchState,
+            _buttonsList.Where(d => d.ButtonAttribute.ButtonType == ButtonType.MenuButton).ToList());
         SDL_RenderPresent(_renderer);
     }
 
-    private void Render(Building currentBuilding, ref bool matchState, ref int time)
+    /// <summary>
+    ///     Перегрузка только для матча.
+    /// </summary>
+    /// <param name="matchState"></param>
+    private void Render(Building currentBuilding, ref bool matchState, ref int time, ref Player player)
     {
         SDL_RenderClear(_renderer);
-        DrawMap(currentBuilding != null);
-        foreach (var building in _buildings.ToArray()) RenderSingleObjects(building);
-        foreach (var unit in _units.ToArray()) RenderSingleObjects(unit);
-        var cnt = 1;
+        RenderMapWorker.RunWorker(currentBuilding != null, ref _level, ref _camera, ref _renderer);
+        foreach (var building in _buildings.ToArray())
+            RenderObjectsWorker.RunWorker(building, ref _camera, ref _textureManager, ref _renderer);
         foreach (var unit in _units.ToArray())
-        {
-            RenderUnitInfo(unit, 50, 100 * cnt);
-            cnt++;
-        }
-
-        RenderMinimap(_buildings, _camera);
+            RenderObjectsWorker.RunWorker(unit, ref _camera, ref _textureManager, ref _renderer);
+        RenderMiniMapWorker.RunWorker(_buildings, _units, ref _camera, ref _level2, ref _level, ref _renderer,
+            ref _textureManager);
         RenderHud();
-        RenderButtons(ref matchState, _buttonsList.Where(b => b.IsGameObject && !b.IsMenuObject).ToList());
-        RenderButtons(ref matchState, _buttonsList.Where(b => !b.IsGameObject && !b.IsMenuObject).ToList());
+        RenderButtons(ref matchState,
+            _buttonsList.Where(b => b.ButtonAttribute.ButtonType == ButtonType.MatchHudButton).ToList());
+        RenderButtons(ref matchState,
+            _buttonsList.Where(b => b.ButtonAttribute.ButtonType == ButtonType.Blank).ToList());
         if (currentBuilding != null) RenderSelectedObject(currentBuilding);
         RenderTime(ref time);
+        RenderUnitInfo(ref player);
         SDL_RenderPresent(_renderer);
     }
 }

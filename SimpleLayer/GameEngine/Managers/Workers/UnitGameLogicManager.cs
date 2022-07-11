@@ -1,5 +1,4 @@
 using System.Numerics;
-using SDL2;
 using SimpleLayer.Objects;
 using SimpleLayer.Objects.States;
 
@@ -9,6 +8,7 @@ public class UnitGameLogicManager
 {
     private readonly List<Building> _buildings;
     private readonly List<Unit> _playersUnits;
+
     private readonly Dictionary<Vector2, List<GameBaseObject>> _quadrant;
     // private List<Unit> _playersDeadUnits = new();
 
@@ -64,9 +64,11 @@ public class UnitGameLogicManager
     private void MoveUnit(Unit unit)
     {
         if (unit.UnitsAttributes.TargetDistance < unit.UnitsAttributes.AttackDistance) return;
-        unit.UnitsAttributes.DeltaX = (unit.UnitsAttributes.Target.BaseObjectAttribute.XPosition - unit.BaseObjectAttribute.XPosition) /
+        unit.UnitsAttributes.DeltaX = (unit.UnitsAttributes.Target.BaseObjectAttribute.XPosition -
+                                       unit.BaseObjectAttribute.XPosition) /
                                       unit.UnitsAttributes.TargetDistance;
-        unit.UnitsAttributes.DeltaY = (unit.UnitsAttributes.Target.BaseObjectAttribute.YPosition - unit.BaseObjectAttribute.YPosition) /
+        unit.UnitsAttributes.DeltaY = (unit.UnitsAttributes.Target.BaseObjectAttribute.YPosition -
+                                       unit.BaseObjectAttribute.YPosition) /
                                       unit.UnitsAttributes.TargetDistance;
         unit.BaseObjectAttribute.XPosition += unit.UnitsAttributes.Accelaration * 4 * unit.UnitsAttributes.DeltaX;
         unit.BaseObjectAttribute.YPosition += unit.UnitsAttributes.Accelaration * 4 * unit.UnitsAttributes.DeltaY;
@@ -89,7 +91,9 @@ public class UnitGameLogicManager
         unit.UnitsAttributes.Accelaration = 0;
         unit.UnitsAttributes.MoAState = MoAState.Attacking;
         if (unit.UnitsAttributes.CurrentAttackFrame < unit.UnitsAttributes.MaxAttackFrame)
+        {
             unit.UnitsAttributes.CurrentAttackFrame++;
+        }
         else
         {
             unit.UnitsAttributes.CurrentAttackFrame = 1;
@@ -101,7 +105,8 @@ public class UnitGameLogicManager
     private void DoAttack(Unit unit, GameBaseObject enemy)
     {
         enemy.BaseObjectAttribute.HealthPoint -= unit.UnitsAttributes.Damage;
-        enemy.BaseObjectAttribute.DoAState = enemy.BaseObjectAttribute.HealthPoint <= 0 ? DoAState.Dead : DoAState.Alive;
+        enemy.BaseObjectAttribute.DoAState =
+            enemy.BaseObjectAttribute.HealthPoint <= 0 ? DoAState.Dead : DoAState.Alive;
         if (enemy.BaseObjectAttribute.DoAState == DoAState.Dead) unit.UnitsAttributes.Target = null;
     }
 
@@ -113,7 +118,8 @@ public class UnitGameLogicManager
         for (var j = unit.BaseObjectAttribute.LastQuadrant.Y - 1; j <= unit.BaseObjectAttribute.LastQuadrant.Y + 1; j++)
             foreach (var enemy in _quadrant[new Vector2(i, j)].ToArray())
             {
-                if (unit.BaseObjectAttribute.Team == enemy.BaseObjectAttribute.Team || enemy.BaseObjectAttribute.DoAState==DoAState.Dead) continue;
+                if (unit.BaseObjectAttribute.Team == enemy.BaseObjectAttribute.Team ||
+                    enemy.BaseObjectAttribute.DoAState == DoAState.Dead) continue;
                 var distance = DistanceBetween(unit, enemy);
                 if (minimumDistance <= distance) continue;
                 nearestTarget = enemy;
@@ -132,7 +138,8 @@ public class UnitGameLogicManager
 
     private static int DistanceBetween(GameBaseObject unit, GameBaseObject target)
     {
-        return (int) Math.Round(Vector2.Distance(new Vector2(unit.BaseObjectAttribute.XPosition, unit.BaseObjectAttribute.YPosition),
+        return (int) Math.Round(Vector2.Distance(
+            new Vector2(unit.BaseObjectAttribute.XPosition, unit.BaseObjectAttribute.YPosition),
             new Vector2(target.BaseObjectAttribute.XPosition, target.BaseObjectAttribute.YPosition)));
     }
 
@@ -142,7 +149,8 @@ public class UnitGameLogicManager
     private void CheckForSwapQuadrant(GameBaseObject gameBaseObject)
     {
         if (!(Vector2.Distance(gameBaseObject.BaseObjectAttribute.LastQuadrant,
-                new Vector2(gameBaseObject.BaseObjectAttribute.XPosition / 320, gameBaseObject.BaseObjectAttribute.YPosition / 320)) > 0)) return;
+                new Vector2(gameBaseObject.BaseObjectAttribute.XPosition / 320,
+                    gameBaseObject.BaseObjectAttribute.YPosition / 320)) > 0)) return;
         DeleteFromQuadrant(gameBaseObject);
         AddToQuadrant(gameBaseObject);
     }

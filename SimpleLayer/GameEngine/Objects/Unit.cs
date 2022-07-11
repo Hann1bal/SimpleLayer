@@ -8,7 +8,7 @@ public class Unit : GameBaseObject, IDisposable
 
     public Unit(string textureName, int xPos, int yPos,
         int healthPoint, int team, int damage, int maxMovingFrame, int maxAttackFrame) :
-        base(textureName, xPos, yPos, healthPoint, team, ObjectType.Unit )
+        base(textureName, xPos, yPos, healthPoint, team, ObjectType.Unit)
     {
         UnitsAttributes = new UnitsAttributes
         {
