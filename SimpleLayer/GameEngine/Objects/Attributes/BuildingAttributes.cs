@@ -1,10 +1,11 @@
-using SimpleLayer.Objects.States;
+using SimpleLayer.GameEngine.Objects.Types;
 
-namespace SimpleLayer.Objects;
+namespace SimpleLayer.GameEngine.Objects.Attributes;
 
-public struct BuildingAttributes
+public class BuildingAttributes
 {
     public uint SpawnRate { get; init; }
+    public int BuildingCost = 10;
     public int LastTick { get; set; }
     public BuildingType BuildingType { get; init; }
     public int GoldPerMinute { get; set; }

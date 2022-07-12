@@ -1,4 +1,6 @@
-namespace SimpleLayer.Objects;
+using SimpleLayer.GameEngine.Objects.Attributes;
+
+namespace SimpleLayer.GameEngine.Objects;
 
 public class Player
 {
@@ -6,6 +8,6 @@ public class Player
 
     public Player()
     {
-        PlayerAttribute = new PlayerAttribute {Gold = 0, Nickname = "RusichRu", Team = 1};
+        PlayerAttribute = new PlayerAttribute {Gold = 50, Nickname = "RusichRu", Team = 1};
     }
 }

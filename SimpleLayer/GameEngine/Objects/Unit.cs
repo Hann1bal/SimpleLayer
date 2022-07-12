@@ -1,14 +1,16 @@
-﻿using SimpleLayer.Objects.States;
+﻿using SimpleLayer.GameEngine.Objects.Attributes;
+using SimpleLayer.GameEngine.Objects.States;
+using SimpleLayer.GameEngine.Objects.Types;
 
-namespace SimpleLayer.Objects;
+namespace SimpleLayer.GameEngine.Objects;
 
 public class Unit : GameBaseObject, IDisposable
 {
     public UnitsAttributes UnitsAttributes;
-
+    
     public Unit(string textureName, int xPos, int yPos,
-        int healthPoint, int team, int damage, int maxMovingFrame, int maxAttackFrame) :
-        base(textureName, xPos, yPos, healthPoint, team, ObjectType.Unit)
+        int healthPoint, int team, int damage, int maxMovingFrame, int maxAttackFrame, int hightSprite, int widthSprite) :
+        base(textureName, xPos, yPos, healthPoint, team, ObjectType.Unit,hightSprite, widthSprite)
     {
         UnitsAttributes = new UnitsAttributes
         {

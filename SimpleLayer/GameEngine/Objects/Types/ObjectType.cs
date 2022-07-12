@@ -1,4 +1,4 @@
-namespace SimpleLayer.Objects.States;
+namespace SimpleLayer.GameEngine.Objects.Types;
 
 public enum ObjectType : short
 {

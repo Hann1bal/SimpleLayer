@@ -1,23 +1,27 @@
 using System.Numerics;
-using SimpleLayer.Objects;
-using SimpleLayer.Objects.States;
+using SimpleLayer.GameEngine.Network;
+using SimpleLayer.GameEngine.Network.EventModels;
+using SimpleLayer.GameEngine.Objects;
+using SimpleLayer.GameEngine.Objects.States;
+using SimpleLayer.GameEngine.Objects.Types;
+using SimpleLayer.GameEngine.UtilComponents;
 
 namespace SimpleLayer.GameEngine.Managers.Workers;
 
 public class BuildGameLogicWorker
 {
     private readonly List<Building> _buildings;
-    private readonly Stack<Event> _events;
+    private readonly Stack<BuildingEvent> _events;
     private readonly Level _level;
     private readonly Dictionary<Vector2, List<GameBaseObject>> _quadrant = new();
-    private readonly Stack<Event> _receiveEvents;
+    private readonly Stack<BuildingEvent> _receiveEvents;
     private readonly List<Unit> _units;
     private Broker Broker;
     public Building BuildingBase;
     public Building BuildingBase2;
 
     public BuildGameLogicWorker(ref List<Building> buildings, ref Dictionary<Vector2, List<GameBaseObject>> quadrant,
-        ref List<Unit> units, ref Stack<Event> events, ref Stack<Event> receiveEvents, ref Level level)
+        ref List<Unit> units, ref Stack<BuildingEvent> events, ref Stack<BuildingEvent> receiveEvents, ref Level level)
     {
         _buildings = buildings;
         _quadrant = quadrant;
@@ -38,16 +42,16 @@ public class BuildGameLogicWorker
     public void InitPlayerBase()
     {
         BuildingBase = new Building("tron",
-            400, 1600, 50000, 1, 0, BuildingType.Base);
+            400, 1600, 50000, 1, 0, BuildingType.Base, 210, 210);
         BuildingBase2 = new Building("tron",
-            2800, 1600, 50000, 2, 0, BuildingType.Base);
+            2800, 1600, 50000, 2, 0, BuildingType.Base, 210, 210);
         AddToQuadrant(BuildingBase);
         AddToQuadrant(BuildingBase2);
         _buildings.Add(BuildingBase);
         _buildings.Add(BuildingBase2);
     }
 
-    public void PlaceBuilding(int x, int y, ref Building? currenBuilding, Time timer)
+    public void PlaceBuilding(int x, int y, ref Building? currenBuilding, Time timer, ref Player player)
     {
         Building building;
         var team = x switch
@@ -58,15 +62,11 @@ public class BuildGameLogicWorker
         };
         if (team == 0 || _level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding ||
             !_level._tileLevel[new Vector2(x / 32, y / 32)].isPlacibleTile) return;
-        //TODO Переделать под нормальный тип
-        switch (currenBuilding.BaseObjectAttribute.TextureName)
-        {
-        }
-
+        player.PlayerAttribute.Gold -= currenBuilding.BuildingAttributes.BuildingCost;
         building = new Building(currenBuilding.BaseObjectAttribute.TextureName,
             _level._tileLevel[new Vector2(x / 32, y / 32)]._sdlDRect.x,
             _level._tileLevel[new Vector2(x / 32, y / 32)]._sdlDRect.y, currenBuilding.BaseObjectAttribute.HealthPoint,
-            team, timer.Seconds, BuildingType.Factory);
+            team, timer.Seconds, BuildingType.Factory, 210, 210);
         _buildings.Add(building);
         AddToQuadrant(building);
         _level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding = true;

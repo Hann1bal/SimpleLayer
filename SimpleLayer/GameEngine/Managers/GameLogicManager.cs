@@ -1,24 +1,26 @@
 ﻿using System.Numerics;
 using SimpleLayer.GameEngine.Managers.Workers;
-using SimpleLayer.Objects;
+using SimpleLayer.GameEngine.Network.EventModels;
+using SimpleLayer.GameEngine.Objects;
+using SimpleLayer.GameEngine.UtilComponents;
 
-namespace SimpleLayer.GameEngine;
+namespace SimpleLayer.GameEngine.Managers;
 
 public class GameLogicManager
 {
     private static GameLogicManager _gameLogicManager;
     private readonly List<Building> _buildings;
+    private readonly EconomyGameManagerWorker _economyGameManagerWorker;
     private readonly Level _level;
     private readonly Dictionary<Vector2, List<GameBaseObject>> _quadrant = new();
-    private readonly Stack<Event> _receiveEvents;
+    private readonly Stack<BuildingEvent> _receiveEvents;
     private readonly List<Unit> _units;
-    private readonly EconomyGameManagerWorker _economyGameManagerWorker;
-    private Stack<Event> _events;
+    private Stack<BuildingEvent> _events;
     public BuildGameLogicWorker BuildingWorker;
     public UnitGameLogicManager UnitWorker;
 
-    private GameLogicManager(ref List<Building> buildings, ref List<Unit> playersUnits, ref Stack<Event> events,
-        ref Stack<Event> receiveEvents, ref Level level)
+    private GameLogicManager(ref List<Building> buildings, ref List<Unit> playersUnits, ref Stack<BuildingEvent> events,
+        ref Stack<BuildingEvent> receiveEvents, ref Level level)
     {
         _buildings = buildings;
         _units = playersUnits;
@@ -34,7 +36,7 @@ public class GameLogicManager
     }
 
     public static GameLogicManager GetInstance(ref List<Building> buildings, ref List<Unit> playersUnits,
-        ref Stack<Event> events, ref Stack<Event> receiveEvents, ref Level level)
+        ref Stack<BuildingEvent> events, ref Stack<BuildingEvent> receiveEvents, ref Level level)
     {
         if (_gameLogicManager != null) return _gameLogicManager;
         return _gameLogicManager =
@@ -44,13 +46,12 @@ public class GameLogicManager
 
     public void RunManager(object? o)
     {
-        Array? argArray = new object[2];
-        argArray = (Array) o!;
+        var argArray = (Array) o!;
         var player = (Player) argArray.GetValue(1)!;
         var time = (Time) argArray.GetValue(0)!;
         BuildingWorker.RunJob(time);
         UnitWorker.RunJob();
-        _economyGameManagerWorker.RunJob(player, time);
+        _economyGameManagerWorker.RunJob(ref player, time, _buildings);
     }
 
     private void InitQuadrant()

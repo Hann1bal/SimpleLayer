@@ -1,7 +1,9 @@
 ﻿using SDL2;
-using SimpleLayer.Objects.States;
+using SimpleLayer.GameEngine.Objects.Attributes;
+using SimpleLayer.GameEngine.Objects.States;
+using SimpleLayer.GameEngine.Objects.Types;
 
-namespace SimpleLayer.Objects;
+namespace SimpleLayer.GameEngine.Objects;
 
 public class GameBaseObject : IGameBaseObject
 {
@@ -10,7 +12,7 @@ public class GameBaseObject : IGameBaseObject
     public SDL.SDL_Rect SRect;
 
     protected GameBaseObject(string textureName, int xPos, int yPos,
-        int healthPoint, int team, ObjectType objectType)
+        int healthPoint, int team, ObjectType objectType, int heightSprite, int widthSprite)
     {
         BaseObjectAttribute = new GameBaseObjectAttribute
         {
@@ -22,8 +24,8 @@ public class GameBaseObject : IGameBaseObject
         };
         SRect = new SDL.SDL_Rect
         {
-            h = 210,
-            w = 210
+            h = heightSprite,
+            w = widthSprite
         };
         DRect = new SDL.SDL_Rect
         {

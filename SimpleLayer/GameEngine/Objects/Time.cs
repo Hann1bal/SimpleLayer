@@ -1,6 +1,6 @@
 using SDL2;
 
-namespace SimpleLayer.Objects;
+namespace SimpleLayer.GameEngine.Objects;
 
 public class Time
 {

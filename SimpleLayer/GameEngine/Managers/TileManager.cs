@@ -18,8 +18,8 @@ public class TileManager
         _textureManager = textureManager;
         _level = level;
         Tile tile;
-        for (var dx = 0; dx < Level.LevelHeight / 32; dx++)
-        for (var dy = 0; dy < Level.LevelWidth / 32; dy++)
+        for (var dx = 0; dx < Level.LevelEndX / 32; dx++)
+        for (var dy = 0; dy < Level.LevelEndY / 32; dy++)
         {
             tile = new Tile(new SDL.SDL_Rect {h = 32, w = 32, x = dx * 32, y = dy * 32},
                 new SDL.SDL_Rect {h = 32, w = 32, x = 0, y = 0},

@@ -1,6 +1,6 @@
-using SimpleLayer.Objects.States;
+using SimpleLayer.GameEngine.Objects.States;
 
-namespace SimpleLayer.Objects;
+namespace SimpleLayer.GameEngine.Objects.Attributes;
 
 public struct UnitsAttributes
 {

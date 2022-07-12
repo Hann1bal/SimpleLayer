@@ -1,24 +1,26 @@
-using SimpleLayer.Objects;
+using SimpleLayer.GameEngine.Network.EventModels;
+using SimpleLayer.GameEngine.Network.Types;
 
-namespace SimpleLayer.GameEngine.Managers;
+namespace SimpleLayer.GameEngine.Network;
 
 public class Broker
 {
-    public Stack<Event> Events;
-    public Stack<Event> ReceiveEvents;
+    public Stack<BuildingEvent> Events;
+    public Stack<BuildingEvent> ReceiveEvents;
+    public EventType Type;
 
-    public Broker(Stack<Event> events, Stack<Event> receiveEvents)
+    public Broker(Stack<BuildingEvent> events, Stack<BuildingEvent> receiveEvents)
     {
         Events = events;
         ReceiveEvents = receiveEvents;
     }
 
-    public void AddNewEvent(Event userEvent)
+    public void AddNewEvent(BuildingEvent userEvent)
     {
         Events.Push(userEvent);
     }
 
-    public Event GetEvent()
+    public BuildingEvent GetEvent()
     {
         return ReceiveEvents.Pop();
     }

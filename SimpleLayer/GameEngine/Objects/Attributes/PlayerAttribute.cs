@@ -1,4 +1,4 @@
-namespace SimpleLayer.Objects;
+namespace SimpleLayer.GameEngine.Objects.Attributes;
 
 public class PlayerAttribute
 {

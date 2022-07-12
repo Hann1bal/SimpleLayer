@@ -1,6 +1,6 @@
 ﻿using SDL2;
 
-namespace SimpleLayer.GameEngine;
+namespace SimpleLayer.GameEngine.UtilComponents;
 
 internal enum CameraDerection
 {
@@ -21,7 +21,7 @@ public class Camera
         CameraRect = new SDL.SDL_Rect {h = _screenHeight, w = _screenWidhth, x = 0, y = 0};
     }
 
-    public void Move(Enum flag, ref Level level)
+    public void Move(Enum flag)
     {
         switch (flag)
         {

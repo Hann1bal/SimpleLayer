@@ -1,4 +1,5 @@
 using System.Numerics;
+using SimpleLayer.GameEngine.UtilComponents;
 using static SDL2.SDL;
 
 namespace SimpleLayer.GameEngine.Managers.Workers;
@@ -12,8 +13,8 @@ public class RenderMapWorker
 
     private void RenderMap(bool flag, ref Level level, ref Camera camera, ref IntPtr renderer)
     {
-        for (var x = 0; x < Level.LevelWidth / 32; x++)
-        for (var y = 0; y < Level.LevelHeight / 32; y++)
+        for (var x = 0; x < Level.LevelEndX / 32; x++)
+        for (var y = 0; y < Level.LevelEndY / 32; y++)
         {
             switch (flag)
             {

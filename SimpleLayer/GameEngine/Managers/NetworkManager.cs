@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using SimpleLayer.Objects;
+using SimpleLayer.GameEngine.Network.EventModels;
 
 namespace SimpleLayer.GameEngine.Managers;
 
@@ -13,19 +13,19 @@ public class NetworkManager
     private static string userName;
     private static TcpClient client;
     private static NetworkStream stream;
-    private readonly Stack<Event> _events;
-    private readonly Stack<Event> _recieveEvents;
+    private readonly Stack<BuildingEvent> _events;
+    private readonly Stack<BuildingEvent> _recieveEvents;
     private Thread _thread;
     private bool IsActiveThread;
     private bool IsConnected;
 
-    private NetworkManager(ref Stack<Event> events, ref Stack<Event> recieveEvents)
+    private NetworkManager(ref Stack<BuildingEvent> events, ref Stack<BuildingEvent> recieveEvents)
     {
         _events = events;
         _recieveEvents = recieveEvents;
     }
 
-    public static NetworkManager GetInstance(ref Stack<Event> events, ref Stack<Event> recieveEvents)
+    public static NetworkManager GetInstance(ref Stack<BuildingEvent> events, ref Stack<BuildingEvent> recieveEvents)
     {
         return _manager ?? new NetworkManager(ref events, ref recieveEvents);
     }
@@ -68,7 +68,7 @@ public class NetworkManager
                     using var stream2 = new MemoryStream(message, 0, message.Length);
                     var formatter = new BinaryFormatter();
                     var recieveEvent = formatter.Deserialize(stream2);
-                    _recieveEvents.Push((Event) recieveEvent);
+                    _recieveEvents.Push((BuildingEvent) recieveEvent);
                 }
 
                 // Console.WriteLine(message); //вывод сообщения

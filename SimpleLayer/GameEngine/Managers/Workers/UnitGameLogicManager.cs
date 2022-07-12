@@ -1,6 +1,6 @@
 using System.Numerics;
-using SimpleLayer.Objects;
-using SimpleLayer.Objects.States;
+using SimpleLayer.GameEngine.Objects;
+using SimpleLayer.GameEngine.Objects.States;
 
 namespace SimpleLayer.GameEngine.Managers.Workers;
 

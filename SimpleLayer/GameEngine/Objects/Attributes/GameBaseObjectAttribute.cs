@@ -1,7 +1,8 @@
 using System.Numerics;
-using SimpleLayer.Objects.States;
+using SimpleLayer.GameEngine.Objects.States;
+using SimpleLayer.GameEngine.Objects.Types;
 
-namespace SimpleLayer.Objects;
+namespace SimpleLayer.GameEngine.Objects.Attributes;
 
 public struct GameBaseObjectAttribute
 {

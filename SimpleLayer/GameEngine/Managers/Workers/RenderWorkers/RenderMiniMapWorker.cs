@@ -1,7 +1,7 @@
 using System.Numerics;
+using SimpleLayer.GameEngine.Objects;
+using SimpleLayer.GameEngine.Objects.Types;
 using SimpleLayer.GameEngine.UtilComponents;
-using SimpleLayer.Objects;
-using SimpleLayer.Objects.States;
 using static SDL2.SDL;
 
 namespace SimpleLayer.GameEngine.Managers.Workers;
@@ -23,8 +23,8 @@ public class RenderMiniMapWorker
             x = 22 + camera.CameraRect.x / 10,
             y = 805 + camera.CameraRect.y / 12
         };
-        for (var x = 0; x < Level.LevelWidth / 32; x++)
-        for (var y = 0; y < Level.LevelHeight / 32; y++)
+        for (var x = 0; x < Level.LevelEndX / 32; x++)
+        for (var y = 0; y < Level.LevelEndY / 32; y++)
         {
             level2.DRect.x = 22 + x * 32 / 10;
             level2.DRect.y = 805 + y * 32 / 12;

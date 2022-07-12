@@ -1,20 +1,23 @@
 ﻿using SDL2;
+using SimpleLayer.GameEngine.Objects.Attributes;
+using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.Objects.Types;
-using SimpleLayer.Objects.States;
 
-namespace SimpleLayer.Objects;
+namespace SimpleLayer.GameEngine.Objects.Hud;
 
 public class Buttons : HudBaseObject
 {
     public ButtonAttribute ButtonAttribute;
 
-    public Buttons(string textureName, SDL.SDL_Rect sRect, SDL.SDL_Rect dRect, ButtonType buttonType) :
+    public Buttons(string textureName, SDL.SDL_Rect sRect, SDL.SDL_Rect dRect, ButtonType buttonType,
+        GameObjectsButtonType? gameObjectsButtonType, EoDButtonState eoDButtonState) :
         base(textureName,
             sRect, dRect)
     {
         ButtonAttribute = new ButtonAttribute
         {
-            ButtonState = ButtonState.Unfocused, ButtonType = buttonType, ButtonPressState = ButtonPressState.Released
+            ButtonState = ButtonState.Unfocused, ButtonType = buttonType, ButtonPressState = ButtonPressState.Released,
+            GameObjectsButtonType = gameObjectsButtonType, EoDButtonState = eoDButtonState
         };
     }
 
