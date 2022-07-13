@@ -5,6 +5,7 @@ namespace SimpleLayer.GameEngine.Templates.ObjectsTemplate;
 
 public class DwarfTemplate
 {
+    //TODO Переделать под Json и сделать автоматический конетейнер который будет хранить конкретные реализации базовых игровых типов объектов
     public string TextureName = "dwarf";
     public int CurrentAttackFrame = 1;
     public int CurrentMovingFrame = 1;

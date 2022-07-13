@@ -1,52 +1,47 @@
 ﻿using SDL2;
+using SimpleLayer.GameEngine.Objects.States;
+using SimpleLayer.GameEngine.Templates;
 
 namespace SimpleLayer.GameEngine.UtilComponents;
 
-internal enum CameraDerection
-{
-    LEFT = 1,
-    RIGHT = 2,
-    DONW = 3,
-    UP = 4
-}
+
 
 public class Camera
 {
-    private readonly int _screenHeight = 1080;
-    private readonly int _screenWidhth = 1920;
+    private readonly GameTemplate _gameTemplate = new GameTemplate();
     public SDL.SDL_Rect CameraRect;
 
     public Camera()
     {
-        CameraRect = new SDL.SDL_Rect {h = _screenHeight, w = _screenWidhth, x = 0, y = 0};
+        CameraRect = new SDL.SDL_Rect {h = _gameTemplate.ScreenHeight, w = _gameTemplate.ScreenWidth, x = 0, y = 0};
     }
 
     public void Move(Enum flag)
     {
         switch (flag)
         {
-            case CameraDerection.RIGHT:
-                if (CameraRect.x + _screenWidhth < Level.LevelEndX)
+            case CameraDirectionState.Right:
+                if (CameraRect.x + _gameTemplate.ScreenWidth < Level.LevelEndX)
                     CameraRect.x += CameraRect.w / 2 / 20;
                 else
-                    CameraRect.x = Level.LevelEndX - _screenWidhth;
+                    CameraRect.x = Level.LevelEndX - _gameTemplate.ScreenWidth;
 
                 break;
-            case CameraDerection.LEFT:
+            case CameraDirectionState.Left:
                 if (CameraRect.x <= Level.LevelStartX)
                     CameraRect.x = Level.LevelStartX;
                 else
                     CameraRect.x -= CameraRect.w / 2 / 20;
 
                 break;
-            case CameraDerection.DONW:
-                if (CameraRect.y + _screenHeight >= Level.LevelEndY)
-                    CameraRect.y = Level.LevelEndY - _screenHeight;
+            case CameraDirectionState.Donw:
+                if (CameraRect.y + _gameTemplate.ScreenHeight >= Level.LevelEndY)
+                    CameraRect.y = Level.LevelEndY - _gameTemplate.ScreenHeight;
                 else
                     CameraRect.y += CameraRect.h / 2 / 20;
 
                 break;
-            case CameraDerection.UP:
+            case CameraDirectionState.Up:
                 if (CameraRect.y <= Level.LevelStartY)
                     CameraRect.y = Level.LevelStartY;
                 else

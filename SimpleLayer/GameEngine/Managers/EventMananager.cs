@@ -86,16 +86,16 @@ public class EventMananager
                     switch (e.key.keysym.sym)
                     {
                         case SDL_Keycode.SDLK_LEFT:
-                            camera.Move(CameraDerection.LEFT);
+                            camera.Move(CameraDirectionState.Left);
                             break;
                         case SDL_Keycode.SDLK_RIGHT:
-                            camera.Move(CameraDerection.RIGHT);
+                            camera.Move(CameraDirectionState.Right);
                             break;
                         case SDL_Keycode.SDLK_UP:
-                            camera.Move(CameraDerection.UP);
+                            camera.Move(CameraDirectionState.Up);
                             break;
                         case SDL_Keycode.SDLK_DOWN:
-                            camera.Move(CameraDerection.DONW);
+                            camera.Move(CameraDirectionState.Donw);
                             break;
                         case SDL_Keycode.SDLK_LSHIFT:
                             _isShiftPressed = true;
@@ -112,27 +112,27 @@ public class EventMananager
 
                     break;
                 case SDL_EventType.SDL_MOUSEWHEEL:
-                    if (e.wheel.y > 0) camera.Move(CameraDerection.LEFT);
+                    if (e.wheel.y > 0) camera.Move(CameraDirectionState.Left);
 
                     break;
                 case SDL_EventType.SDL_MOUSEMOTION:
                     switch (e.motion.x)
                     {
                         case <= 2:
-                            camera.Move(CameraDerection.LEFT);
+                            camera.Move(CameraDirectionState.Left);
                             break;
                         case >= 1915:
-                            camera.Move(CameraDerection.RIGHT);
+                            camera.Move(CameraDirectionState.Right);
                             break;
                     }
 
                     switch (e.motion.y)
                     {
                         case <= 2:
-                            camera.Move(CameraDerection.UP);
+                            camera.Move(CameraDirectionState.Up);
                             break;
                         case >= 1072:
-                            camera.Move(CameraDerection.DONW);
+                            camera.Move(CameraDirectionState.Donw);
                             break;
                     }
 

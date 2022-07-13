@@ -2,7 +2,7 @@ using System.Numerics;
 using SimpleLayer.GameEngine.UtilComponents;
 using static SDL2.SDL;
 
-namespace SimpleLayer.GameEngine.Managers.Workers;
+namespace SimpleLayer.GameEngine.Managers.Workers.RenderWorkers;
 
 public class RenderMapWorker
 {
@@ -20,22 +20,22 @@ public class RenderMapWorker
             {
                 case true:
                 {
-                    switch (level._tileLevel[new Vector2(x, y)].isPlacibleTile)
+                    switch (level._tileLevel[new Vector2(x, y)].TileAttribute.isPlacibleTile)
                     {
                         case true:
-                            switch (level._tileLevel[new Vector2(x, y)].ContainBuilding)
+                            switch (level._tileLevel[new Vector2(x, y)].TileAttribute.ContainBuilding)
                             {
                                 case false:
-                                    SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)]._texture, 0, 100, 0);
+                                    SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)].TileAttribute._texture, 0, 100, 0);
                                     break;
                                 default:
-                                    SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)]._texture, 100, 0, 0);
+                                    SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)].TileAttribute._texture, 100, 0, 0);
                                     break;
                             }
 
                             break;
                         default:
-                            SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)]._texture, 100, 0, 0);
+                            SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)].TileAttribute._texture, 100, 0, 0);
                             break;
                     }
 
@@ -43,24 +43,24 @@ public class RenderMapWorker
                 }
                 case false:
                 {
-                    SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)]._texture, 255, 255, 255);
+                    SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)].TileAttribute._texture, 255, 255, 255);
                     break;
                 }
             }
 
             var tmpDRect = new SDL_Rect
             {
-                h = level._tileLevel[new Vector2(x, y)]._sdlDRect.h,
-                w = level._tileLevel[new Vector2(x, y)]._sdlDRect.w,
-                x = level._tileLevel[new Vector2(x, y)]._sdlDRect.x - camera.CameraRect.x,
-                y = level._tileLevel[new Vector2(x, y)]._sdlDRect.y - camera.CameraRect.y
+                h = level._tileLevel[new Vector2(x, y)].SdlDRect.h,
+                w = level._tileLevel[new Vector2(x, y)].SdlDRect.w,
+                x = level._tileLevel[new Vector2(x, y)].SdlDRect.x - camera.CameraRect.x,
+                y = level._tileLevel[new Vector2(x, y)].SdlDRect.y - camera.CameraRect.y
             };
             if (tmpDRect.x + tmpDRect.w < 0 || tmpDRect.x > 0 + camera.CameraRect.w ||
                 tmpDRect.y + tmpDRect.h < 0 || tmpDRect.y > 0 + camera.CameraRect.h) continue;
 
 
-            SDL_RenderCopy(renderer, level._tileLevel[new Vector2(x, y)]._texture,
-                ref level._tileLevel[new Vector2(x, y)]._sdlSRect,
+            SDL_RenderCopy(renderer, level._tileLevel[new Vector2(x, y)].TileAttribute._texture,
+                ref level._tileLevel[new Vector2(x, y)].SdlSRect,
                 ref tmpDRect);
         }
     }

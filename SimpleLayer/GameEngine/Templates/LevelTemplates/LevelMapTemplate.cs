@@ -2,6 +2,8 @@ namespace SimpleLayer.GameEngine.Templates.LevelTemplates;
 
 public class LevelMapTemplate
 {
+    //TODO Переделать под Json и сделать автоматический конетейнер который будет хранить конкретные реализации базовых игровых типов объектов
+
     public int[] _preGeneratedMap =
     {
         77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77,

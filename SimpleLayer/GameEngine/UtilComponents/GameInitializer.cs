@@ -22,7 +22,7 @@ public class GameInitializer
         ref Stack<BuildingEvent> events, ref Stack<BuildingEvent> receiveEvents, ref GameLogicManager gameLogicManager,
         ref EventMananager eventManager, ref MatchState matchState, ref NetworkManager networkManage)
     {
-        InitSdl(ref window, ref renderer);
+        InitSdl(out window, out renderer);
         InitGameObjects(ref renderer, ref gameState, ref hud, ref textureManager, ref level, ref camera);
         InitGameManager(ref hudManager, ref buttons, ref hud, ref gameState, ref tileManager, ref tiles,
             ref textureManager, ref level, ref rendererManager, ref renderer,
@@ -31,7 +31,7 @@ public class GameInitializer
             ref eventManager, ref matchState, ref networkManage);
     }
 
-    private void InitSdl(ref IntPtr window, ref IntPtr renderer)
+    private void InitSdl(out IntPtr window, out IntPtr renderer)
     {
         if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
             Console.WriteLine($"There was an issue initializing SDL. {SDL_GetError()}");

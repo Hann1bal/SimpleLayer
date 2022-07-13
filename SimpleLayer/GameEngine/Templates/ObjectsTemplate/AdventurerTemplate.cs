@@ -4,6 +4,8 @@ namespace SimpleLayer.GameEngine.Templates.ObjectsTemplate;
 
 public class AdventurerTemplate
 {
+    //TODO Переделать под Json и сделать автоматический конетейнер который будет хранить конкретные реализации базовых игровых типов объектов
+
     public string TextureName = "adventurer";
     public int CurrentAttackFrame = 1;
     public int CurrentMovingFrame = 1;

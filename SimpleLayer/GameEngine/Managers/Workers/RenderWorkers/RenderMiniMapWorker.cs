@@ -4,7 +4,7 @@ using SimpleLayer.GameEngine.Objects.Types;
 using SimpleLayer.GameEngine.UtilComponents;
 using static SDL2.SDL;
 
-namespace SimpleLayer.GameEngine.Managers.Workers;
+namespace SimpleLayer.GameEngine.Managers.Workers.RenderWorkers;
 
 public class RenderMiniMapWorker
 {
@@ -30,7 +30,7 @@ public class RenderMiniMapWorker
             level2.DRect.y = 805 + y * 32 / 12;
             level2.DRect.h = level2.SRect.h / 8;
             level2.DRect.w = level2.SRect.w / 8;
-            SDL_RenderCopy(renderer, level._tileLevel[new Vector2(x, y)]._texture, ref level2.SRect,
+            SDL_RenderCopy(renderer, level._tileLevel[new Vector2(x, y)].TileAttribute._texture, ref level2.SRect,
                 ref level2.DRect);
         }
 

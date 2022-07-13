@@ -24,7 +24,7 @@ public class TileManager
             tile = new Tile(new SDL.SDL_Rect {h = 32, w = 32, x = dx * 32, y = dy * 32},
                 new SDL.SDL_Rect {h = 32, w = 32, x = 0, y = 0},
                 _textureManager.Dictionary[$"{_level._levelMatrix[dx, dy]}"], cnt);
-            if (_level._levelMatrix[dx, dy] == 424) tile.isPlacibleTile = true;
+            if (_level._levelMatrix[dx, dy] == 424) tile.TileAttribute.isPlacibleTile = true;
             _level._tileLevel.Add(new Vector2(dx, dy), tile);
             cnt++;
         }

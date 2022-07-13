@@ -60,16 +60,16 @@ public class BuildGameLogicWorker
             > 2400 => 2,
             _ => 0
         };
-        if (team == 0 || _level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding ||
-            !_level._tileLevel[new Vector2(x / 32, y / 32)].isPlacibleTile) return;
+        if (team == 0 || _level._tileLevel[new Vector2(x / 32, y / 32)].TileAttribute.ContainBuilding ||
+            !_level._tileLevel[new Vector2(x / 32, y / 32)].TileAttribute.isPlacibleTile) return;
         player.PlayerAttribute.Gold -= currenBuilding.BuildingAttributes.BuildingCost;
         building = new Building(currenBuilding.BaseObjectAttribute.TextureName,
-            _level._tileLevel[new Vector2(x / 32, y / 32)]._sdlDRect.x,
-            _level._tileLevel[new Vector2(x / 32, y / 32)]._sdlDRect.y, currenBuilding.BaseObjectAttribute.HealthPoint,
+            _level._tileLevel[new Vector2(x / 32, y / 32)].SdlDRect.x,
+            _level._tileLevel[new Vector2(x / 32, y / 32)].SdlDRect.y, currenBuilding.BaseObjectAttribute.HealthPoint,
             team, timer.Seconds, BuildingType.Factory, 210, 210);
         _buildings.Add(building);
         AddToQuadrant(building);
-        _level._tileLevel[new Vector2(x / 32, y / 32)].ContainBuilding = true;
+        _level._tileLevel[new Vector2(x / 32, y / 32)].TileAttribute.ContainBuilding = true;
         // Broker.AddNewEvent(new Event
         // {Id = 1 + x, TargetName = currenBuilding.BaseObjectAttribute.TextureName, TargetType = "building", X = x, Y = y});
     }
@@ -82,7 +82,6 @@ public class BuildGameLogicWorker
                                         building.BuildingAttributes.SpawnRate)
                      .Where(building => building.BaseObjectAttribute.DoAState == DoAState.Alive).ToArray())
         {
-            // if (_units.Count >= 2) return;
             var unit = building.Spawn();
             _units.Add(unit);
             AddToQuadrant(unit);
