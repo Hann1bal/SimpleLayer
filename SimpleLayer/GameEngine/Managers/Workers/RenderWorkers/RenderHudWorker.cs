@@ -1,8 +1,8 @@
-using SimpleLayer.GameEngine.Objects.Hud;
+using SimpleLayer.GameEngine.UI.UIElements;
 using SimpleLayer.GameEngine.UtilComponents;
 using static SDL2.SDL;
 
-namespace SimpleLayer.GameEngine.Managers.Workers;
+namespace SimpleLayer.GameEngine.Managers.Workers.RenderWorkers;
 
 public class RenderHudWorker
 {

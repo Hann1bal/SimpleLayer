@@ -1,7 +1,7 @@
 ﻿using SimpleLayer.GameEngine.Objects;
-using SimpleLayer.GameEngine.Objects.Hud;
 using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.Objects.Types;
+using SimpleLayer.GameEngine.UI.UIElements;
 using SimpleLayer.GameEngine.UtilComponents;
 using static SDL2.SDL;
 

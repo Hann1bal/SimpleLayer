@@ -1,10 +1,10 @@
 using SimpleLayer.GameEngine.Managers;
-using SimpleLayer.GameEngine.Objects.Hud;
 using SimpleLayer.GameEngine.Objects.States;
 using SDL2;
 using SimpleLayer.GameEngine.Network.EventModels;
 using SimpleLayer.GameEngine.Objects;
 using SimpleLayer.GameEngine.Templates;
+using SimpleLayer.GameEngine.UI.UIElements;
 using static SDL2.SDL;
 
 namespace SimpleLayer.GameEngine.UtilComponents;

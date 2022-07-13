@@ -3,7 +3,7 @@ using SimpleLayer.GameEngine.Objects.Attributes;
 using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.Objects.Types;
 
-namespace SimpleLayer.GameEngine.Objects.Hud;
+namespace SimpleLayer.GameEngine.UI.UIElements;
 
 public class Buttons : HudBaseObject
 {

@@ -2,7 +2,7 @@ using SDL2;
 using SimpleLayer.GameEngine.Objects;
 using static SDL2.SDL;
 
-namespace SimpleLayer.GameEngine.Managers.Workers;
+namespace SimpleLayer.GameEngine.Managers.Workers.RenderWorkers;
 
 public class RenderTextWorker
 {

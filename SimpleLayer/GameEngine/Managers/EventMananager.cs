@@ -1,6 +1,7 @@
 using SimpleLayer.GameEngine.Objects;
-using SimpleLayer.GameEngine.Objects.Hud;
 using SimpleLayer.GameEngine.Objects.States;
+using SimpleLayer.GameEngine.UI.UIElements;
+using SimpleLayer.GameEngine.UI.UIStates;
 using SimpleLayer.GameEngine.UtilComponents;
 using static SDL2.SDL;
 
@@ -26,19 +27,19 @@ public class EventMananager
         ref Building? currentBuilding, ref Camera camera,
         ref Level level, List<Buttons> buttons, ref GameState gameState, ref MatchState matchState,
         ref GameLogicManager gameLogicManager,
-        ref HudManager hudManager, ref bool running, ref Time timer, ref Player player)
+        ref HudManager hudManager, ref bool running, ref Time timer, ref Player player, ref TextInput textInput)
     {
         PollEvents(
             ref currentBuilding, ref camera,
             ref level, buttons, ref gameState, ref matchState, ref gameLogicManager,
-            ref hudManager, ref running, ref timer, ref player);
+            ref hudManager, ref running, ref timer, ref player, ref textInput);
     }
-
+    //TODO Переделать обработчик событий в более компактный вид, добавить состояния для корректного упралвления ввода и избежания коллизий.
     private void PollEvents(
         ref Building? currentBuilding, ref Camera camera,
         ref Level level, List<Buttons> buttons, ref GameState gameState, ref MatchState matchState,
         ref GameLogicManager gameLogicManager,
-        ref HudManager hudManager, ref bool running, ref Time timer, ref Player player)
+        ref HudManager hudManager, ref bool running, ref Time timer, ref Player player, ref TextInput textInput)
     {
         while (SDL_PollEvent(out var e) == 1)
             switch (e.type)
@@ -99,6 +100,9 @@ public class EventMananager
                             break;
                         case SDL_Keycode.SDLK_LSHIFT:
                             _isShiftPressed = true;
+                            break;
+                        case SDL_Keycode.SDLK_TAB:
+                            textInput.TextInputStates = TextInputStates.Focused;
                             break;
                     }
 

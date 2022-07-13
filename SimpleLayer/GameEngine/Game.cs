@@ -2,8 +2,9 @@
 using SimpleLayer.GameEngine.Managers;
 using SimpleLayer.GameEngine.Network.EventModels;
 using SimpleLayer.GameEngine.Objects;
-using SimpleLayer.GameEngine.Objects.Hud;
 using SimpleLayer.GameEngine.Objects.States;
+using SimpleLayer.GameEngine.UI.UIAttributes;
+using SimpleLayer.GameEngine.UI.UIElements;
 using SimpleLayer.GameEngine.UtilComponents;
 using static SDL2.SDL;
 
@@ -45,6 +46,8 @@ public class Game : IDisposable
     private Stack<BuildingEvent> _receiveEvents = new();
     private IntPtr _renderer;
 
+    private TextInput _textInput = new TextInput(new TextInputAttribute()
+        {XStartPos = 15, SizeAxisX = 500, YStartPos = 800, SizeAxisY = 50});
 
     //Инициализация игровых менеджеров
     private RenderManager _rendererManager;
@@ -89,7 +92,7 @@ public class Game : IDisposable
 
             _eventManager.RunJob(ref _currentBuilding, ref _camera,
                 ref _level, _buttons, ref _gameState, ref _matchState, ref _gameLogicManager, ref _hudManager,
-                ref _running, ref Timer, ref _player);
+                ref _running, ref Timer, ref _player, ref _textInput);
 
             switch (_gameState)
             {

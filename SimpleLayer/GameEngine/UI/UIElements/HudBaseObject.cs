@@ -1,7 +1,8 @@
 ﻿using SDL2;
+using SimpleLayer.GameEngine.Objects;
 using SimpleLayer.GameEngine.Objects.Attributes;
 
-namespace SimpleLayer.GameEngine.Objects.Hud;
+namespace SimpleLayer.GameEngine.UI.UIElements;
 
 public class HudBaseObject : IGameBaseObject
 {

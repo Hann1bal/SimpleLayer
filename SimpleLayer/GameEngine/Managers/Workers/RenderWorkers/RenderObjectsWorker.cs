@@ -3,7 +3,7 @@ using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.UtilComponents;
 using static SDL2.SDL;
 
-namespace SimpleLayer.GameEngine.Managers.Workers;
+namespace SimpleLayer.GameEngine.Managers.Workers.RenderWorkers;
 
 public class RenderObjectsWorker
 {
