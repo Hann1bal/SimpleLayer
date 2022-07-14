@@ -36,7 +36,7 @@ public class HudManager
     //MENU BUTTON TOP 400px :Y 760px :X;  MIDDLE 530px :Y 830:X, Down 660px :Y 930px :X; dx 100
     private void Init()
     {
-        _buttons.Add(new Buttons("playTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
+        _buttons.Add(new Buttons("playTextButton", new SDL_Rect {h = 100, w = 150, x = 0, y = 0},
             new SDL_Rect {h = 90, w = 150, x = 1465, y = 480}, ButtonType.MenuButton, null, EoDButtonState.Enabled));
         _buttons.Add(new Buttons("resumeTextButton", new SDL_Rect {h = 90, w = 150, x = 0, y = 0},
             new SDL_Rect {h = 90, w = 150, x = 1465, y = 480}, ButtonType.MenuButton, null, EoDButtonState.Disabled));

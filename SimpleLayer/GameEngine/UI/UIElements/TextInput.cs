@@ -8,11 +8,25 @@ public class TextInput : IDisposable
 {
     public TextInputStates TextInputStates = TextInputStates.Unfocused;
     public readonly TextInputAttribute TextInputAttribute;
+    public SDL.SDL_Rect TextInputRec;
+    public SDL.SDL_Rect TextInputSRec;
     public string Textbuffer = "";
 
     public TextInput(TextInputAttribute textInputAttribute)
     {
         TextInputAttribute = textInputAttribute;
+        TextInputRec = new()
+        {
+            h = TextInputAttribute.SizeAxisY, w = TextInputAttribute.SizeAxisX, x = TextInputAttribute.XStartPos,
+            y = TextInputAttribute.YStartPos
+        };
+        TextInputSRec = new SDL.SDL_Rect
+            {h = TextInputRec.h, w = 500, x = 0, y = 0};
+    }
+
+    public void BufferString()
+    {
+        Textbuffer = Textbuffer.Remove(0, Textbuffer.Length);
     }
 
     public void Dispose()

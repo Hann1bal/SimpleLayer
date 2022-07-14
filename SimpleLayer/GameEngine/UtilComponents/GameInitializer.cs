@@ -20,7 +20,8 @@ public class GameInitializer
         ref RenderManager rendererManager,
         ref List<Building> playersBuildings, ref List<Unit> playersUnits,
         ref Stack<BuildingEvent> events, ref Stack<BuildingEvent> receiveEvents, ref GameLogicManager gameLogicManager,
-        ref EventMananager eventManager, ref MatchState matchState, ref NetworkManager networkManage)
+        ref EventMananager eventManager, ref MatchState matchState, ref NetworkManager networkManage,
+        ref TextInput textInput)
     {
         InitSdl(out window, out renderer);
         InitGameObjects(ref renderer, ref gameState, ref hud, ref textureManager, ref level, ref camera);
@@ -28,7 +29,7 @@ public class GameInitializer
             ref textureManager, ref level, ref rendererManager, ref renderer,
             ref playersBuildings, ref camera, ref playersUnits,
             ref events, ref receiveEvents, ref gameLogicManager,
-            ref eventManager, ref matchState, ref networkManage);
+            ref eventManager, ref matchState, ref networkManage, ref textInput);
     }
 
     private void InitSdl(out IntPtr window, out IntPtr renderer)
@@ -37,7 +38,7 @@ public class GameInitializer
             Console.WriteLine($"There was an issue initializing SDL. {SDL_GetError()}");
 
         window = SDL_CreateWindow(
-            "Simple Test Debug" + Guid.NewGuid(),
+            "Simple Test Debug",
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
             _gameTemplate.ScreenWidth,
@@ -79,12 +80,14 @@ public class GameInitializer
         ref Texture textureManager, ref Level level, ref RenderManager rendererManager, ref IntPtr renderer,
         ref List<Building> playersBuildings, ref Camera camera, ref List<Unit> playersUnits,
         ref Stack<BuildingEvent> events, ref Stack<BuildingEvent> receiveEvents, ref GameLogicManager gameLogicManager,
-        ref EventMananager eventManager, ref MatchState matchState, ref NetworkManager networkManager)
+        ref EventMananager eventManager, ref MatchState matchState, ref NetworkManager networkManager,
+        ref TextInput textInput)
     {
         hudManager = HudManager.GetInstance(ref buttons, ref hud, ref gameState);
         tileManager = TileManager.GetInstance(ref tiles, ref textureManager, ref level);
         rendererManager = RenderManager.GetInstance(ref renderer, ref playersBuildings,
-            ref textureManager, ref camera, ref level, ref buttons, ref hud, ref tiles, ref playersUnits);
+            ref textureManager, ref camera, ref level, ref buttons, ref hud, ref tiles, ref playersUnits,
+            ref textInput);
         gameLogicManager = GameLogicManager.GetInstance(ref playersBuildings, ref playersUnits, ref events,
             ref receiveEvents, ref level);
         eventManager = EventMananager.GetInstance();

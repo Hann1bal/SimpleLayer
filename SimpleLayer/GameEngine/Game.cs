@@ -47,7 +47,7 @@ public class Game : IDisposable
     private IntPtr _renderer;
 
     private TextInput _textInput = new TextInput(new TextInputAttribute()
-        {XStartPos = 15, SizeAxisX = 500, YStartPos = 800, SizeAxisY = 50});
+        {XStartPos = 0, SizeAxisX = 20, YStartPos = 600, SizeAxisY = 40});
 
     //Инициализация игровых менеджеров
     private RenderManager _rendererManager;
@@ -68,7 +68,7 @@ public class Game : IDisposable
         gameInitializer.RunInitialize(ref _window, ref _renderer, ref _gameState, ref _hud, ref _textureManager,
             ref _level, ref _camera, ref _hudManager, ref _buttons, ref _tileManager, ref _tiles, ref _rendererManager,
             ref _playersBuildings, ref _playersUnits, ref _events, ref _receiveEvents, ref _gameLogicManager,
-            ref _eventManager, ref _matchState, ref _networkManager);
+            ref _eventManager, ref _matchState, ref _networkManager, ref _textInput);
     }
 
     public void Dispose()

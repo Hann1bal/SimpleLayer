@@ -1,3 +1,4 @@
+using System.Text;
 using SimpleLayer.GameEngine.Objects;
 using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.UI.UIElements;
@@ -34,6 +35,7 @@ public class EventMananager
             ref level, buttons, ref gameState, ref matchState, ref gameLogicManager,
             ref hudManager, ref running, ref timer, ref player, ref textInput);
     }
+
     //TODO Переделать обработчик событий в более компактный вид, добавить состояния для корректного упралвления ввода и избежания коллизий.
     private void PollEvents(
         ref Building? currentBuilding, ref Camera camera,
@@ -41,6 +43,8 @@ public class EventMananager
         ref GameLogicManager gameLogicManager,
         ref HudManager hudManager, ref bool running, ref Time timer, ref Player player, ref TextInput textInput)
     {
+        if (SDL_IsTextInputActive() != SDL_bool.SDL_FALSE && textInput.TextInputStates == TextInputStates.Unfocused)
+            SDL_StopTextInput();
         while (SDL_PollEvent(out var e) == 1)
             switch (e.type)
             {
@@ -103,6 +107,22 @@ public class EventMananager
                             break;
                         case SDL_Keycode.SDLK_TAB:
                             textInput.TextInputStates = TextInputStates.Focused;
+                            SDL_SetTextInputRect(ref textInput.TextInputRec);
+                            SDL_StartTextInput();
+
+                            break;
+                        case SDL_Keycode.SDLK_RETURN:
+                            if (textInput.TextInputStates == TextInputStates.Focused && !_isShiftPressed)
+                            {
+                                SDL_StopTextInput();
+                                textInput.TextInputStates = TextInputStates.Unfocused;
+                            }
+                            break;
+                        case SDL_Keycode.SDLK_BACKSPACE:
+                            if (textInput.TextInputStates == TextInputStates.Focused)
+                            {
+                                textInput.Textbuffer = textInput.Textbuffer.Remove(textInput.Textbuffer.Length - 1);
+                            }
                             break;
                     }
 
@@ -113,8 +133,17 @@ public class EventMananager
                         SDL_Keycode.SDLK_LSHIFT => false,
                         _ => _isShiftPressed
                     };
-
                     break;
+
+                case SDL_EventType.SDL_TEXTINPUT:
+                    unsafe
+                    {
+                        textInput.Textbuffer += Encoding.UTF8.GetString(e.text.text, 1);
+                    }
+
+                    Console.WriteLine(textInput.Textbuffer);
+                    break;
+
                 case SDL_EventType.SDL_MOUSEWHEEL:
                     if (e.wheel.y > 0) camera.Move(CameraDirectionState.Left);
 

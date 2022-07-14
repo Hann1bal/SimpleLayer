@@ -23,6 +23,7 @@ public class RenderManager
     private readonly RenderMiniMapWorker RenderMiniMapWorker = new();
     private readonly RenderObjectsWorker RenderObjectsWorker = new();
     private readonly RenderTextWorker RenderTextWorker = new();
+    private TextInput _textInput; 
     private Camera _camera;
     private Hud _hud;
     private Level _level;
@@ -34,7 +35,7 @@ public class RenderManager
 
     private RenderManager(ref IntPtr renderer, ref List<Building> buildings,
         ref Texture textureManager, ref Camera camera, ref Level level, ref List<Buttons> buttonsList, ref Hud hud,
-        ref Dictionary<int, Tile> tileList, ref List<Unit> playersUnits)
+        ref Dictionary<int, Tile> tileList, ref List<Unit> playersUnits, ref TextInput textInput)
     {
         _renderer = renderer;
         _buttonsList = buttonsList;
@@ -46,16 +47,17 @@ public class RenderManager
         _hud = hud;
         _tileList = tileList;
         _units = playersUnits;
+        _textInput = textInput;
     }
 
     public static RenderManager GetInstance(ref IntPtr renderer, ref List<Building> buildings,
         ref Texture textureManager, ref Camera camera, ref Level level, ref List<Buttons> buttonsList, ref Hud hud,
-        ref Dictionary<int, Tile> tileList, ref List<Unit> playersUnits)
+        ref Dictionary<int, Tile> tileList, ref List<Unit> playersUnits, ref TextInput textInput)
     {
         if (_renderManager != null) return _renderManager;
         return _renderManager =
             new RenderManager(ref renderer, ref buildings, ref textureManager, ref camera, ref level, ref buttonsList,
-                ref hud, ref tileList, ref playersUnits);
+                ref hud, ref tileList, ref playersUnits,ref  textInput);
     }
 
     /// <summary>
@@ -91,7 +93,7 @@ public class RenderManager
                 b.ButtonAttribute.ButtonType == ButtonType.MenuButton &&
                 b.ButtonAttribute.EoDButtonState == EoDButtonState.Enabled).ToList(), ref _renderer,
             ref _textureManager,
-            ref _hud);
+            ref _hud, ref _textInput);
         SDL_RenderPresent(_renderer);
     }
 
@@ -115,7 +117,7 @@ public class RenderManager
                 (b.ButtonAttribute.ButtonType == ButtonType.Blank &&
                  b.ButtonAttribute.EoDButtonState == EoDButtonState.Enabled)).ToList(), ref _renderer,
             ref _textureManager,
-            ref _hud);
+            ref _hud, ref _textInput);
         RenderTextWorker.RunWorker(ref player, ref _renderer, ref time);
         SDL_RenderPresent(_renderer);
     }

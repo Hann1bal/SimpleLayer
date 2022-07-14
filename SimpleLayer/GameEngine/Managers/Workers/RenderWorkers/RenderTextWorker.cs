@@ -7,7 +7,7 @@ namespace SimpleLayer.GameEngine.Managers.Workers.RenderWorkers;
 public class RenderTextWorker
 {
     private readonly SDL_Color _color = new() {a = 0, r = 255, b = 0, g = 0};
-    private readonly IntPtr monserat = SDL_ttf.TTF_OpenFont("./Data/Fonts/OpenSans.ttf", 550);
+    private readonly IntPtr monserat = SDL_ttf.TTF_OpenFont("./Data/Fonts/OpenSans.ttf", 450);
     private SDL_Rect mes;
     private SDL_Rect mesh;
 
