@@ -99,6 +99,10 @@ public class Game : IDisposable
                 case GameState.Init:
                 case GameState.Lobby:
                     break;
+                case GameState.Settings:
+                    _hudManager.RunManager(ref _gameState, ref _matchState);
+                    _rendererManager.RunManager();
+                    break;
                 case GameState.MatchPauseMenu:
                 case GameState.Menu:
                     _hudManager.RunManager(ref _gameState, ref _matchState);

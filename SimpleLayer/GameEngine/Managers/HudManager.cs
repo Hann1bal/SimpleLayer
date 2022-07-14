@@ -87,7 +87,7 @@ public class HudManager
                         matchState = MatchState.Play;
                         button.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
                         foreach (var btns in _buttons.Where(btb =>
-                                     btb.ButtonAttribute.ButtonType != ButtonType.MenuButton))
+                                     btb.ButtonAttribute.ButtonType != ButtonType.MenuButton && btb.ButtonAttribute.ButtonType != ButtonType.Setting))
                         {
                             switch (matchState)
                             {
@@ -110,7 +110,7 @@ public class HudManager
                         gameState = GameState.Match;
                         // button.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
                         foreach (var btns in _buttons.Where(btb =>
-                                     btb.ButtonAttribute.ButtonType != ButtonType.MenuButton))
+                                     btb.ButtonAttribute.ButtonType != ButtonType.MenuButton && btb.ButtonAttribute.ButtonType != ButtonType.Setting))
                         {
                             switch (matchState)
                             {
@@ -133,7 +133,7 @@ public class HudManager
                     case "settings":
                         button.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
                         foreach (var btns in _buttons.Where(btb =>
-                                     btb.ButtonAttribute.ButtonType != ButtonType.MenuButton))
+                                     btb.ButtonAttribute.ButtonType != ButtonType.MenuButton && btb.ButtonAttribute.ButtonType != ButtonType.Setting))
                             btns.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
                         gameState = GameState.MatchPauseMenu;
                         break;

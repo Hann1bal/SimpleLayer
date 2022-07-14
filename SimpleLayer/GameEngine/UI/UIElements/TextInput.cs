@@ -9,9 +9,17 @@ public class TextInput : IDisposable
     public TextInputStates TextInputStates = TextInputStates.Unfocused;
     public readonly TextInputAttribute TextInputAttribute;
     public SDL.SDL_Rect TextInputRec;
-    public SDL.SDL_Rect TextInputSRec;
+    public SDL.SDL_Rect TextInputClipRec;
     public string Textbuffer = "";
+    public readonly int MaxLenght = 500;
+    public int CurentLenght = 0;
 
+    /// <summary>
+    /// Создает поле ввода текста.
+    /// Пока нет синхронизации для разной длины символов.
+    /// Нет каретки.
+    /// </summary>
+    /// <param name="textInputAttribute"></param>
     public TextInput(TextInputAttribute textInputAttribute)
     {
         TextInputAttribute = textInputAttribute;
@@ -20,13 +28,14 @@ public class TextInput : IDisposable
             h = TextInputAttribute.SizeAxisY, w = TextInputAttribute.SizeAxisX, x = TextInputAttribute.XStartPos,
             y = TextInputAttribute.YStartPos
         };
-        TextInputSRec = new SDL.SDL_Rect
-            {h = TextInputRec.h, w = 500, x = 0, y = 0};
+        TextInputClipRec = new SDL.SDL_Rect
+            {h = TextInputRec.h, w = 500, x = 0, y = TextInputRec.y};
     }
 
-    public void BufferString()
+    public void ClearBufferString()
     {
-        Textbuffer = Textbuffer.Remove(0, Textbuffer.Length);
+        Textbuffer = Textbuffer.Remove(0);
+        TextInputRec.x = 0;
     }
 
     public void Dispose()

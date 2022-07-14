@@ -91,10 +91,31 @@ public class EventMananager
                     switch (e.key.keysym.sym)
                     {
                         case SDL_Keycode.SDLK_LEFT:
-                            camera.Move(CameraDirectionState.Left);
+                            if (textInput.TextInputStates == TextInputStates.Focused)
+                            {
+                                if (textInput.TextInputRec.x < 0) textInput.TextInputRec.x += 20;
+                            }
+                            else
+                            {
+                                camera.Move(CameraDirectionState.Left);
+                            }
+
                             break;
                         case SDL_Keycode.SDLK_RIGHT:
-                            camera.Move(CameraDirectionState.Right);
+                            if (textInput.TextInputStates == TextInputStates.Focused)
+                            {
+                                if (textInput.Textbuffer.Length * 20 + textInput.TextInputRec.x != 500)
+                                {
+                                    textInput.TextInputRec.x -= 20;
+                                    Console.WriteLine(
+                                        $"{textInput.Textbuffer.Length * 20}, {textInput.TextInputRec.x}, {textInput.Textbuffer.Length * 20 + textInput.TextInputRec.x}");
+                                }
+                            }
+                            else
+                            {
+                                camera.Move(CameraDirectionState.Right);
+                            }
+
                             break;
                         case SDL_Keycode.SDLK_UP:
                             camera.Move(CameraDirectionState.Up);
@@ -114,15 +135,19 @@ public class EventMananager
                         case SDL_Keycode.SDLK_RETURN:
                             if (textInput.TextInputStates == TextInputStates.Focused && !_isShiftPressed)
                             {
+                                //TextHandler 
+                                textInput.ClearBufferString();
                                 SDL_StopTextInput();
                                 textInput.TextInputStates = TextInputStates.Unfocused;
                             }
+
                             break;
                         case SDL_Keycode.SDLK_BACKSPACE:
-                            if (textInput.TextInputStates == TextInputStates.Focused)
+                            if (textInput.TextInputStates == TextInputStates.Focused && textInput.Textbuffer.Length > 0)
                             {
                                 textInput.Textbuffer = textInput.Textbuffer.Remove(textInput.Textbuffer.Length - 1);
                             }
+
                             break;
                     }
 
