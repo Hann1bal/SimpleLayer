@@ -20,13 +20,12 @@ public class NetworkSignalR
     public async Task ConnectWithRetryAsync(CancellationToken token)
     {
         // Keep trying to until we can start or the token is canceled.
-        while (true)
-        {
+
             await connection.StartAsync(token);
             State = HubConnectionState.Connected;
             await connection.InvokeAsync("SendMessage", "RusichRu", "ping");
             Console.WriteLine("Connected");
-        }
+        
     }
 
     public async Task SendMessage(string message)

@@ -1,4 +1,5 @@
 using ASPServerSignalR;
+using ASPServerSignalR.DataStorage;
 using ASPServerSignalR.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<IMessageStorage, MessageStorage>();
+builder.Services.AddSingleton<IMatchStorage, MatchStorage>();
 builder.Services.AddSignalR(hubConfig =>
 {
     hubConfig.EnableDetailedErrors = true;
@@ -26,10 +29,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 app.UseHttpsRedirection();
 app.MapHub<ChatHub>("/ChatHub");
-app.MapHub<LobbyHub>("/ChatHub");
+app.MapHub<LobbyHub>("/LobbyHub");
 app.UseAuthorization();
 
 app.MapControllers();
