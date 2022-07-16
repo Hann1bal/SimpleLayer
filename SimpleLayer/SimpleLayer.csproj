@@ -21,6 +21,7 @@
         <Content Include="Data\**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.7" />
         <PackageReference Include="Sayers.SDL2.Core" Version="1.0.11" />
         <PackageReference Include="sdl2_ttf.nuget" Version="2.0.18" />
         <PackageReference Include="SDL_image" Version="1.2.12.3" />

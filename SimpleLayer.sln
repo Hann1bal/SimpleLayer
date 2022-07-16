@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLayer", "SimpleLayer\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{CCBCE6A6-72B0-4CB3-B139-E941B0F20841}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASPServerSignalR", "ASPServerSignalR\ASPServerSignalR.csproj", "{8FE0ABE2-3AC7-4CD2-821E-35AFD8FE2DF7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestClient", "TestClient\TestClient.csproj", "{BBA49DDD-60AF-4EAB-A435-52815D1860ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,6 +22,14 @@ Global
 		{CCBCE6A6-72B0-4CB3-B139-E941B0F20841}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCBCE6A6-72B0-4CB3-B139-E941B0F20841}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCBCE6A6-72B0-4CB3-B139-E941B0F20841}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FE0ABE2-3AC7-4CD2-821E-35AFD8FE2DF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FE0ABE2-3AC7-4CD2-821E-35AFD8FE2DF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FE0ABE2-3AC7-4CD2-821E-35AFD8FE2DF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FE0ABE2-3AC7-4CD2-821E-35AFD8FE2DF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBA49DDD-60AF-4EAB-A435-52815D1860ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBA49DDD-60AF-4EAB-A435-52815D1860ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBA49DDD-60AF-4EAB-A435-52815D1860ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBA49DDD-60AF-4EAB-A435-52815D1860ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

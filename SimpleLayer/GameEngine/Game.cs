@@ -47,7 +47,7 @@ public class Game : IDisposable
     private IntPtr _renderer;
 
     private TextInput _textInput = new TextInput(new TextInputAttribute()
-        {XStartPos = 0, SizeAxisX = 20, YStartPos = 600, SizeAxisY = 40});
+        {XStartPos = 5, SizeAxisX = 20, YStartPos = 600, SizeAxisY = 40});
 
     //Инициализация игровых менеджеров
     private RenderManager _rendererManager;

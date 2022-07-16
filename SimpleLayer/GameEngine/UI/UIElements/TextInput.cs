@@ -10,6 +10,7 @@ public class TextInput : IDisposable
     public readonly TextInputAttribute TextInputAttribute;
     public SDL.SDL_Rect TextInputRec;
     public SDL.SDL_Rect TextInputClipRec;
+    public SDL.SDL_Rect TextInputInnerClipRec;
     public string Textbuffer = "";
     public readonly int MaxLenght = 500;
     public int CurentLenght = 0;
@@ -30,6 +31,8 @@ public class TextInput : IDisposable
         };
         TextInputClipRec = new SDL.SDL_Rect
             {h = TextInputRec.h, w = 500, x = 0, y = TextInputRec.y};
+        TextInputInnerClipRec = new SDL.SDL_Rect()
+            {h = TextInputClipRec.h - 10, w = 490, x = 5, y = TextInputClipRec.y + 5};
     }
 
     public void ClearBufferString()

@@ -104,11 +104,9 @@ public class EventMananager
                         case SDL_Keycode.SDLK_RIGHT:
                             if (textInput.TextInputStates == TextInputStates.Focused)
                             {
-                                if (textInput.Textbuffer.Length * 20 + textInput.TextInputRec.x != 500)
+                                if (textInput.Textbuffer.Length * 20 + textInput.TextInputRec.x != 485)
                                 {
                                     textInput.TextInputRec.x -= 20;
-                                    Console.WriteLine(
-                                        $"{textInput.Textbuffer.Length * 20}, {textInput.TextInputRec.x}, {textInput.Textbuffer.Length * 20 + textInput.TextInputRec.x}");
                                 }
                             }
                             else
@@ -163,10 +161,19 @@ public class EventMananager
                 case SDL_EventType.SDL_TEXTINPUT:
                     unsafe
                     {
-                        textInput.Textbuffer += Encoding.UTF8.GetString(e.text.text, 1);
+                        if (textInput.TextInputRec.w >= textInput.MaxLenght &&
+                            textInput.TextInputRec.w > textInput.CurentLenght)
+                        {
+                            textInput.TextInputRec.x -= 20;
+                            textInput.CurentLenght = textInput.TextInputRec.w;
+                            textInput.Textbuffer += Encoding.UTF8.GetString(e.text.text, 1);
+                            Console.WriteLine(Encoding.UTF8.GetString(e.text.text, 1));
+                        }
+                        else
+                        {
+                            textInput.Textbuffer += Encoding.UTF8.GetString(e.text.text, 1);
+                        }
                     }
-
-                    Console.WriteLine(textInput.Textbuffer);
                     break;
 
                 case SDL_EventType.SDL_MOUSEWHEEL:

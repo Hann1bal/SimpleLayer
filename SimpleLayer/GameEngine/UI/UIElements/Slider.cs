@@ -16,4 +16,5 @@ public class Slider
         SliderMaxLenghtRect = sliderMaxLenghtRect;
         SliderAttribute = new SliderAttribute() {Color = color, CurrentPosition = 0};
     }
+    
 }

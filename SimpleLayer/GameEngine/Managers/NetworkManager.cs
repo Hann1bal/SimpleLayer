@@ -2,13 +2,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using SimpleLayer.GameEngine.Network.EventModels;
-
+using Microsoft.AspNetCore.SignalR.Client;
 namespace SimpleLayer.GameEngine.Managers;
 
 public class NetworkManager
 {
-    private const string _host = "45.151.144.128";
-    private const int _port = 27015;
+    private const string _host = "localhost";
+    private const int _port = 5001;
     private static NetworkManager _manager;
     private static string userName;
     private static TcpClient client;

@@ -122,8 +122,12 @@ public class HudManager
                                     break;
                             }
                         }
-
                         break;
+                    case "settingsTextButton":
+                        gameState = GameState.Settings;
+                        
+                        break;
+                        
                 }
 
                 break;
@@ -152,7 +156,8 @@ public class HudManager
                 }
 
                 break;
-
+            case ButtonType.Setting:
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }

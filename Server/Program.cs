@@ -14,7 +14,7 @@ internal class Program
         {
             server = new ServerCore();
             listenThread = new Thread(server.Listen);
-            listenThread.Start(); //старт потока
+            listenThread.Start(); //старт потока    
         }
         catch (Exception ex)
         {

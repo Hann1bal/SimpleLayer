@@ -45,7 +45,6 @@ public class ClientObject
                     Thread.Sleep(2000);
                     if (cnt < 5)
                     {
-                        Console.WriteLine(data);
                         server.BroadcastMessage(data, Id);
                         cnt++;
                         break;

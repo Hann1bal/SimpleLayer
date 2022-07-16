@@ -4,3 +4,7 @@
 /SimpleLayer/bin
 /Server/obj
 /Server/bin
+/ASPServerSignalR/obj
+/ASPServerSignalR/bin
+/TestClient/obj
+/TestClient/bin
