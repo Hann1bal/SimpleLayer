@@ -7,7 +7,7 @@ public class Broker
 {
     public Stack<BuildingEvent> Events;
     public Stack<BuildingEvent> ReceiveEvents;
-    public EventType Type;
+    public NetworkEventType Type;
 
     public Broker(Stack<BuildingEvent> events, Stack<BuildingEvent> receiveEvents)
     {

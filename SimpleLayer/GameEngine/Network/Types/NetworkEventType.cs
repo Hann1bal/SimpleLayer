@@ -1,6 +1,6 @@
 namespace SimpleLayer.GameEngine.Network.Types;
 
-public enum EventType
+public enum NetworkEventType
 {
     GameObjects = 0,
     StateEvent = 1,

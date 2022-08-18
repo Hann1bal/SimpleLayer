@@ -6,7 +6,7 @@ namespace SimpleLayer.GameEngine.Network.EventModels;
 public struct BuildingEvent
 {
     public int Id { get; init; }
-    public EventType Type { get; init; }
+    public NetworkEventType Type { get; init; }
     public string TargetType { get; init; }
     public string TargetName { get; init; }
     public int X { get; init; }

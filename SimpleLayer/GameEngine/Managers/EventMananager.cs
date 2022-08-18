@@ -1,4 +1,5 @@
 using System.Text;
+using SimpleLayer.GameEngine.Managers.Workers;
 using SimpleLayer.GameEngine.Objects;
 using SimpleLayer.GameEngine.Objects.MatchObjects;
 using SimpleLayer.GameEngine.Objects.States;
@@ -14,6 +15,8 @@ public class EventMananager
 {
     private static EventMananager _eventMananager;
     private bool _isShiftPressed;
+    private EventWorker _eventWorker = new EventWorker();
+    private EventType _eventType;
 
     private EventMananager()
     {
@@ -61,34 +64,20 @@ public class EventMananager
                             player.PlayerAttribute.Gold >=
                             currentBuilding.BuildingAttributes.BuildingCost)
                         {
-                            gameLogicManager.BuildingWorker.PlaceBuilding(e.button.x + camera.CameraRect.x,
-                                e.button.y + camera.CameraRect.y, ref currentBuilding, timer, ref player);
-                            if (!_isShiftPressed)
-                            {
-                                currentBuilding.Dispose();
-                                currentBuilding = null;
-                            }
-
+                            _eventType = EventType.PlaseBuilding;
+                            _eventWorker.RunJob(ref _eventType, ref gameLogicManager, ref e, ref camera,
+                                ref currentBuilding, ref timer, ref player, ref _isShiftPressed, ref buttons,
+                                ref hudManager, ref gameState, ref matchState);
                             return;
                         }
 
                         if (gameLogicManager.BuildingWorker.BuildingFoccused(e.button.x + camera.CameraRect.x,
                                 e.button.y + camera.CameraRect.y))
                         {
-                            currentBuilding =
-                                gameLogicManager.BuildingWorker.SelectBuilding(e.button.x + camera.CameraRect.x,
-                                    e.button.y + camera.CameraRect.y);
-                            if (currentBuilding != null)
-                            {
-                                currentBuilding.BuildingAttributes.BuildingPlaceState = BuildingPlaceState.Selected;
-                                foreach (var btns in buttons
-                                             .Where(c => c.ButtonAttribute.ButtonType == ButtonType.MatchHudButton))
-                                    if (currentBuilding.BuildingAttributes.BuildingType == BuildingType.Base &&
-                                        btns.hudBaseObjectAttribute.TextureName == "destroyTextButton")
-                                        btns.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
-                                    else
-                                        btns.ButtonAttribute.EoDButtonState = EoDButtonState.Enabled;
-                            }
+                            _eventType = EventType.SelectBuilding;
+                            _eventWorker.RunJob(ref _eventType, ref gameLogicManager, ref e, ref camera,
+                                ref currentBuilding, ref timer, ref player, ref _isShiftPressed, ref buttons,
+                                ref hudManager, ref gameState, ref matchState);
                         }
                     }
                     else
@@ -96,31 +85,38 @@ public class EventMananager
                         if (currentBuilding != null && currentBuilding.BuildingAttributes.BuildingPlaceState ==
                             BuildingPlaceState.NonPlaced)
                         {
-                            currentBuilding.Dispose();
-                            currentBuilding = null;
+                            _eventType = EventType.UnselectTemplate;
+                            _eventWorker.RunJob(ref _eventType, ref gameLogicManager, ref e, ref camera,
+                                ref currentBuilding, ref timer, ref player, ref _isShiftPressed, ref buttons,
+                                ref hudManager, ref gameState, ref matchState);
                         }
                         else if (currentBuilding != null && currentBuilding.BuildingAttributes.BuildingPlaceState ==
                                  BuildingPlaceState.Selected)
                         {
-                            gameLogicManager.BuildingWorker.UnSelectBuilding(ref currentBuilding);
-                            foreach (var btns in buttons
-                                         .Where(c => c.ButtonAttribute.ButtonType == ButtonType.MatchHudButton)
-                                         .ToList())
-                                btns.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
+                            _eventType = EventType.UnselectCurrentBuilding;
+                            _eventWorker.RunJob(ref _eventType, ref gameLogicManager, ref e, ref camera,
+                                ref currentBuilding, ref timer, ref player, ref _isShiftPressed, ref buttons,
+                                ref hudManager, ref gameState, ref matchState);
                         }
                     }
 
-                    foreach (var button in buttons.Where(b => b.ButtonAttribute.ButtonState
-                                                                  is ButtonState.Focused &&
-                                                              b.ButtonAttribute.EoDButtonState ==
-                                                              EoDButtonState.Enabled)
-                                 .ToArray())
-                        hudManager.PressButton(button, ref gameState, ref matchState, ref currentBuilding, ref timer);
+                    if (buttons.Any(b => b.ButtonAttribute.ButtonState
+                                               is ButtonState.Focused &&
+                                           b.ButtonAttribute.EoDButtonState ==
+                                           EoDButtonState.Enabled))
+                    {
+                        _eventType = EventType.PressButton;
+                        _eventWorker.RunJob(ref _eventType, ref gameLogicManager, ref e, ref camera,
+                            ref currentBuilding, ref timer, ref player, ref _isShiftPressed, ref buttons,
+                            ref hudManager, ref gameState, ref matchState);
+                    }
+
                     break;
                 case SDL_EventType.SDL_MOUSEBUTTONUP:
-                    foreach (var button in buttons.Where(b =>
-                                 b.ButtonAttribute.ButtonPressState == ButtonPressState.Pressed))
-                        hudManager.ReleaseButton(button, ref currentBuilding);
+                    _eventType = EventType.ReleaseButton;
+                    _eventWorker.RunJob(ref _eventType, ref gameLogicManager, ref e, ref camera,
+                        ref currentBuilding, ref timer, ref player, ref _isShiftPressed, ref buttons, ref hudManager,
+                        ref gameState, ref matchState);
                     break;
                 case SDL_EventType.SDL_KEYDOWN:
                     switch (e.key.keysym.sym)
