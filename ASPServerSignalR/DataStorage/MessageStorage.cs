@@ -1,30 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace ASPServerSignalR.DataStorage;
 
 public class MessageStorage : IMessageStorage
 {
-    private List<Tuple<string,string>> _messages;
-
-    public MessageStorage()
-    {
-        
-    }
+    private List<(string, string)> _messages;
 
     public async Task<bool> AddMessages(string username, string message)
     {
         try
         {
-            _messages.Add(new Tuple<string, string>( username,  message));
+            _messages.Add(new ValueTuple<string, string>(username, message));
             return true;
         }
         catch (Exception e)
         {
             return false;
-
-        } 
+        }
     }
 
     public async Task<List<string>> GetMessages()
@@ -32,10 +22,7 @@ public class MessageStorage : IMessageStorage
         try
         {
             var messagePair = new List<string>();
-            foreach (var pair in messagePair.ToArray())
-            {
-                messagePair.Add($"{pair[0]}: {pair[1]}");
-            }
+            foreach (var pair in messagePair.ToArray()) messagePair.Add($"{pair[0]}: {pair[1]}");
 
             return messagePair;
         }

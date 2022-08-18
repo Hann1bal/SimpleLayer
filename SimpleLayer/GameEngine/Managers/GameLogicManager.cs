@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
-using SDL2;
 using SimpleLayer.GameEngine.Managers.Workers;
 using SimpleLayer.GameEngine.Network.EventModels;
 using SimpleLayer.GameEngine.Objects;
+using SimpleLayer.GameEngine.Objects.MatchObjects;
 using SimpleLayer.GameEngine.UtilComponents;
 
 namespace SimpleLayer.GameEngine.Managers;
@@ -43,7 +43,6 @@ public class GameLogicManager
         return _gameLogicManager =
             new GameLogicManager(ref buildings, ref playersUnits, ref events, ref receiveEvents, ref level);
     }
-
 
     public void RunManager(object? o)
     {

@@ -1,20 +1,23 @@
 ﻿using SimpleLayer.GameEngine.Objects.Attributes;
+using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.Objects.Types;
 using SimpleLayer.GameEngine.Templates.ObjectsTemplate;
 
-namespace SimpleLayer.GameEngine.Objects;
+namespace SimpleLayer.GameEngine.Objects.MatchObjects;
 
 public class Building : GameBaseObject
 {
+    public AdventurerTemplate AdventurerTemplate = new();
     public BuildingAttributes BuildingAttributes;
-    public AdventurerTemplate AdventurerTemplate= new ();
-    public DwarfTemplate DwarfTemplate = new ();
+    public DwarfTemplate DwarfTemplate = new();
 
     public Building(string textureName, int xPos, int yPos,
-        int healthPpoint, int team, int timer, BuildingType buildingType, int hightSprite, int widthSprite) :
-        base(textureName, xPos, yPos, healthPpoint, team, ObjectType.Building, hightSprite, widthSprite)
+        int healthPpoint, int team, int timer, BuildingType buildingType, BuildingPlaceState buildingPlaceState,
+        int hightSprite, int widthSprite, int tier = 1) :
+        base(textureName, xPos, yPos, healthPpoint, team, ObjectType.Building, hightSprite, widthSprite, tier)
     {
-        BuildingAttributes = new BuildingAttributes {SpawnRate = 5, LastTick = timer, BuildingType = buildingType};
+        BuildingAttributes = new BuildingAttributes
+            {SpawnRate = 5, LastTick = timer, BuildingType = buildingType, BuildingPlaceState = buildingPlaceState};
     }
 
     public Unit Spawn()

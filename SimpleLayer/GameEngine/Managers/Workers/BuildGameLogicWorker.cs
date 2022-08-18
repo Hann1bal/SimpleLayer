@@ -2,6 +2,7 @@ using System.Numerics;
 using SimpleLayer.GameEngine.Network;
 using SimpleLayer.GameEngine.Network.EventModels;
 using SimpleLayer.GameEngine.Objects;
+using SimpleLayer.GameEngine.Objects.MatchObjects;
 using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.Objects.Types;
 using SimpleLayer.GameEngine.UtilComponents;
@@ -42,14 +43,67 @@ public class BuildGameLogicWorker
     public void InitPlayerBase()
     {
         BuildingBase = new Building("tron",
-            400, 1600, 50000, 1, 0, BuildingType.Base, 210, 210);
+            400, 1600, 50000, 1, 0, BuildingType.Base, BuildingPlaceState.Placed, 210, 210);
         BuildingBase2 = new Building("tron",
-            2800, 1600, 50000, 2, 0, BuildingType.Base, 210, 210);
+            2800, 1600, 50000, 2, 0, BuildingType.Base, BuildingPlaceState.NonPlaced, 210, 210);
         AddToQuadrant(BuildingBase);
         AddToQuadrant(BuildingBase2);
         _buildings.Add(BuildingBase);
         _buildings.Add(BuildingBase2);
     }
+
+    public Building? SelectBuilding(float x, float y)
+    {
+        var qudX = (int) Math.Round(x / 320);
+        var qudY = (int) Math.Round(y / 320);
+        if (_quadrant[new Vector2(qudX, qudY)]
+                .Where(c => c.BaseObjectAttribute.ObjectType == ObjectType.Building).ToList() != null &&
+            _quadrant[new Vector2(qudX, qudY)]
+                .Where(c => c.BaseObjectAttribute.ObjectType == ObjectType.Building).ToList().Count > 0)
+        {
+            var building = _quadrant[new Vector2(qudX, qudY)]
+                .Where(c => c.BaseObjectAttribute.ObjectType == ObjectType.Building).ToList();
+            foreach (var bld in building)
+                if (x > bld.BaseObjectAttribute.XPosition && x < bld.BaseObjectAttribute.XPosition + bld.SRect.w / 5 &&
+                    y > bld.BaseObjectAttribute.YPosition && y < bld.BaseObjectAttribute.YPosition + bld.SRect.h / 5)
+                {
+                    Console.WriteLine(1);
+                    return bld as Building;
+                }
+        }
+
+        return null;
+    }
+
+    public bool BuildingFoccused(float x, float y)
+    {
+        Building blds = null;
+        var qudX = (int) Math.Round(x / 320);
+        var qudY = (int) Math.Round(y / 320);
+        if (_quadrant[new Vector2(qudX, qudY)]
+                .Where(c => c.BaseObjectAttribute.ObjectType == ObjectType.Building).ToList() != null &&
+            _quadrant[new Vector2(qudX, qudY)]
+                .Where(c => c.BaseObjectAttribute.ObjectType == ObjectType.Building).ToList().Count > 0)
+        {
+            var building = _quadrant[new Vector2(qudX, qudY)]
+                .Where(c => c.BaseObjectAttribute.ObjectType == ObjectType.Building).ToList();
+            foreach (var bld in building.Where(bld => x > bld.BaseObjectAttribute.XPosition && x < bld.BaseObjectAttribute.XPosition + bld.SRect.w / 5 &&
+                                                      y > bld.BaseObjectAttribute.YPosition && y < bld.BaseObjectAttribute.YPosition + bld.SRect.h / 5))
+            {
+                blds = bld as Building;
+                return blds != null;
+            }
+        }
+
+        return false;
+    }
+
+    public void UnSelectBuilding(ref Building? currenBuilding)
+    {
+        currenBuilding.BuildingAttributes.BuildingPlaceState = BuildingPlaceState.Placed;
+        currenBuilding = null;
+    }
+
 
     public void PlaceBuilding(int x, int y, ref Building? currenBuilding, Time timer, ref Player player)
     {
@@ -66,7 +120,7 @@ public class BuildGameLogicWorker
         building = new Building(currenBuilding.BaseObjectAttribute.TextureName,
             _level._tileLevel[new Vector2(x / 32, y / 32)].SdlDRect.x,
             _level._tileLevel[new Vector2(x / 32, y / 32)].SdlDRect.y, currenBuilding.BaseObjectAttribute.HealthPoint,
-            team, timer.Seconds, BuildingType.Factory, 210, 210);
+            team, timer.Seconds, BuildingType.Factory, BuildingPlaceState.Placed, 210, 210);
         _buildings.Add(building);
         AddToQuadrant(building);
         _level._tileLevel[new Vector2(x / 32, y / 32)].TileAttribute.ContainBuilding = true;
@@ -120,9 +174,16 @@ public class BuildGameLogicWorker
         foreach (var building in _buildings.Where(building => building.BaseObjectAttribute.DoAState == DoAState.Dead)
                      .ToArray())
         {
+            _level._tileLevel[
+                    new Vector2(building.BaseObjectAttribute.XPosition / 32,
+                        building.BaseObjectAttribute.YPosition / 32)]
+                .TileAttribute.ContainBuilding = false;
+            _level._tileLevel[
+                    new Vector2(building.BaseObjectAttribute.XPosition / 32,
+                        building.BaseObjectAttribute.YPosition / 32)]
+                .TileAttribute.isPlacibleTile = true;
             _buildings.Remove(building);
             _quadrant[building.BaseObjectAttribute.LastQuadrant].Remove(building);
-
             building.Dispose();
         }
     }

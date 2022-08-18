@@ -1,9 +1,6 @@
 using ASPServerSignalR;
 using ASPServerSignalR.DataStorage;
 using ASPServerSignalR.Hubs;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,10 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IMessageStorage, MessageStorage>();
 builder.Services.AddSingleton<IMatchStorage, MatchStorage>();
-builder.Services.AddSignalR(hubConfig =>
-{
-    hubConfig.EnableDetailedErrors = true;
-});
+builder.Services.AddSignalR(hubConfig => { hubConfig.EnableDetailedErrors = true; });
 
 var app = builder.Build();
 

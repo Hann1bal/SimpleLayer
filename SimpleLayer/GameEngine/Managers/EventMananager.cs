@@ -1,6 +1,8 @@
 using System.Text;
 using SimpleLayer.GameEngine.Objects;
+using SimpleLayer.GameEngine.Objects.MatchObjects;
 using SimpleLayer.GameEngine.Objects.States;
+using SimpleLayer.GameEngine.Objects.Types;
 using SimpleLayer.GameEngine.UI.UIElements;
 using SimpleLayer.GameEngine.UI.UIStates;
 using SimpleLayer.GameEngine.UtilComponents;
@@ -54,7 +56,9 @@ public class EventMananager
                 case SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     if (e.button.button != 3)
                     {
-                        if (currentBuilding != null && player.PlayerAttribute.Gold >=
+                        if (currentBuilding != null &&
+                            currentBuilding.BuildingAttributes.BuildingPlaceState == BuildingPlaceState.NonPlaced &&
+                            player.PlayerAttribute.Gold >=
                             currentBuilding.BuildingAttributes.BuildingCost)
                         {
                             gameLogicManager.BuildingWorker.PlaceBuilding(e.button.x + camera.CameraRect.x,
@@ -64,14 +68,45 @@ public class EventMananager
                                 currentBuilding.Dispose();
                                 currentBuilding = null;
                             }
+
+                            return;
+                        }
+
+                        if (gameLogicManager.BuildingWorker.BuildingFoccused(e.button.x + camera.CameraRect.x,
+                                e.button.y + camera.CameraRect.y))
+                        {
+                            currentBuilding =
+                                gameLogicManager.BuildingWorker.SelectBuilding(e.button.x + camera.CameraRect.x,
+                                    e.button.y + camera.CameraRect.y);
+                            if (currentBuilding != null)
+                            {
+                                currentBuilding.BuildingAttributes.BuildingPlaceState = BuildingPlaceState.Selected;
+                                foreach (var btns in buttons
+                                             .Where(c => c.ButtonAttribute.ButtonType == ButtonType.MatchHudButton))
+                                    if (currentBuilding.BuildingAttributes.BuildingType == BuildingType.Base &&
+                                        btns.hudBaseObjectAttribute.TextureName == "destroyTextButton")
+                                        btns.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
+                                    else
+                                        btns.ButtonAttribute.EoDButtonState = EoDButtonState.Enabled;
+                            }
                         }
                     }
                     else
                     {
-                        if (currentBuilding != null)
+                        if (currentBuilding != null && currentBuilding.BuildingAttributes.BuildingPlaceState ==
+                            BuildingPlaceState.NonPlaced)
                         {
                             currentBuilding.Dispose();
                             currentBuilding = null;
+                        }
+                        else if (currentBuilding != null && currentBuilding.BuildingAttributes.BuildingPlaceState ==
+                                 BuildingPlaceState.Selected)
+                        {
+                            gameLogicManager.BuildingWorker.UnSelectBuilding(ref currentBuilding);
+                            foreach (var btns in buttons
+                                         .Where(c => c.ButtonAttribute.ButtonType == ButtonType.MatchHudButton)
+                                         .ToList())
+                                btns.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
                         }
                     }
 
@@ -85,35 +120,16 @@ public class EventMananager
                 case SDL_EventType.SDL_MOUSEBUTTONUP:
                     foreach (var button in buttons.Where(b =>
                                  b.ButtonAttribute.ButtonPressState == ButtonPressState.Pressed))
-                        hudManager.ReleaseButton(button);
+                        hudManager.ReleaseButton(button, ref currentBuilding);
                     break;
                 case SDL_EventType.SDL_KEYDOWN:
                     switch (e.key.keysym.sym)
                     {
                         case SDL_Keycode.SDLK_LEFT:
-                            if (textInput.TextInputStates == TextInputStates.Focused)
-                            {
-                                if (textInput.TextInputRec.x < 0) textInput.TextInputRec.x += 20;
-                            }
-                            else
-                            {
-                                camera.Move(CameraDirectionState.Left);
-                            }
-
+                            camera.Move(CameraDirectionState.Left);
                             break;
                         case SDL_Keycode.SDLK_RIGHT:
-                            if (textInput.TextInputStates == TextInputStates.Focused)
-                            {
-                                if (textInput.Textbuffer.Length * 20 + textInput.TextInputRec.x != 485)
-                                {
-                                    textInput.TextInputRec.x -= 20;
-                                }
-                            }
-                            else
-                            {
-                                camera.Move(CameraDirectionState.Right);
-                            }
-
+                            camera.Move(CameraDirectionState.Right);
                             break;
                         case SDL_Keycode.SDLK_UP:
                             camera.Move(CameraDirectionState.Up);
@@ -142,9 +158,7 @@ public class EventMananager
                             break;
                         case SDL_Keycode.SDLK_BACKSPACE:
                             if (textInput.TextInputStates == TextInputStates.Focused && textInput.Textbuffer.Length > 0)
-                            {
                                 textInput.Textbuffer = textInput.Textbuffer.Remove(textInput.Textbuffer.Length - 1);
-                            }
 
                             break;
                     }
@@ -161,19 +175,19 @@ public class EventMananager
                 case SDL_EventType.SDL_TEXTINPUT:
                     unsafe
                     {
-                        if (textInput.TextInputRec.w >= textInput.MaxLenght &&
-                            textInput.TextInputRec.w > textInput.CurentLenght)
+                        if (textInput.TextInputRec.w >= textInput.MaxLenght)
                         {
-                            textInput.TextInputRec.x -= 20;
-                            textInput.CurentLenght = textInput.TextInputRec.w;
+                            textInput.LastString = textInput.Textbuffer;
                             textInput.Textbuffer += Encoding.UTF8.GetString(e.text.text, 1);
-                            Console.WriteLine(Encoding.UTF8.GetString(e.text.text, 1));
+                            textInput.CurentString = textInput.Textbuffer;
+                            textInput.flag = true;
                         }
                         else
                         {
                             textInput.Textbuffer += Encoding.UTF8.GetString(e.text.text, 1);
                         }
                     }
+
                     break;
 
                 case SDL_EventType.SDL_MOUSEWHEEL:
@@ -181,6 +195,7 @@ public class EventMananager
 
                     break;
                 case SDL_EventType.SDL_MOUSEMOTION:
+                    Console.WriteLine($"x: {e.motion.x}, y:{e.motion.y}");
                     switch (e.motion.x)
                     {
                         case <= 2:

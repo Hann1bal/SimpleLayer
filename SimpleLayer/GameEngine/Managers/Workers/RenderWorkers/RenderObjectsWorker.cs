@@ -1,4 +1,5 @@
 using SimpleLayer.GameEngine.Objects;
+using SimpleLayer.GameEngine.Objects.MatchObjects;
 using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.UtilComponents;
 using static SDL2.SDL;
@@ -17,13 +18,15 @@ public class RenderObjectsWorker
     /// <param name="textureManager"></param>
     /// <param name="renderer"></param>
     public void RunWorker(List<Building> buildings, List<Unit> units, ref Camera camera, ref Texture textureManager,
-        ref IntPtr renderer, ref Building currentBuilding)
+        ref IntPtr renderer, ref Building? currentBuilding)
     {
         foreach (var building in buildings) RenderSingleObjects(building, ref camera, ref textureManager, ref renderer);
 
         foreach (var unit in units) RenderSingleObjects(unit, ref camera, ref textureManager, ref renderer);
 
-        if (currentBuilding != null) RenderSelectedObject(ref currentBuilding, ref renderer, ref textureManager);
+        if (currentBuilding != null &&
+            currentBuilding.BuildingAttributes.BuildingPlaceState == BuildingPlaceState.NonPlaced)
+            RenderSelectedObject(ref currentBuilding, ref renderer, ref textureManager);
     }
 
     private void RenderSingleObjects(GameBaseObject gameBaseObject, ref Camera camera, ref Texture textureManager,
@@ -92,7 +95,7 @@ public class RenderObjectsWorker
         SDL_RenderCopy(renderer, texture, ref gameBaseObject.SRect, ref newRectangle);
     }
 
-    private void RenderSelectedObject(ref Building selectedObject, ref IntPtr renderer, ref Texture textureManager)
+    private void RenderSelectedObject(ref Building? selectedObject, ref IntPtr renderer, ref Texture textureManager)
     {
         SDL_GetMouseState(out _x, out _y);
         SDL_Rect newRectangle = new()

@@ -1,18 +1,19 @@
-﻿using SDL2;
+﻿using System.Collections;
+using SDL2;
 using SimpleLayer.GameEngine.Objects.Attributes;
 using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.Objects.Types;
 
 namespace SimpleLayer.GameEngine.Objects;
 
-public class GameBaseObject : IGameBaseObject
+public class GameBaseObject : IGameBaseObject, IEnumerable
 {
     public GameBaseObjectAttribute BaseObjectAttribute;
     public SDL.SDL_Rect DRect;
     public SDL.SDL_Rect SRect;
 
     protected GameBaseObject(string textureName, int xPos, int yPos,
-        int healthPoint, int team, ObjectType objectType, int heightSprite, int widthSprite)
+        int healthPoint, int team, ObjectType objectType, int heightSprite, int widthSprite, int tier)
     {
         BaseObjectAttribute = new GameBaseObjectAttribute
         {
@@ -20,7 +21,8 @@ public class GameBaseObject : IGameBaseObject
             HealthPoint = healthPoint,
             Team = team,
             DoAState = DoAState.Alive,
-            ObjectType = objectType
+            ObjectType = objectType,
+            Tier = tier
         };
         SRect = new SDL.SDL_Rect
         {
@@ -36,6 +38,11 @@ public class GameBaseObject : IGameBaseObject
         };
         BaseObjectAttribute.XPosition = xPos;
         BaseObjectAttribute.YPosition = yPos;
+    }
+
+    public IEnumerator GetEnumerator()
+    {
+        throw new NotImplementedException();
     }
 
     public void Dispose()

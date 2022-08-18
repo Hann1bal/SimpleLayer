@@ -4,11 +4,9 @@ using SimpleLayer.GameEngine.Templates;
 
 namespace SimpleLayer.GameEngine.UtilComponents;
 
-
-
 public class Camera
 {
-    private readonly GameTemplate _gameTemplate = new GameTemplate();
+    private readonly GameTemplate _gameTemplate = new();
     public SDL.SDL_Rect CameraRect;
 
     public Camera()

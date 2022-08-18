@@ -7,10 +7,11 @@ namespace SimpleLayer.GameEngine.Objects;
 public class Unit : GameBaseObject, IDisposable
 {
     public UnitsAttributes UnitsAttributes;
-    
+
     public Unit(string textureName, int xPos, int yPos,
-        int healthPoint, int team, int damage, int maxMovingFrame, int maxAttackFrame, int hightSprite, int widthSprite) :
-        base(textureName, xPos, yPos, healthPoint, team, ObjectType.Unit,hightSprite, widthSprite)
+        int healthPoint, int team, int damage, int maxMovingFrame, int maxAttackFrame, int hightSprite,
+        int widthSprite, int tier = 1) :
+        base(textureName, xPos, yPos, healthPoint, team, ObjectType.Unit, hightSprite, widthSprite, tier)
     {
         UnitsAttributes = new UnitsAttributes
         {

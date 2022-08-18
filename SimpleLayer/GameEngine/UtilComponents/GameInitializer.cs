@@ -1,8 +1,9 @@
-using SimpleLayer.GameEngine.Managers;
-using SimpleLayer.GameEngine.Objects.States;
 using SDL2;
+using SimpleLayer.GameEngine.Managers;
 using SimpleLayer.GameEngine.Network.EventModels;
 using SimpleLayer.GameEngine.Objects;
+using SimpleLayer.GameEngine.Objects.MatchObjects;
+using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.Templates;
 using SimpleLayer.GameEngine.UI.UIElements;
 using static SDL2.SDL;
@@ -11,7 +12,7 @@ namespace SimpleLayer.GameEngine.UtilComponents;
 
 public class GameInitializer
 {
-    private GameTemplate _gameTemplate = new();
+    private readonly GameTemplate _gameTemplate = new();
 
     public void RunInitialize(ref IntPtr window, ref IntPtr renderer, ref GameState gameState, ref Hud hud,
         ref Texture textureManager, ref Level level, ref Camera camera, ref HudManager hudManager,

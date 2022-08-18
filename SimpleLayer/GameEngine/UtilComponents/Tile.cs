@@ -5,15 +5,15 @@ namespace SimpleLayer.GameEngine.UtilComponents;
 
 public class Tile : IDisposable
 {
-    public TileAttribute TileAttribute;
     public SDL.SDL_Rect SdlDRect;
     public SDL.SDL_Rect SdlSRect;
+    public TileAttribute TileAttribute;
 
     public Tile(SDL.SDL_Rect sdlDRect, SDL.SDL_Rect sdlSRect, IntPtr texture, int id)
     {
         SdlDRect = sdlDRect;
         SdlSRect = sdlSRect;
-        TileAttribute = new() {_texture = texture, Id = id};
+        TileAttribute = new TileAttribute {_texture = texture, Id = id};
     }
 
     public void Dispose()

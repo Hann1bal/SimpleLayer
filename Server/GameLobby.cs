@@ -1,14 +1,13 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Server;
 
 public class GameLobby
 {
     private readonly ConcurrentDictionary<Guid, List<Player>> _lobbyList;
+
     private readonly int _maxRetryCount;
+
     /*
      * ConcurrentDictionary<Guid, ConcurrentDictionary<Type, ConcurrentBag<Connection>>>
      * Type -> enum

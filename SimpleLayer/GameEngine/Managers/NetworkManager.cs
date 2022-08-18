@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using SimpleLayer.GameEngine.Network.EventModels;
-using Microsoft.AspNetCore.SignalR.Client;
+
 namespace SimpleLayer.GameEngine.Managers;
 
 public class NetworkManager

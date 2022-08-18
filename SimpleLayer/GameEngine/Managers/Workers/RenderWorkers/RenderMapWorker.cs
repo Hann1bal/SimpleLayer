@@ -26,16 +26,19 @@ public class RenderMapWorker
                             switch (level._tileLevel[new Vector2(x, y)].TileAttribute.ContainBuilding)
                             {
                                 case false:
-                                    SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)].TileAttribute._texture, 0, 100, 0);
+                                    SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)].TileAttribute._texture,
+                                        0, 100, 0);
                                     break;
                                 default:
-                                    SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)].TileAttribute._texture, 100, 0, 0);
+                                    SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)].TileAttribute._texture,
+                                        100, 0, 0);
                                     break;
                             }
 
                             break;
                         default:
-                            SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)].TileAttribute._texture, 100, 0, 0);
+                            SDL_SetTextureColorMod(level._tileLevel[new Vector2(x, y)].TileAttribute._texture, 100, 0,
+                                0);
                             break;
                     }
 

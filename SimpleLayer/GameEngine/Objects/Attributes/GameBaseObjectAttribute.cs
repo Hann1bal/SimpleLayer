@@ -9,6 +9,7 @@ public struct GameBaseObjectAttribute
     public string TextureName { get; set; }
     public int HealthPoint { get; set; }
     public int Team { get; set; }
+    public int Tier { get; set; }
     public DoAState DoAState { get; set; }
     public ObjectType ObjectType { get; init; }
     public Vector2 LastQuadrant;

@@ -17,7 +17,6 @@ namespace SimpleLayer.GameEngine.UtilComponents;
 
 public class Level
 {
-    public LevelMapTemplate LevelMapTemplate = new LevelMapTemplate();
     public const int LevelWidth = 3200;
     public const int LevelHeight = 3200;
     public const int LevelStartX = 0;
@@ -27,6 +26,7 @@ public class Level
     public int[,] _levelMatrix;
 
     public Dictionary<Vector2, Tile> _tileLevel = new();
+    public LevelMapTemplate LevelMapTemplate = new();
     public SDL_Rect SRect, DRect;
 
     public Level()

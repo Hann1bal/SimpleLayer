@@ -8,5 +8,4 @@ public enum UnitType : short
     Tank = 3,
     Minion = 4,
     Mechanical = 5
-    
 }

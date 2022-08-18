@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace ASPServerSignalR.DataStorage;
 
 public interface IMatchStorage

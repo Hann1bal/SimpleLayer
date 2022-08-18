@@ -1,4 +1,5 @@
 ﻿using SimpleLayer.GameEngine.Objects;
+using SimpleLayer.GameEngine.Objects.MatchObjects;
 using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.Objects.Types;
 using SimpleLayer.GameEngine.UI.UIElements;
@@ -10,8 +11,8 @@ namespace SimpleLayer.GameEngine.Managers;
 public class HudManager
 {
     private static HudManager _hudManager;
-    private readonly Hud _hud;
     private readonly List<Buttons> _buttons;
+    private readonly Hud _hud;
     private int _mouseX;
     private int _mouseY;
     private Texture _texture;
@@ -26,6 +27,8 @@ public class HudManager
         _hud.hudBaseObjectAttribute.GameObjectsLowerButtonsRow = 2;
         Init();
     }
+
+    public GameBaseObject? CurrentObject { get; set; }
 
     public static HudManager GetInstance(ref List<Buttons> buttons, ref Hud hud, ref GameState gameState)
     {
@@ -51,12 +54,18 @@ public class HudManager
             new SDL_Rect {h = 32, w = 32, x = 1770, y = 50}, ButtonType.Blank, null, EoDButtonState.Enabled));
         _buttons.Add(new Buttons("resume", new SDL_Rect {h = 32, w = 32, x = 0, y = 0},
             new SDL_Rect {h = 32, w = 32, x = 1770, y = 50}, ButtonType.Blank, null, EoDButtonState.Disabled));
+        _buttons.Add(new Buttons("upgradeTextButton", new SDL_Rect {h = 100, w = 150, x = 0, y = 0},
+            new SDL_Rect {h = 90, w = 150, x = 500, y = 900}, ButtonType.MatchHudButton, null,
+            EoDButtonState.Disabled));
+        _buttons.Add(new Buttons("destroyTextButton", new SDL_Rect {h = 100, w = 150, x = 0, y = 0},
+            new SDL_Rect {h = 90, w = 150, x = 500, y = 1000}, ButtonType.MatchHudButton, null,
+            EoDButtonState.Disabled));
         var cnt = 1;
         for (var i = 0; i < _hud.hudBaseObjectAttribute.GameObjectsLowerButtonsCol; i++)
         for (var j = 0; j < _hud.hudBaseObjectAttribute.GameObjectsLowerButtonsRow; j++)
         {
             _buttons.Add(new Buttons($"arab_{cnt}", new SDL_Rect {h = 210, w = 210, x = 0, y = 0},
-                new SDL_Rect {h = 90, w = 90, x = 1305 + i * 90, y = 825 + j * 90}, ButtonType.MatchHudButton,
+                new SDL_Rect {h = 90, w = 90, x = 1305 + i * 90, y = 825 + j * 90}, ButtonType.MatchBuildingButton,
                 (GameObjectsButtonType?) cnt, EoDButtonState.Enabled));
             cnt++;
         }
@@ -75,9 +84,23 @@ public class HudManager
         SDL_GetMouseState(out x, out y);
         switch (button.ButtonAttribute.ButtonType)
         {
-            case ButtonType.MatchHudButton:
+            case ButtonType.MatchBuildingButton:
                 current = new Building(button.hudBaseObjectAttribute.TextureName, x, y, 100, 0, timer.Seconds,
-                    BuildingType.Factory, 210, 210);
+                    BuildingType.Factory, BuildingPlaceState.NonPlaced, 210, 210);
+                break;
+            case ButtonType.MatchHudButton:
+                switch (button.hudBaseObjectAttribute.TextureName)
+                {
+                    case "upgradeTextButton":
+                        if (current.BaseObjectAttribute.Tier < 4) current.BaseObjectAttribute.Tier++;
+                        break;
+                    case "destroyTextButton":
+
+                        current.BaseObjectAttribute.DoAState = DoAState.Dead;
+                        current = null;
+                        break;
+                }
+
                 break;
             case ButtonType.MenuButton:
                 switch (button.hudBaseObjectAttribute.TextureName)
@@ -87,18 +110,19 @@ public class HudManager
                         matchState = MatchState.Play;
                         button.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
                         foreach (var btns in _buttons.Where(btb =>
-                                     btb.ButtonAttribute.ButtonType != ButtonType.MenuButton && btb.ButtonAttribute.ButtonType != ButtonType.Setting))
-                        {
+                                     btb.ButtonAttribute.ButtonType != ButtonType.MenuButton &&
+                                     btb.ButtonAttribute.ButtonType != ButtonType.Setting))
                             switch (matchState)
                             {
                                 case MatchState.Play when btns.hudBaseObjectAttribute.TextureName == "resume":
                                 case MatchState.Pause when btns.hudBaseObjectAttribute.TextureName == "pause":
                                     continue;
                                 default:
-                                    btns.ButtonAttribute.EoDButtonState = EoDButtonState.Enabled;
+                                    if (btns.ButtonAttribute.ButtonType == ButtonType.MatchHudButton && current == null)
+                                        btns.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
+                                    else btns.ButtonAttribute.EoDButtonState = EoDButtonState.Enabled;
                                     break;
                             }
-                        }
 
                         _buttons.First(btn => btn.hudBaseObjectAttribute.TextureName == "resumeTextButton")
                             .ButtonAttribute.EoDButtonState = EoDButtonState.Enabled;
@@ -110,8 +134,8 @@ public class HudManager
                         gameState = GameState.Match;
                         // button.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
                         foreach (var btns in _buttons.Where(btb =>
-                                     btb.ButtonAttribute.ButtonType != ButtonType.MenuButton && btb.ButtonAttribute.ButtonType != ButtonType.Setting))
-                        {
+                                     btb.ButtonAttribute.ButtonType != ButtonType.MenuButton &&
+                                     btb.ButtonAttribute.ButtonType != ButtonType.Setting))
                             switch (matchState)
                             {
                                 case MatchState.Play when btns.hudBaseObjectAttribute.TextureName == "resume":
@@ -121,13 +145,12 @@ public class HudManager
                                     btns.ButtonAttribute.EoDButtonState = EoDButtonState.Enabled;
                                     break;
                             }
-                        }
+
                         break;
                     case "settingsTextButton":
                         gameState = GameState.Settings;
-                        
+
                         break;
-                        
                 }
 
                 break;
@@ -137,7 +160,8 @@ public class HudManager
                     case "settings":
                         button.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
                         foreach (var btns in _buttons.Where(btb =>
-                                     btb.ButtonAttribute.ButtonType != ButtonType.MenuButton && btb.ButtonAttribute.ButtonType != ButtonType.Setting))
+                                     btb.ButtonAttribute.ButtonType != ButtonType.MenuButton &&
+                                     btb.ButtonAttribute.ButtonType != ButtonType.Setting))
                             btns.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
                         gameState = GameState.MatchPauseMenu;
                         break;
@@ -170,9 +194,18 @@ public class HudManager
         DoAction(button, ref gameState, ref matchState, ref current, ref timer);
     }
 
-    public void ReleaseButton(Buttons button)
+    public void ReleaseButton(Buttons button, ref Building? current)
     {
         button.ButtonAttribute.ButtonPressState = ButtonPressState.Released;
+        if (current == null)
+            foreach (var btns in _buttons
+                         .Where(c => c.ButtonAttribute.ButtonType == ButtonType.MatchHudButton)
+                         .ToList())
+            {
+                btns.ButtonAttribute.EoDButtonState = EoDButtonState.Disabled;
+                btns.ButtonAttribute.ButtonPressState = ButtonPressState.Released;
+                btns.ButtonAttribute.ButtonState = ButtonState.Unfocused;
+            }
     }
 
     //230 height 460-190
@@ -207,6 +240,11 @@ public class HudManager
         }
     }
 
+    private void CheckBuildingCollision()
+    {
+        SDL_GetMouseState(out _mouseX, out _mouseY);
+    }
+
     private void Update(ref GameState gameState, ref MatchState matchState)
     {
         switch (gameState)
@@ -223,16 +261,16 @@ public class HudManager
                 {
                     case MatchState.Play:
                         foreach (var button in _buttons.Where(button =>
-                                     button.ButtonAttribute.ButtonType is ButtonType.MatchHudButton
-                                         or ButtonType.Blank &&
+                                     button.ButtonAttribute.ButtonType is ButtonType.MatchBuildingButton
+                                         or ButtonType.Blank or ButtonType.MatchHudButton &&
                                      button.ButtonAttribute.EoDButtonState == EoDButtonState.Enabled))
                             CheckButtonCollision(button);
                         break;
 
                     case MatchState.Pause:
                         foreach (var button in _buttons.Where(button =>
-                                     button.ButtonAttribute.ButtonType is ButtonType.MatchHudButton
-                                         or ButtonType.Blank &&
+                                     button.ButtonAttribute.ButtonType is ButtonType.MatchBuildingButton
+                                         or ButtonType.Blank or ButtonType.MatchHudButton &&
                                      button.ButtonAttribute.EoDButtonState == EoDButtonState.Enabled))
                             CheckButtonCollision(button);
                         break;

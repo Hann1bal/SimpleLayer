@@ -1,7 +1,3 @@
-using System;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace SimpleLayer.GameEngine.Network;
@@ -21,11 +17,10 @@ public class NetworkSignalR
     {
         // Keep trying to until we can start or the token is canceled.
 
-            await connection.StartAsync(token);
-            State = HubConnectionState.Connected;
-            await connection.InvokeAsync("SendMessage", "RusichRu", "ping");
-            Console.WriteLine("Connected");
-        
+        await connection.StartAsync(token);
+        State = HubConnectionState.Connected;
+        await connection.InvokeAsync("SendMessage", "RusichRu", "ping");
+        Console.WriteLine("Connected");
     }
 
     public async Task SendMessage(string message)
@@ -33,8 +28,6 @@ public class NetworkSignalR
         if (connection.State != HubConnectionState.Disconnected)
             await connection.InvokeAsync("SendMessage", "RusichRu", message);
         else
-        {
             Console.WriteLine(connection.State);
-        }
     }
 }

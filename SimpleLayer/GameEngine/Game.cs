@@ -1,7 +1,7 @@
-﻿using SDL2;
-using SimpleLayer.GameEngine.Managers;
+﻿using SimpleLayer.GameEngine.Managers;
 using SimpleLayer.GameEngine.Network.EventModels;
 using SimpleLayer.GameEngine.Objects;
+using SimpleLayer.GameEngine.Objects.MatchObjects;
 using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.UI.UIAttributes;
 using SimpleLayer.GameEngine.UI.UIElements;
@@ -18,53 +18,55 @@ public class Game : IDisposable
     private const int FrameDelay = 1000 / Fps;
 
     // Инициализация списков игровых объектов
-    private List<Buttons> _buttons = new();
+    private readonly List<Buttons> _buttons = new();
+
     private Camera _camera;
 
     //Инициализация игровых объектов
     private Building? _currentBuilding;
-    private EventMananager? _eventManager;
+    private readonly EventMananager? _eventManager;
 
     //Инициализация событий
-    private Stack<BuildingEvent> _events = new();
-
-    //Инициализация игрового таймера
-    private uint _gameClock;
+    private readonly Stack<BuildingEvent> _events = new();
 
     // Инициализация системных объектов
     private uint _frameStart;
     private uint _frameTime;
+
+    //Инициализация игрового таймера
+    private uint _gameClock;
     private GameLogicManager _gameLogicManager;
     private GameState _gameState;
-    private Hud _hud;
+    private readonly Hud _hud;
+    private HudManager _hudManager;
     private bool _isPaused;
     private Level _level;
     private MatchState _matchState;
+    private readonly NetworkManager _networkManager;
     private Player _player = new();
-    private List<Building> _playersBuildings = new();
-    private List<Unit> _playersUnits = new();
-    private Stack<BuildingEvent> _receiveEvents = new();
-    private IntPtr _renderer;
-
-    private TextInput _textInput = new TextInput(new TextInputAttribute()
-        {XStartPos = 5, SizeAxisX = 20, YStartPos = 600, SizeAxisY = 40});
+    private readonly List<Building> _playersBuildings = new();
+    private readonly List<Unit> _playersUnits = new();
+    private readonly Stack<BuildingEvent> _receiveEvents = new();
+    private readonly IntPtr _renderer;
 
     //Инициализация игровых менеджеров
-    private RenderManager _rendererManager;
+    private readonly RenderManager _rendererManager;
     private bool _running = true;
-    private Texture _textureManager = new();
-    private TileManager _tileManager;
-    private NetworkManager _networkManager;
-    private HudManager _hudManager;
+
+    private TextInput _textInput = new(new TextInputAttribute
+        {XStartPos = 5, SizeAxisX = 20, YStartPos = 600, SizeAxisY = 40});
+
+    private readonly Texture _textureManager = new();
+    private readonly TileManager _tileManager;
 
     // Инициализация словарей игровых объектов
-    private Dictionary<int, Tile> _tiles = new();
-    private IntPtr _window;
+    private readonly Dictionary<int, Tile> _tiles = new();
+    private readonly IntPtr _window;
     private Time Timer = new();
 
     public Game()
     {
-        GameInitializer gameInitializer = new GameInitializer();
+        var gameInitializer = new GameInitializer();
         gameInitializer.RunInitialize(ref _window, ref _renderer, ref _gameState, ref _hud, ref _textureManager,
             ref _level, ref _camera, ref _hudManager, ref _buttons, ref _tileManager, ref _tiles, ref _rendererManager,
             ref _playersBuildings, ref _playersUnits, ref _events, ref _receiveEvents, ref _gameLogicManager,

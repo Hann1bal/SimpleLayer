@@ -15,7 +15,7 @@ public class Texture
                      "*.png", SearchOption.AllDirectories))
             _pathList.Add(Path.GetFileName(path).Split(".").First(), path);
     }
-    
+
     public void LoadTexture(IntPtr renderer)
     {
         GetAllTexturePath();
@@ -27,7 +27,9 @@ public class Texture
             {"playTextButton", "Play"},
             {"settingsTextButton", "Settings"},
             {"exitTextButton", "Exit"},
-            {"resumeTextButton", "Resume"}
+            {"upgradeTextButton", "Upgrade"},
+            {"resumeTextButton", "Resume"},
+            {"destroyTextButton", "Destroy"}
         };
         _openSans = SDL_ttf.TTF_OpenFont(".\\Data\\Fonts\\OpenSans.ttf", 400);
         foreach (var (key, value) in tmpTextAndName) InitTextButtonTexture(value, key, renderer);
@@ -54,7 +56,6 @@ public class Texture
         }
     }
 
-   
 
     public void ClearAllTexture()
     {
