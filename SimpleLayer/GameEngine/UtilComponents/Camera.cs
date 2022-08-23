@@ -1,10 +1,11 @@
 ﻿using SDL2;
+using SimpleLayer.GameEngine.Containers;
 using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.Templates;
 
 namespace SimpleLayer.GameEngine.UtilComponents;
 
-public class Camera
+public class Camera:ISystemBaseObjects
 {
     private readonly GameTemplate _gameTemplate = new();
     public SDL.SDL_Rect CameraRect;

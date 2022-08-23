@@ -1,8 +1,9 @@
 ﻿using SDL2;
+using SimpleLayer.GameEngine.Containers;
 
 namespace SimpleLayer.GameEngine.UtilComponents;
 
-public class Texture
+public class Texture:ISystemBaseObjects
 {
     private readonly Dictionary<string, string> _pathList = new();
     private IntPtr _openSans;

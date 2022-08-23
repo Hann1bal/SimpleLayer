@@ -1,4 +1,5 @@
-﻿using SimpleLayer.GameEngine.Objects;
+﻿using SimpleLayer.GameEngine.Containers;
+using SimpleLayer.GameEngine.Objects;
 using SimpleLayer.GameEngine.Objects.MatchObjects;
 using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.Objects.Types;
@@ -8,7 +9,7 @@ using static SDL2.SDL;
 
 namespace SimpleLayer.GameEngine.Managers;
 
-public class HudManager
+public class HudManager:IBaseManger
 {
     private static HudManager _hudManager;
     private readonly List<Buttons> _buttons;

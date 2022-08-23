@@ -1,10 +1,11 @@
 ﻿using System.Numerics;
 using SDL2;
+using SimpleLayer.GameEngine.Containers;
 using SimpleLayer.GameEngine.UtilComponents;
 
 namespace SimpleLayer.GameEngine.Managers;
 
-public class TileManager
+public class TileManager :IBaseManger
 {
     private static TileManager? _tileManager;
     private readonly Level _level;

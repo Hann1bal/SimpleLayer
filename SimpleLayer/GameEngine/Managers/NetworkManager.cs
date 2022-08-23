@@ -1,11 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
+using SimpleLayer.GameEngine.Containers;
 using SimpleLayer.GameEngine.Network.EventModels;
 
 namespace SimpleLayer.GameEngine.Managers;
 
-public class NetworkManager
+public class NetworkManager:IBaseManger
 {
     private const string _host = "localhost";
     private const int _port = 5001;

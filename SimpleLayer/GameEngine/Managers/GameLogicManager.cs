@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using SimpleLayer.GameEngine.Containers;
 using SimpleLayer.GameEngine.Managers.Workers;
 using SimpleLayer.GameEngine.Network.EventModels;
 using SimpleLayer.GameEngine.Objects;
@@ -7,7 +8,7 @@ using SimpleLayer.GameEngine.UtilComponents;
 
 namespace SimpleLayer.GameEngine.Managers;
 
-public class GameLogicManager
+public class GameLogicManager:IBaseManger
 {
     private static GameLogicManager _gameLogicManager;
     private readonly List<Building> _buildings;

@@ -1,8 +1,6 @@
 using SDL2;
+using SimpleLayer.GameEngine.Containers;
 using SimpleLayer.GameEngine.Managers;
-using SimpleLayer.GameEngine.Network.EventModels;
-using SimpleLayer.GameEngine.Objects;
-using SimpleLayer.GameEngine.Objects.MatchObjects;
 using SimpleLayer.GameEngine.Objects.States;
 using SimpleLayer.GameEngine.Templates;
 using SimpleLayer.GameEngine.UI.UIElements;
@@ -14,23 +12,13 @@ public class GameInitializer
 {
     private readonly GameTemplate _gameTemplate = new();
 
-    public void RunInitialize(ref IntPtr window, ref IntPtr renderer, ref GameState gameState, ref Hud hud,
-        ref Texture textureManager, ref Level level, ref Camera camera, ref HudManager hudManager,
-        ref List<Buttons> buttons,
-        ref TileManager tileManager, ref Dictionary<int, Tile> tiles,
-        ref RenderManager rendererManager,
-        ref List<Building> playersBuildings, ref List<Unit> playersUnits,
-        ref Stack<BuildingEvent> events, ref Stack<BuildingEvent> receiveEvents, ref GameLogicManager gameLogicManager,
-        ref EventMananager eventManager, ref MatchState matchState, ref NetworkManager networkManage,
-        ref TextInput textInput)
+    public void RunInitialize(ref GameStateContainer gameStateContainer, ref ManagersContainer managersContainer,
+        ref GameObjectsContainer gameObjectsContainer)
     {
         InitSdl(out window, out renderer);
-        InitGameObjects(ref renderer, ref gameState, ref hud, ref textureManager, ref level, ref camera);
-        InitGameManager(ref hudManager, ref buttons, ref hud, ref gameState, ref tileManager, ref tiles,
-            ref textureManager, ref level, ref rendererManager, ref renderer,
-            ref playersBuildings, ref camera, ref playersUnits,
-            ref events, ref receiveEvents, ref gameLogicManager,
-            ref eventManager, ref matchState, ref networkManage, ref textInput);
+        InitGameState(ref gameStateContainer);
+        InitGameObjects(ref renderer, ref gameState, ref hud, ref level, ref camera);
+        InitGameManager(ref managersContainer, ref  gameObjectsContainer );
     }
 
     private void InitSdl(out IntPtr window, out IntPtr renderer)
@@ -65,10 +53,9 @@ public class GameInitializer
             Console.WriteLine($"There was an issue creating the renderer. {SDL_ttf.TTF_GetError()}");
     }
 
-    private void InitGameObjects(ref IntPtr renderer, ref GameState gameState, ref Hud hud,
+    private void InitGameObjects(ref IntPtr renderer, ref Hud hud,
         ref Texture textureManager, ref Level level, ref Camera camera)
     {
-        gameState = GameState.Menu;
         hud = Hud.GetInstance("Hud", new SDL_Rect {x = 0, y = 0, h = 900, w = 1440},
             new SDL_Rect {x = 0, y = 0, w = _gameTemplate.ScreenWidth, h = _gameTemplate.ScreenHeight});
         textureManager.LoadTexture(renderer);
@@ -76,24 +63,23 @@ public class GameInitializer
         camera = new Camera();
     }
 
-    private void InitGameManager(ref HudManager hudManager, ref List<Buttons> buttons, ref Hud hud,
-        ref GameState gameState, ref TileManager tileManager, ref Dictionary<int, Tile> tiles,
-        ref Texture textureManager, ref Level level, ref RenderManager rendererManager, ref IntPtr renderer,
-        ref List<Building> playersBuildings, ref Camera camera, ref List<Unit> playersUnits,
-        ref Stack<BuildingEvent> events, ref Stack<BuildingEvent> receiveEvents, ref GameLogicManager gameLogicManager,
-        ref EventMananager eventManager, ref MatchState matchState, ref NetworkManager networkManager,
-        ref TextInput textInput)
+    private void InitGameState(ref GameStateContainer gameStateComponent)
     {
-        hudManager = HudManager.GetInstance(ref buttons, ref hud, ref gameState);
-        tileManager = TileManager.GetInstance(ref tiles, ref textureManager, ref level);
-        rendererManager = RenderManager.GetInstance(ref renderer, ref playersBuildings,
+        gameStateComponent.Add("GameState", GameState.Menu);
+        gameStateComponent.Add("MatchState", MatchState.Play);
+    }
+
+    private void InitGameManager(ref ManagersContainer managersContainer, ref GameObjectsContainer gameObjectsContainer)
+    {
+        managersContainer.Add("HudManager", HudManager.GetInstance(ref gameObjectsContainer.SystemBaseObjectsMap["buttons"] as List<Buttons>, ref hud, ref gameState));
+        managersContainer.Add("TileManager", TileManager.GetInstance(ref tiles, ref textureManager, ref level));
+        managersContainer.Add("TileManager", RenderManager.GetInstance(ref renderer, ref playersBuildings,
             ref textureManager, ref camera, ref level, ref buttons, ref hud, ref tiles, ref playersUnits,
-            ref textInput);
-        gameLogicManager = GameLogicManager.GetInstance(ref playersBuildings, ref playersUnits, ref events,
-            ref receiveEvents, ref level);
-        eventManager = EventMananager.GetInstance();
-        gameState = GameState.Menu;
-        matchState = MatchState.Play;
-        networkManager = NetworkManager.GetInstance(ref events, ref receiveEvents);
+            ref textInput));
+        managersContainer.Add("GameLogicManager", GameLogicManager.GetInstance(ref playersBuildings, ref playersUnits,
+            ref events,
+            ref receiveEvents, ref level));
+        managersContainer.Add("EventMananager", EventMananager.GetInstance());
+        managersContainer.Add("NetworkManager", NetworkManager.GetInstance(ref events, ref receiveEvents));
     }
 }

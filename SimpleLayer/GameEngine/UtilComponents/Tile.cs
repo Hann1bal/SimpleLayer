@@ -1,9 +1,10 @@
 ﻿using SDL2;
+using SimpleLayer.GameEngine.Containers;
 using SimpleLayer.GameEngine.Objects.Attributes;
 
 namespace SimpleLayer.GameEngine.UtilComponents;
 
-public class Tile : IDisposable
+public class Tile : ISystemBaseObjects,IDisposable
 {
     public SDL.SDL_Rect SdlDRect;
     public SDL.SDL_Rect SdlSRect;

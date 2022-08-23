@@ -1,4 +1,5 @@
 using System.Text;
+using SimpleLayer.GameEngine.Containers;
 using SimpleLayer.GameEngine.Managers.Workers;
 using SimpleLayer.GameEngine.Objects;
 using SimpleLayer.GameEngine.Objects.MatchObjects;
@@ -11,12 +12,13 @@ using static SDL2.SDL;
 
 namespace SimpleLayer.GameEngine.Managers;
 
-public class EventMananager
+public class EventMananager:IBaseManger
 {
     private static EventMananager _eventMananager;
     private bool _isShiftPressed;
     private EventWorker _eventWorker = new EventWorker();
     private EventType _eventType;
+    public string ManagerName { get; set; }
 
     private EventMananager()
     {

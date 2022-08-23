@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using SimpleLayer.GameEngine.Containers;
 using SimpleLayer.GameEngine.Templates.LevelTemplates;
 using static SDL2.SDL;
 
@@ -15,7 +16,7 @@ namespace SimpleLayer.GameEngine.UtilComponents;
 //x = 404
 //y = 231
 
-public class Level
+public class Level:ISystemBaseObjects
 {
     public const int LevelWidth = 3200;
     public const int LevelHeight = 3200;

@@ -1,4 +1,5 @@
 ﻿using SDL2;
+using SimpleLayer.GameEngine.Containers;
 using SimpleLayer.GameEngine.Managers.Workers.RenderWorkers;
 using SimpleLayer.GameEngine.Objects;
 using SimpleLayer.GameEngine.Objects.MatchObjects;
@@ -10,7 +11,7 @@ using static SDL2.SDL;
 
 namespace SimpleLayer.GameEngine.Managers;
 
-public class RenderManager
+public class RenderManager:IBaseManger
 {
     //System objects
     private static RenderManager _renderManager;

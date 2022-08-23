@@ -1,4 +1,5 @@
-﻿using SimpleLayer.GameEngine.Managers;
+﻿using SimpleLayer.GameEngine.Containers;
+using SimpleLayer.GameEngine.Managers;
 using SimpleLayer.GameEngine.Network.EventModels;
 using SimpleLayer.GameEngine.Objects;
 using SimpleLayer.GameEngine.Objects.MatchObjects;
@@ -19,7 +20,6 @@ public class Game : IDisposable
 
     // Инициализация списков игровых объектов
     private readonly List<Buttons> _buttons = new();
-
     private Camera _camera;
 
     //Инициализация игровых объектов
@@ -64,13 +64,19 @@ public class Game : IDisposable
     private readonly IntPtr _window;
     private Time Timer = new();
 
+    // Инициализация контейнеров
+    private GameStateContainer _gameStateContainer = new GameStateContainer();
+    private ManagersContainer _managersContainer = new ManagersContainer();
+    /*
+     ref _window, ref _renderer, ref _gameState, ref _hud, ref _textureManager,
+            ref _level, ref _camera, ref _hudManager, ref _buttons, ref _tileManager, ref _tiles, ref _rendererManager,
+            ref _playersBuildings, ref _playersUnits, ref _events, ref _receiveEvents, ref _gameLogicManager,
+            ref _eventManager, ref _matchState, ref _networkManager, ref _textInput
+            */
     public Game()
     {
         var gameInitializer = new GameInitializer();
-        gameInitializer.RunInitialize(ref _window, ref _renderer, ref _gameState, ref _hud, ref _textureManager,
-            ref _level, ref _camera, ref _hudManager, ref _buttons, ref _tileManager, ref _tiles, ref _rendererManager,
-            ref _playersBuildings, ref _playersUnits, ref _events, ref _receiveEvents, ref _gameLogicManager,
-            ref _eventManager, ref _matchState, ref _networkManager, ref _textInput);
+        gameInitializer.RunInitialize(ref _managersContainer, ref _gameStateContainer);
     }
 
     public void Dispose()
